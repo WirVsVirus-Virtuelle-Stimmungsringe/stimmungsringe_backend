@@ -35,6 +35,13 @@ public class MockFactory {
             users.add(user);
         }
 
+        {
+            User user = new User(UUID.fromString("a948406a-b855-46ba-b907-321d2d384622"));
+            user.setName("Noob");
+            user.setRoles(Lists.newArrayList(Role.ARBEITNEHMER, Role.PARTNER));
+            users.add(user);
+        }
+
         return users;
     }
 
