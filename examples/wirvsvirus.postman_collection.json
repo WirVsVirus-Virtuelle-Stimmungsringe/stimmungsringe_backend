@@ -11,12 +11,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/sample",
+					"raw": "http://localhost:5000/stimmungsring/sample",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"sample"
@@ -47,12 +47,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/registration/new-user",
+					"raw": "http://localhost:5000/stimmungsring/registration/new-user",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"registration",
@@ -84,12 +84,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/registration/new-user",
+					"raw": "http://localhost:5000/stimmungsring/registration/new-user",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"registration",
@@ -111,12 +111,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/mystatuspage",
+					"raw": "http://localhost:5000/stimmungsring/mystatuspage",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"mystatuspage"
@@ -131,12 +131,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/images/avatar/cafecafe-b855-46ba-b907-321d2d38bee1",
+					"raw": "http://localhost:5000/stimmungsring/images/avatar/cafecafe-b855-46ba-b907-321d2d38bee1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"images",
@@ -159,12 +159,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/otherstatuspage/12340000-b855-46ba-b907-321d2d38feeb",
+					"raw": "http://localhost:5000/stimmungsring/otherstatuspage/12340000-b855-46ba-b907-321d2d38feeb",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"otherstatuspage",
@@ -193,12 +193,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/otherstatuspage/12340000-b855-46ba-b907-321d2d38feeb",
+					"raw": "http://localhost:5000/stimmungsring/otherstatuspage/12340000-b855-46ba-b907-321d2d38feeb",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"otherstatuspage",
@@ -227,12 +227,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/otherstatuspage/cafecafe-b855-46ba-b907-321d2d38beef",
+					"raw": "http://localhost:5000/stimmungsring/otherstatuspage/cafecafe-b855-46ba-b907-321d2d38beef",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"otherstatuspage",
@@ -276,12 +276,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/mystatus",
+					"raw": "http://localhost:5000/stimmungsring/mystatus",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"mystatus"
@@ -302,12 +302,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/stimmungsring/dashboard",
+					"raw": "http://localhost:5000/stimmungsring/dashboard",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "5000",
 					"path": [
 						"stimmungsring",
 						"dashboard"
