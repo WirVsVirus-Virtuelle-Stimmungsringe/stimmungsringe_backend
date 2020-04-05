@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.rest;
 
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserRepository;
 import de.wirvsvirus.hack.rest.dto.UpdateStatusRequest;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/mystatus")
 @Slf4j
@@ -23,8 +26,10 @@ public class StatusController {
     private UserRepository userRepository;
 
     @PutMapping
-    public void updateStatus(@RequestBody UpdateStatusRequest request) {
+    public void updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
         final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        Preconditions.checkNotNull(request.getSentimentCode(), "sentiment must not be null");
+
 
         log.info("Updating status for user {} to {}", currentUser.getId(), request.getSentimentCode());
         userRepository.updateStatus(currentUser.getId(), request.getSentimentCode());
