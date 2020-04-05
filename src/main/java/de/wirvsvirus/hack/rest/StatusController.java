@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.rest;
 
 
+import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserRepository;
 import de.wirvsvirus.hack.rest.dto.UpdateStatusRequest;
 import de.wirvsvirus.hack.spring.UserInterceptor;
@@ -23,7 +24,10 @@ public class StatusController {
 
     @PutMapping
     public void updateStatus(@RequestBody UpdateStatusRequest request) {
-        userRepository.updateStatus(UserInterceptor.getCurrentUserId(), request.getSentimentCode());
+        final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+
+        log.info("Updating status for user {} to {}", currentUser.getId(), request.getSentimentCode());
+        userRepository.updateStatus(currentUser.getId(), request.getSentimentCode());
     }
 
 }
