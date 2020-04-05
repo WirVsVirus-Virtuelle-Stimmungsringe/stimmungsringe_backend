@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4e1a1e86-6b08-4eed-a8cd-db2215d2cd17",
+		"_postman_id": "5376f01a-92b2-4040-b0c0-a743e3d205df",
 		"name": "wirvsvirus",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -328,7 +328,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://wvsvhackvirtuellestimmungsringe-env.eba-eug7bzt6.eu-central-1.elasticbeanstalk.com/stimmungsring/sample",
+					"raw": "http://wvsvhackvirtuellestimmungsringe-env.eba-eug7bzt6.eu-central-1.elasticbeanstalk.com/stimmungsring/dashboard",
 					"protocol": "http",
 					"host": [
 						"wvsvhackvirtuellestimmungsringe-env",
@@ -339,7 +339,7 @@
 					],
 					"path": [
 						"stimmungsring",
-						"sample"
+						"dashboard"
 					]
 				}
 			},

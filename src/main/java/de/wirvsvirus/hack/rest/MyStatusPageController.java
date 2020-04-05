@@ -33,8 +33,7 @@ public class MyStatusPageController {
 
         final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
-        final SentimentStatusResponse sentimentStatusResponse = new SentimentStatusResponse();
-        sentimentStatusResponse.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(currentUser.getId())));
+        final Sentiment sentiment = userRepository.findSentimentByUserId(currentUser.getId());
         final List<SuggestionResponse> suggestions = new ArrayList<>();
 
         currentUser.getRoles().stream()
@@ -46,7 +45,7 @@ public class MyStatusPageController {
             }).forEach(suggestions::add);
 
         response.setUser(me);
-        response.setSentimentStatus(sentimentStatusResponse);
+        response.setSentiment(sentiment);
         response.setSuggestions(suggestions);
 
         return response;

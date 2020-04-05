@@ -1,17 +1,20 @@
 package de.wirvsvirus.hack.rest;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.model.SentimentVO;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserRepository;
-import de.wirvsvirus.hack.rest.dto.*;
+import de.wirvsvirus.hack.rest.dto.OtherStatusPageResponse;
+import de.wirvsvirus.hack.rest.dto.SuggestionResponse;
+import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
 import de.wirvsvirus.hack.service.RoleBasedTextSuggestionsService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -42,9 +45,8 @@ public class OtherStatusPageController {
         OtherStatusPageResponse response = new OtherStatusPageResponse();
 
         final UserMinimalResponse me = Mappers.mapResponseFromDomain(otherUser);
+        final Sentiment sentiment = userRepository.findSentimentByUserId(otherUserId);
 
-        final SentimentStatusResponse sentimentStatusResponse = new SentimentStatusResponse();
-        sentimentStatusResponse.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(otherUserId)));
         final List<SuggestionResponse> suggestions = new ArrayList<>();
 
         otherUser.getRoles().stream()
@@ -56,7 +58,7 @@ public class OtherStatusPageController {
                 }).forEach(suggestions::add);
 
         response.setUser(me);
-        response.setSentimentStatus(sentimentStatusResponse);
+        response.setSentiment(sentiment);
         response.setSuggestions(suggestions);
 
         return response;

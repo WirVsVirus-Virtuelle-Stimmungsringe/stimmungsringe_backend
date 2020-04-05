@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest.dto;
 
+import de.wirvsvirus.hack.model.Sentiment;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,6 +9,6 @@ public class MyTileResponse {
 
     private UserMinimalResponse user;
 
-    private SentimentStatusResponse sentimentStatus;
+    private Sentiment sentiment;
 
 }

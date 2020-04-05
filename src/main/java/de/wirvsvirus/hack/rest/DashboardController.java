@@ -1,11 +1,12 @@
 package de.wirvsvirus.hack.rest;
 
-import com.google.common.collect.Lists;
-import de.wirvsvirus.hack.model.SentimentVO;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserRepository;
-import de.wirvsvirus.hack.rest.dto.*;
+import de.wirvsvirus.hack.rest.dto.DashboardResponse;
+import de.wirvsvirus.hack.rest.dto.MyTileResponse;
+import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
+import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +34,11 @@ public class DashboardController {
         {
             final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
-            final SentimentStatusResponse sentiment = new SentimentStatusResponse();
-            sentiment.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(currentUser.getId())));
+            final Sentiment sentiment = userRepository.findSentimentByUserId(currentUser.getId());
 
             MyTileResponse myTileResponse = new MyTileResponse();
             myTileResponse.setUser(me);
-            myTileResponse.setSentimentStatus(sentiment);
+            myTileResponse.setSentiment(sentiment);
 
             response.setMyTile(myTileResponse);
         }
@@ -49,13 +49,11 @@ public class DashboardController {
         for (final User otherUser : otherUsersInGroup) {
             final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser);
 
-            final SentimentStatusResponse sentiment = new SentimentStatusResponse();
-
-            sentiment.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(otherUser.getId())));
+            final Sentiment sentiment = userRepository.findSentimentByUserId(otherUser.getId());
 
             OtherTileResponse tileResponse = new OtherTileResponse();
             tileResponse.setUser(other);
-            tileResponse.setSentimentStatus(sentiment);
+            tileResponse.setSentiment(sentiment);
 
             otherTiles.add(tileResponse);
         }

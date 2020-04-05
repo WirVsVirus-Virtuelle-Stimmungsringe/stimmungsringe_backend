@@ -1,8 +1,7 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.Role;
-import de.wirvsvirus.hack.model.SentimentVO;
-import lombok.Builder;
+import de.wirvsvirus.hack.model.Sentiment;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
@@ -20,6 +19,6 @@ public class RegisterUserRequest {
     private List<Role> roles;
 
     @NotNull
-    private SentimentVO sentiment;
+    private Sentiment sentiment;
 
 }
