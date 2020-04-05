@@ -56,7 +56,7 @@ public class UserRepository {
         return sentiment;
     }
 
-    public void updateStatus(final UUID userId, final Sentiment sentimentCode) {
-        sentimentsByUser.put(userId, sentimentCode);
+    public void updateStatus(final UUID userId, final Sentiment sentiment) {
+        sentimentsByUser.put(userId, sentiment);
     }
 }
