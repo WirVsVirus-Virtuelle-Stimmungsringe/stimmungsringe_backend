@@ -48,7 +48,11 @@ public class OnboardingService {
 
         final Optional<String> group = onboardingRepository.findGroupNameByUser(user.getId());
         if (group.isPresent()) {
-            throw new IllegalStateException("User is already member of a group - " + group.get());
+            if (group.get().equals(groupName)) {
+                log.info("User is already member of group");
+            } else {
+                throw new IllegalStateException("User is already member of a group - " + group.get());
+            }
         } else {
             onboardingRepository.joinGroup(groupName, user.getId());
         }
@@ -64,6 +68,7 @@ public class OnboardingService {
             throw new IllegalStateException("Cannot start group - group name already taken");
         } else {
             onboardingRepository.startNewGroup(groupName);
+            onboardingRepository.joinGroup(groupName, user.getId());
         }
 
     }
