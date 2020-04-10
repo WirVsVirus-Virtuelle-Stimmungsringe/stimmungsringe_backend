@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class UserRepository {
+public class OnboardingRepository {
 
     private List<User> mockDb = new ArrayList<>();
     private Map<UUID, Sentiment> sentimentsByUser = new HashMap<>();
@@ -21,6 +21,11 @@ public class UserRepository {
     @PostConstruct
     public void initMock() {
         mockDb = MockFactory.allUsers();
+
+        startNewGroup("Rasselbande");
+        joinGroup("Rasselbande", UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
+        joinGroup("Rasselbande", UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
+        joinGroup("Rasselbande", UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
         mockDb.forEach(user -> {
             final Sentiment sentiment = MockFactory.sentimentByUser(user.getId());
@@ -36,6 +41,23 @@ public class UserRepository {
             StreamEx.of(mockDb)
                 .collect(MoreCollectors.onlyOne(user -> user.getId().equals(userId)))
             .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
+    }
+
+    public static Optional<String> findGroupNameForUser(final UUID userId) {
+        return Optional.ofNullable(MockFactory.groupByUserId.get(userId));
+    }
+
+    public void startNewGroup(String groupName) {
+        Preconditions.checkState(groupName.length() >= 3);
+        Preconditions.checkState(!MockFactory.allGroups.contains(groupName), "Group <%s> already exists", groupName);
+
+        MockFactory.allGroups.add(groupName);
+    }
+
+    public void joinGroup(String groupName, UUID userId) {
+        Preconditions.checkState(MockFactory.allGroups.contains(groupName), "Group <%s> does not exist", groupName);
+
+        MockFactory.groupByUserId.put(userId, groupName);
     }
 
     /**
@@ -58,5 +80,11 @@ public class UserRepository {
 
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         sentimentsByUser.put(userId, sentiment);
+    }
+
+
+    public Optional<String> findGroupNameByUser(final UUID userId) {
+        return Optional.ofNullable(
+            MockFactory.groupByUserId.get(userId));
     }
 }

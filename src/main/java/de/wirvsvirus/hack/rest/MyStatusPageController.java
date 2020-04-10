@@ -22,7 +22,7 @@ public class MyStatusPageController {
     private RoleBasedTextSuggestionsService suggestionsService;
 
     @Autowired
-    private UserRepository userRepository;
+    private OnboardingRepository userRepository;
 
     @GetMapping
     public MyStatusPageResponse viewMyStatusPage() {

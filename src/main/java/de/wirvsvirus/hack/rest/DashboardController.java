@@ -2,7 +2,7 @@ package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.model.UserRepository;
+import de.wirvsvirus.hack.model.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.DashboardResponse;
 import de.wirvsvirus.hack.rest.dto.MyTileResponse;
 import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
@@ -23,7 +23,7 @@ import java.util.List;
 public class DashboardController {
 
     @Autowired
-    private UserRepository userRepository;
+    private OnboardingRepository userRepository;
 
     @GetMapping
     public DashboardResponse dashboardView() {

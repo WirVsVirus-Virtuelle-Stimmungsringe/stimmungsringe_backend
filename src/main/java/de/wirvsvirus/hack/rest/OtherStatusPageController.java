@@ -3,7 +3,7 @@ package de.wirvsvirus.hack.rest;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.model.UserRepository;
+import de.wirvsvirus.hack.model.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.OtherStatusPageResponse;
 import de.wirvsvirus.hack.rest.dto.SuggestionResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
@@ -27,7 +27,7 @@ import java.util.UUID;
 public class OtherStatusPageController {
 
     @Autowired
-    private UserRepository userRepository;
+    private OnboardingRepository userRepository;
 
     @Autowired
     private RoleBasedTextSuggestionsService suggestionsService;
