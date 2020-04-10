@@ -47,7 +47,7 @@ public class OnboardingController {
         }
     }
 
-    @PostMapping("/group/join")
+    @PutMapping("/group/join")
     public void joinGroup(@RequestBody @Valid final JoinGroupRequest request) {
         final User user = onboardingRepository.findByUserId(UserInterceptor.getCurrentUserId());
 
