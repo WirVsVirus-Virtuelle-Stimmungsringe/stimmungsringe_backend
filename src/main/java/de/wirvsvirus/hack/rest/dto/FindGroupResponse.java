@@ -5,10 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class SigninUserResponse {
+public class FindGroupResponse {
 
-    private String userId;
-
-    private boolean hasGroup;
     private String groupName;
 }

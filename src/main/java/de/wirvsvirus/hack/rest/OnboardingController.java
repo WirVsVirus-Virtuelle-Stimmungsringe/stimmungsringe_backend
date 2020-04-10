@@ -2,18 +2,17 @@ package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.rest.dto.JoinGroupRequest;
-import de.wirvsvirus.hack.rest.dto.SigninUserRequest;
-import de.wirvsvirus.hack.rest.dto.SigninUserResponse;
-import de.wirvsvirus.hack.rest.dto.StartNewGroupRequest;
+import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/onboarding")
@@ -30,10 +29,12 @@ public class OnboardingController {
     public SigninUserResponse signin(@RequestBody @Valid final SigninUserRequest request) {
 
         final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
+        final String userId = signinResult.getUserId().toString();
 
         if (signinResult.getGroupName().isPresent()) {
             return
                     SigninUserResponse.builder()
+                            .userId(userId)
                             .hasGroup(true)
                             .groupName(signinResult.getGroupName().get())
                             .build();
@@ -41,6 +42,7 @@ public class OnboardingController {
         } else {
             return
                     SigninUserResponse.builder()
+                            .userId(userId)
                             .hasGroup(false)
                             .build();
 
@@ -60,6 +62,22 @@ public class OnboardingController {
         final User user = onboardingRepository.findByUserId(UserInterceptor.getCurrentUserId());
 
         onboardingService.startNewGroup(user, request.getGroupName());
+
+    }
+
+    @PostMapping("/group-by-name")
+    public ResponseEntity getGroupByName(@RequestBody @Valid final FindGroupRequest request) {
+
+        final Optional<String> match =
+            onboardingRepository.findGroupByName(request.getGroupName());
+
+        if (match.isPresent()) {
+            return ResponseEntity.ok(
+                    FindGroupResponse.builder().groupName(match.get()).build());
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+
 
     }
 

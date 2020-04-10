@@ -87,4 +87,13 @@ public class OnboardingRepository {
         return Optional.ofNullable(
             MockFactory.groupByUserId.get(userId));
     }
+
+    public Optional<String> findGroupByName(final String groupName) {
+        final boolean found = MockFactory.allGroups.contains(groupName);
+        if (found) {
+            return Optional.ofNullable(groupName);
+        } else {
+            return Optional.empty();
+        }
+    }
 }
