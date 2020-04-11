@@ -40,7 +40,7 @@ public class OtherStatusPageController {
             !otherUserId.equals(UserInterceptor.getCurrentUserId()),
                 "Cannot have others' perspective on your own page");
 
-        final User otherUser = userRepository.findByUserId(otherUserId);
+        final User otherUser = userRepository.lookupUserById(otherUserId);
 
         OtherStatusPageResponse response = new OtherStatusPageResponse();
 

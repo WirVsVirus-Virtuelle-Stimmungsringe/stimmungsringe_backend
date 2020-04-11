@@ -16,6 +16,7 @@ public class UserData {
 
     private UUID userId;
     private String name;
+    private String deviceIdentifier;
     private String sentiment;
 
     @DynamoDBHashKey
@@ -34,6 +35,15 @@ public class UserData {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @DynamoDBAttribute
+    public String getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    public void setDeviceIdentifier(final String deviceIdentifier) {
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @DynamoDBAttribute

@@ -1,7 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
@@ -32,55 +32,61 @@ public class OnboardingService {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setName("noname");
             newUser.setRoles(Collections.emptyList());
-            MockFactory.allUsers.put(newUser.getUserId(), newUser);
-            throw new IllegalStateException("user not found by device");
+            onboardingRepository.createNewUser(newUser);
+            return UserSignedInDto.builder()
+                    .userId(newUser.getUserId())
+                    .groupName(Optional.empty())
+                    .build();
         } else {
-            final Optional<String> groupName = onboardingRepository.findGroupNameForUser(
+            final Optional<Group> group = onboardingRepository.findGroupNameForUser(
                 userLookup.get().getUserId());
 
-            if (groupName.isPresent()) {
+            if (group.isPresent()) {
                 return UserSignedInDto.builder()
                         .userId(userLookup.get().getUserId())
-                        .groupName(groupName).build();
+                        .groupName(group.map(Group::getGroupName))
+                        .build();
             } else {
                 return UserSignedInDto.builder()
                         .userId(userLookup.get().getUserId())
-                        .groupName(groupName)
+                        .groupName(group.map(Group::getGroupName))
                         .build();
             }
         }
 
     }
 
-    public void joinGroup(String groupName, User user) {
-        log.info("User {} joining group {}", user.getName(), groupName);
+    public void joinGroup(UUID groupId, User user) {
+        log.info("User {} joining group {}", user.getName(), groupId);
 
-        final Optional<String> group = onboardingRepository.findGroupNameByUser(user.getUserId());
-        if (group.isPresent()) {
-            if (group.get().equals(groupName)) {
+        final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
+        if (currentGroup.isPresent()) {
+            if (currentGroup.get().getGroupId().equals(groupId)) {
                 log.info("User is already member of group");
             } else {
-                throw new IllegalStateException("User is already member of a group - " + group.get());
+                throw new IllegalStateException("User is already member of a currentGroup - " + currentGroup.get());
             }
         } else {
-            final Optional<String> lookup = onboardingRepository.findGroupByName(groupName);
-            Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupName);
-            onboardingRepository.joinGroup(groupName, user.getUserId());
+            final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
+            Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
+            onboardingRepository.joinGroup(lookup.get().getGroupId(), user.getUserId());
         }
 
     }
 
-    public void startNewGroup(final User user, final String groupName) {
+    public Group startNewGroup(final User user, final String groupName) {
         log.info("New group {} by user {}", groupName, user.getName());
 
-        final boolean groupExists = MockFactory.allGroups.contains(groupName);
+        final boolean groupExists = onboardingRepository.findGroupByName(groupName).isPresent();
 
         if (groupExists) {
             throw new IllegalStateException("Cannot start group - group name already taken");
         } else {
             Preconditions.checkState(groupName.length() >= 3);
-            onboardingRepository.startNewGroup(groupName);
-            onboardingRepository.joinGroup(groupName, user.getUserId());
+            final Group newGroup = onboardingRepository.startNewGroup(groupName);
+            onboardingRepository.joinGroup(newGroup.getGroupId(), user.getUserId());
+            log.info("...started new group {} with groupid {}", newGroup.getGroupName(), newGroup.getGroupId());
+            return newGroup;
         }
 
     }

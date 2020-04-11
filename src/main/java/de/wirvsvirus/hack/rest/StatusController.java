@@ -25,7 +25,7 @@ public class StatusController {
 
     @PutMapping
     public void updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
-        final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User currentUser = userRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         Preconditions.checkNotNull(request.getSentiment(), "sentiment must not be null");
 
         log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());

@@ -27,7 +27,7 @@ public class DashboardController {
 
     @GetMapping
     public DashboardResponse dashboardView() {
-        final User currentUser = onboardingRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         DashboardResponse response = new DashboardResponse();
 

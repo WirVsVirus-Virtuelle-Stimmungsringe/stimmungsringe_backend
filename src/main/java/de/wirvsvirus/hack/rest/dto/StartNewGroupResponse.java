@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class FindGroupResponse {
+public class StartNewGroupResponse {
 
     private UUID groupId;
     private String groupName;

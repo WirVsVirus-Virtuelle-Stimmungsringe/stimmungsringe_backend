@@ -1,6 +1,6 @@
 package de.wirvsvirus.hack.repository;
 
-import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 
@@ -13,11 +13,11 @@ public interface OnboardingRepository {
 //        return Optional.ofNullable(MockFactory.groupByUserId.get(userId));
 //    }
 
-    User findByUserId(UUID userId);
+    User lookupUserById(UUID userId);
 
-    void startNewGroup(String groupName);
+    Group startNewGroup(String groupName);
 
-    void joinGroup(String groupName, UUID userId);
+    void joinGroup(UUID groupId, UUID userId);
 
     List<User> findOtherUsersInGroup(UUID userId);
 
@@ -25,11 +25,15 @@ public interface OnboardingRepository {
 
     void updateStatus(UUID userId, Sentiment sentiment);
 
-    Optional<String> findGroupNameByUser(UUID userId);
+    Optional<Group> findGroupByUser(UUID userId);
 
-    Optional<String> findGroupByName(String groupName);
+    Optional<Group> findGroupByName(String groupName);
 
-    Optional<String> findGroupNameForUser(UUID id);
+    Optional<Group> findGroupNameForUser(UUID id);
 
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
+
+    void createNewUser(User newUser);
+
+    Optional<Group> findGroupById(UUID groupId);
 }

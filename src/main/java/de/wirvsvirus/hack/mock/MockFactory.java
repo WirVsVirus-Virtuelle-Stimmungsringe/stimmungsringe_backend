@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.mock;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
@@ -11,8 +12,10 @@ import java.util.*;
 public class MockFactory {
 
     public static final Map<UUID, User> allUsers = new HashMap<>();
-    public static final Set<String> allGroups = new HashSet<>();
-    public static final Map<UUID, String> groupByUserId = new HashMap<>();
+    public static final Map<UUID, Group> allGroups = new HashMap<>();
+    // TODO maintain order
+    public static final Map<UUID, UUID> groupByUserId = new HashMap<>();
+    public static Map<UUID, Sentiment> sentimentByUser = new HashMap<>();
 
     static {
         final List<User> users = new ArrayList<>();

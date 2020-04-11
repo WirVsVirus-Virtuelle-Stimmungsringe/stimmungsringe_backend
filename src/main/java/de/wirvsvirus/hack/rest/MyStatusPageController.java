@@ -28,7 +28,7 @@ public class MyStatusPageController {
     @GetMapping
     public MyStatusPageResponse viewMyStatusPage() {
 
-        final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User currentUser = userRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         MyStatusPageResponse response = new MyStatusPageResponse();
 

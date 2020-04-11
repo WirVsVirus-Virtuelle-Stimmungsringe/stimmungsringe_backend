@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest;
 
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.rest.dto.*;
@@ -31,12 +32,13 @@ public class OnboardingController {
         final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
         final String userId = signinResult.getUserId().toString();
 
-        if (signinResult.getGroupName().isPresent()) {
+        final Optional<String> groupName = signinResult.getGroupName();
+        if (groupName.isPresent()) {
             return
                     SigninUserResponse.builder()
                             .userId(userId)
                             .hasGroup(true)
-                            .groupName(signinResult.getGroupName().get())
+                            .groupName(groupName.get())
                             .build();
 
         } else {
@@ -51,29 +53,36 @@ public class OnboardingController {
 
     @PutMapping("/group/join")
     public void joinGroup(@RequestBody @Valid final JoinGroupRequest request) {
-        final User user = onboardingRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.joinGroup(request.getGroupName(), user);
-
+        onboardingService.joinGroup(request.getGroupId(), user);
     }
 
     @PostMapping("/group/start")
-    public void startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
-        final User user = onboardingRepository.findByUserId(UserInterceptor.getCurrentUserId());
+    public StartNewGroupResponse startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.startNewGroup(user, request.getGroupName());
+        final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
+
+        return StartNewGroupResponse.builder()
+            .groupId(newGroup.getGroupId())
+            .groupName(newGroup.getGroupName())
+            .build();
 
     }
 
     @PostMapping("/group-by-name")
     public ResponseEntity getGroupByName(@RequestBody @Valid final FindGroupRequest request) {
 
-        final Optional<String> match =
+        final Optional<Group> match =
             onboardingRepository.findGroupByName(request.getGroupName());
 
         if (match.isPresent()) {
             return ResponseEntity.ok(
-                    FindGroupResponse.builder().groupName(match.get()).build());
+                    FindGroupResponse.builder()
+                        .groupId(match.get().getGroupId())
+                        .groupName(match.get().getGroupName())
+                        .build());
         } else {
             return ResponseEntity.noContent().build();
         }

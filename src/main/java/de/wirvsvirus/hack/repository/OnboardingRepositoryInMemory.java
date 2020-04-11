@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.repository;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +20,13 @@ import java.util.stream.Collectors;
 @Profile("!dynamodb")
 public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
-    private Map<UUID, Sentiment> sentimentsByUser = new HashMap<>();
-
     @PostConstruct
     public void initMock() {
 
-        startNewGroup("Rasselbande");
-        joinGroup("Rasselbande", UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
-        joinGroup("Rasselbande", UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
-        joinGroup("Rasselbande", UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
+        final Group rasselbande = startNewGroup("Rasselbande");
+        joinGroup(rasselbande.getGroupId(), UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
+        joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
+        joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
 //        mockDb.forEach(user -> {
 //            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
@@ -37,7 +36,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public User findByUserId(final UUID userId) {
+    public void createNewUser(final User newUser) {
+        Preconditions.checkState(!MockFactory.allUsers.containsKey(newUser.getUserId()));
+        MockFactory.allUsers.put(newUser.getUserId(), newUser);
+    }
+
+    @Override
+    public User lookupUserById(final UUID userId) {
         Preconditions.checkNotNull(userId);
 
         return
@@ -48,16 +53,29 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public void startNewGroup(String groupName) {
+    public Optional<Group> findGroupById(final UUID groupId) {
+        Preconditions.checkNotNull(groupId);
 
-        MockFactory.allGroups.add(groupName);
+        return EntryStream.of(MockFactory.allGroups)
+            .values()
+            .findAny(group -> group.getGroupId().equals(groupId));
+
     }
 
     @Override
-    public void joinGroup(String groupName, UUID userId) {
+    public Group startNewGroup(String groupName) {
+        final Group newGroup = new Group(UUID.randomUUID());
+        newGroup.setGroupName(groupName);
+
+        MockFactory.allGroups.put(newGroup.getGroupId(), newGroup);
+        return newGroup;
+    }
+
+    @Override
+    public void joinGroup(UUID groupId, UUID userId) {
 //        Preconditions.checkState(MockFactory.allGroups.contains(groupName), "Group <%s> does not exist", groupName);
 
-        MockFactory.groupByUserId.put(userId, groupName);
+        MockFactory.groupByUserId.put(userId, groupId);
     }
 
     /**
@@ -74,7 +92,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Sentiment findSentimentByUserId(UUID userId) {
 
-        final Sentiment sentiment = sentimentsByUser.get(userId);
+        final Sentiment sentiment = MockFactory.sentimentByUser.get(userId);
         Preconditions.checkNotNull(
             sentiment, "Lookup error on sentiment lookup for user %s", userId);
         return sentiment;
@@ -82,29 +100,32 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
-        sentimentsByUser.put(userId, sentiment);
+        MockFactory.sentimentByUser.put(userId, sentiment);
     }
 
 
     @Override
-    public Optional<String> findGroupNameByUser(final UUID userId) {
+    public Optional<Group> findGroupByUser(final UUID userId) {
         return Optional.ofNullable(
-            MockFactory.groupByUserId.get(userId));
+            MockFactory.groupByUserId.get(userId))
+                .map(MockFactory.allGroups::get);
     }
 
     @Override
-    public Optional<String> findGroupByName(final String groupName) {
-        final boolean found = MockFactory.allGroups.contains(groupName);
-        if (found) {
-            return Optional.ofNullable(groupName);
-        } else {
-            return Optional.empty();
-        }
+    public Optional<Group> findGroupByName(final String groupName) {
+
+        final Optional<Group> found = EntryStream.of(MockFactory.allGroups)
+            .filterValues(group -> group.getGroupName().equals(groupName))
+            .values()
+            .findAny();
+
+        return found;
     }
 
     @Override
-    public Optional<String> findGroupNameForUser(final UUID userId) {
-        return Optional.ofNullable(MockFactory.groupByUserId.get(userId));
+    public Optional<Group> findGroupNameForUser(final UUID userId) {
+        return Optional.ofNullable(MockFactory.groupByUserId.get(userId))
+                .map(MockFactory.allGroups::get);
     }
 
     @Override

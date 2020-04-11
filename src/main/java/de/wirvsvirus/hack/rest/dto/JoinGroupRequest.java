@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 public class JoinGroupRequest {
 
-    @NotEmpty
-    private String groupName;
+    @NotNull
+    private UUID groupId;
 
 }
