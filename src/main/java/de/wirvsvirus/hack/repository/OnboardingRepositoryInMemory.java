@@ -50,15 +50,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public void startNewGroup(String groupName) {
-        Preconditions.checkState(groupName.length() >= 3);
-        Preconditions.checkState(!MockFactory.allGroups.contains(groupName), "Group <%s> already exists", groupName);
 
         MockFactory.allGroups.add(groupName);
     }
 
     @Override
     public void joinGroup(String groupName, UUID userId) {
-        Preconditions.checkState(MockFactory.allGroups.contains(groupName), "Group <%s> does not exist", groupName);
+//        Preconditions.checkState(MockFactory.allGroups.contains(groupName), "Group <%s> does not exist", groupName);
 
         MockFactory.groupByUserId.put(userId, groupName);
     }

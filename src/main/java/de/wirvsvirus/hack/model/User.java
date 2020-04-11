@@ -30,6 +30,7 @@ public class User {
         this.name = name;
     }
 
+    @Deprecated
     public List<Role> getRoles() {
         return roles;
     }

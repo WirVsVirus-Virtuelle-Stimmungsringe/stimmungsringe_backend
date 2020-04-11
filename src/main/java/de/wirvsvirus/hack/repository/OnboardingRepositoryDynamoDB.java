@@ -3,6 +3,8 @@ package de.wirvsvirus.hack.repository;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.*;
+import com.google.common.collect.Lists;
+import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
@@ -53,16 +55,37 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     @Override
     public User findByUserId(final UUID userId) {
-        return null;
+        final UserData lookup = dynamoDBMapper.load(UserData.class, userId);
+        if (lookup == null) {
+            throw new IllegalStateException("User not found by id " + userId);
+        }
+
+        User user = new User(lookup.getUserId());
+        user.setName(lookup.getName());
+        user.setRoles(Lists.newArrayList(Role.ARBEITNEHMER)); // FIXME
+
+        return user;
     }
 
     @Override
     public void startNewGroup(final String groupName) {
+        final GroupData newGroup =
+                GroupData.builder()
+                .groupId(UUID.randomUUID())
+                .groupName(groupName)
+                .members(Collections.emptyList())
+                .build();
 
+        dynamoDBMapper.save(newGroup);
     }
 
     @Override
     public void joinGroup(final String groupName, final UUID userId) {
+
+        // TODO optimize
+
+        #
+        dynamoDBMapper.load(GroupData.class, )
 
     }
 

@@ -43,5 +43,5 @@ public class UserData {
     public void setSentiment(final Sentiment sentiment) {
         this.sentiment = sentiment;
     }
-    
+
 }

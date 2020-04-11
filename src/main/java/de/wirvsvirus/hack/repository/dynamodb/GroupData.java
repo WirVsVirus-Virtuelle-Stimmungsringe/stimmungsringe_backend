@@ -13,17 +13,17 @@ import java.util.UUID;
 @Builder
 public class GroupData {
 
-    private UUID userId;
+    private UUID groupId;
     private String groupName;
     private List<UUID> members;
 
     @DynamoDBHashKey
-    public UUID getUserId() {
-        return userId;
+    public UUID getGroupId() {
+        return groupId;
     }
 
-    public void setUserId(final UUID userId) {
-        this.userId = userId;
+    public void setGroupId(final UUID groupId) {
+        this.groupId = groupId;
     }
 
     @DynamoDBHashKey

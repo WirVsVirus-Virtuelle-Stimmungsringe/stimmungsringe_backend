@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.service;
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
@@ -54,6 +55,8 @@ public class OnboardingService {
                 throw new IllegalStateException("User is already member of a group - " + group.get());
             }
         } else {
+            final Optional<String> lookup = onboardingRepository.findGroupByName(groupName);
+            Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupName);
             onboardingRepository.joinGroup(groupName, user.getId());
         }
 
@@ -67,6 +70,7 @@ public class OnboardingService {
         if (groupExists) {
             throw new IllegalStateException("Cannot start group - group name already taken");
         } else {
+            Preconditions.checkState(groupName.length() >= 3);
             onboardingRepository.startNewGroup(groupName);
             onboardingRepository.joinGroup(groupName, user.getId());
         }
