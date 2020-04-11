@@ -89,11 +89,15 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
      * return all users in same group except the requesting user
      */
     @Override
-    public List<User> findOtherUsersInGroup(UUID userId) {
+    public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
         return
-            EntryStream.of(MockFactory.allUsers).values()
-            .filter(user -> !user.getUserId().equals(userId))
-            .collect(Collectors.toList());
+        EntryStream.of(MockFactory.groupByUserId)
+            .filterValues(gid -> gid.equals(groupId))
+            .filterKeys(MockFactory.allUsers::containsKey)
+                .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
+                .keys()
+                .map(MockFactory.allUsers::get)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -121,16 +125,18 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Optional<Group> findGroupByName(final String groupName) {
 
-        final Optional<Group> found = EntryStream.of(MockFactory.allGroups)
-            .filterValues(group -> group.getGroupName().equals(groupName))
-            .values()
-            .findAny();
+        final List<Group> matches = EntryStream.of(MockFactory.allGroups)
+                .filterValues(group -> group.getGroupName().equals(groupName))
+                .values()
+                .toList();
 
-        return found;
+        Preconditions.checkState(matches.size() <= 1);
+
+        return matches.isEmpty() ? Optional.empty() : Optional.of(matches.get(0));
     }
 
     @Override
-    public Optional<Group> findGroupNameForUser(final UUID userId) {
+    public Optional<Group> findGroupForUser(final UUID userId) {
         return Optional.ofNullable(MockFactory.groupByUserId.get(userId))
                 .map(MockFactory.allGroups::get);
     }

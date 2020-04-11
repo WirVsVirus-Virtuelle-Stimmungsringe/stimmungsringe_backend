@@ -6,7 +6,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.*;
-import de.wirvsvirus.hack.repository.dynamodb.ProductInfo;
 import de.wirvsvirus.hack.spring.DynamoDBConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

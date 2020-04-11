@@ -38,8 +38,10 @@ public class OnboardingService {
                     .group(Optional.empty())
                     .build();
         } else {
-            final Optional<Group> group = onboardingRepository.findGroupNameForUser(
+            final Optional<Group> group = onboardingRepository.findGroupForUser(
                 userLookup.get().getUserId());
+
+            log.info("User {} signed in - group is {}", userLookup.get(), group);
 
             if (group.isPresent()) {
                 return UserSignedInDto.builder()

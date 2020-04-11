@@ -49,9 +49,9 @@ public final class DataMapper {
     }
 
     private static void fixupGroup(final GroupData groupData) {
-        if (groupData.getGroupName() == null) {
+        if (groupData.getGroupName().contains("fixeed")) {
             log.warn("Fixed group name of {}", groupData.getGroupId());
-            groupData.setGroupName("fixed empty name");
+            groupData.setGroupName("Rasselbande");
         }
     }
 

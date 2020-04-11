@@ -1,9 +1,11 @@
 package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
+import lombok.ToString;
 
 import java.util.UUID;
 
+@ToString
 public class Group {
 
     private final UUID groupId;

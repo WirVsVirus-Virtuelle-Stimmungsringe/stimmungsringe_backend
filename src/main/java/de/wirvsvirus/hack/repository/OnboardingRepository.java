@@ -19,7 +19,7 @@ public interface OnboardingRepository {
 
     void joinGroup(UUID groupId, UUID userId);
 
-    List<User> findOtherUsersInGroup(UUID userId);
+    List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId);
 
     Sentiment findSentimentByUserId(UUID userId);
 
@@ -29,7 +29,7 @@ public interface OnboardingRepository {
 
     Optional<Group> findGroupByName(String groupName);
 
-    Optional<Group> findGroupNameForUser(UUID id);
+    Optional<Group> findGroupForUser(UUID id);
 
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 

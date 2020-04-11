@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest;
 
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -28,6 +31,8 @@ public class DashboardController {
     @GetMapping
     public DashboardResponse dashboardView() {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+
+        final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
 
         DashboardResponse response = new DashboardResponse();
 
@@ -43,7 +48,13 @@ public class DashboardController {
             response.setMyTile(myTileResponse);
         }
 
-        final List<User> otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(currentUser.getUserId());
+
+        final List<User> otherUsersInGroup;
+        if (group.isPresent()) {
+            otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(group.get().getGroupId(), currentUser.getUserId());
+        } else {
+            otherUsersInGroup = Collections.emptyList();
+        }
 
         final List<OtherTileResponse> otherTiles = new ArrayList<>();
         for (final User otherUser : otherUsersInGroup) {

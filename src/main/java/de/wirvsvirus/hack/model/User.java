@@ -1,10 +1,12 @@
 package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
 
+@ToString
 public class User {
 
     private final UUID userId;

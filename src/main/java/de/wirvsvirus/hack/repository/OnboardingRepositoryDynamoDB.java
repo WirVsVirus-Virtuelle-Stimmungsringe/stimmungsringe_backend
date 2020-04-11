@@ -56,6 +56,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         prepareTable(GroupData.class, false);
 
         restoreFromStorage();
+        // flush to make sure that fixed get persisted
+        flushToStorage();
 
     }
 
@@ -194,8 +196,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public List<User> findOtherUsersInGroup(final UUID userId) {
-        return memory.findOtherUsersInGroup(userId);
+    public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
+        return memory.findOtherUsersInGroup(groupId, currentUserId);
     }
 
     @Override
@@ -226,7 +228,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public Optional<Group> findGroupNameForUser(final UUID userId) {
+    public Optional<Group> findGroupForUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }
 }
