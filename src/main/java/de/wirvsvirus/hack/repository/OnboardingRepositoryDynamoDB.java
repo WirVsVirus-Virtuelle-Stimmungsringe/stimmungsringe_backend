@@ -24,6 +24,8 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,7 +59,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     }
 
-    private <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
+    private  <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
         if (tryDeleteBefore) {
             try {
                 DeleteTableRequest deleteTableRequest = dynamoDBMapper
@@ -84,7 +86,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     }
 
-    public void flushToStorage() {
+    private synchronized void flushToStorage() {
 
         int countUsers = 0;
         int countGroups = 0;
@@ -117,7 +119,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             .collect(Collectors.toList());
     }
 
-    public void restoreFromStorage() {
+    private synchronized void restoreFromStorage() {
         int countUsers = 0;
         int countGroups = 0;
 
