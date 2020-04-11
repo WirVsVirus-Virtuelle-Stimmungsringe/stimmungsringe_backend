@@ -1,7 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import de.wirvsvirus.hack.mock.MockFactory;
-import de.wirvsvirus.hack.model.OnboardingRepository;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import lombok.extern.slf4j.Slf4j;

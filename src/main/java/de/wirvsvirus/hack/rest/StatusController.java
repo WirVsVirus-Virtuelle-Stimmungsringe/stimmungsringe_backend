@@ -3,7 +3,7 @@ package de.wirvsvirus.hack.rest;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.model.OnboardingRepository;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.UpdateStatusRequest;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;

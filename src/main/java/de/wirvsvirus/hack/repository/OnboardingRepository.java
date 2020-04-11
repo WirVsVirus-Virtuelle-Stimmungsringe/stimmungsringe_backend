@@ -1,7 +1,9 @@
-package de.wirvsvirus.hack.model;
+package de.wirvsvirus.hack.repository;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.model.Sentiment;
+import de.wirvsvirus.hack.model.User;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.MoreCollectors;
 import one.util.streamex.StreamEx;

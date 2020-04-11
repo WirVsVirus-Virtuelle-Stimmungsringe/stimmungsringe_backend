@@ -2,8 +2,8 @@ package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.model.OnboardingRepository;
-import de.wirvsvirus.hack.rest.dto.DashboardResponse;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.repository.DashboardResponse;
 import de.wirvsvirus.hack.rest.dto.MyTileResponse;
 import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;

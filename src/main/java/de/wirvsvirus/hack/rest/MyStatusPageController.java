@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.*;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.RoleBasedTextSuggestionsService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
