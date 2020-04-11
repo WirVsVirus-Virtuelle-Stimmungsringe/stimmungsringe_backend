@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository.dynamodb;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -15,7 +16,7 @@ public class UserData {
 
     private UUID userId;
     private String name;
-    private Sentiment sentiment;
+    private String sentiment;
 
     @DynamoDBHashKey
     public UUID getUserId() {
@@ -26,7 +27,7 @@ public class UserData {
         this.userId = userId;
     }
 
-    @DynamoDBHashKey
+    @DynamoDBAttribute
     public String getName() {
         return name;
     }
@@ -35,12 +36,12 @@ public class UserData {
         this.name = name;
     }
 
-    @DynamoDBHashKey
-    public Sentiment getSentiment() {
+    @DynamoDBAttribute
+    public String getSentiment() {
         return sentiment;
     }
 
-    public void setSentiment(final Sentiment sentiment) {
+    public void setSentiment(final String sentiment) {
         this.sentiment = sentiment;
     }
 

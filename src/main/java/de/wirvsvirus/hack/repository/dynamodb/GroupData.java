@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository.dynamodb;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class GroupData {
         this.groupId = groupId;
     }
 
-    @DynamoDBHashKey
+    @DynamoDBAttribute
     public String getGroupName() {
         return groupName;
     }
@@ -35,7 +36,7 @@ public class GroupData {
         this.groupName = groupName;
     }
 
-    @DynamoDBHashKey
+    @DynamoDBAttribute
     public List<UUID> getMembers() {
         return members;
     }
