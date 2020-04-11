@@ -3,7 +3,7 @@ package de.wirvsvirus.hack.rest;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.repository.DashboardResponse;
+import de.wirvsvirus.hack.rest.dto.DashboardResponse;
 import de.wirvsvirus.hack.rest.dto.MyTileResponse;
 import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
@@ -23,18 +23,18 @@ import java.util.List;
 public class DashboardController {
 
     @Autowired
-    private OnboardingRepository userRepository;
+    private OnboardingRepository onboardingRepository;
 
     @GetMapping
     public DashboardResponse dashboardView() {
-        final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.findByUserId(UserInterceptor.getCurrentUserId());
 
         DashboardResponse response = new DashboardResponse();
 
         {
             final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
-            final Sentiment sentiment = userRepository.findSentimentByUserId(currentUser.getId());
+            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getId());
 
             MyTileResponse myTileResponse = new MyTileResponse();
             myTileResponse.setUser(me);
@@ -43,13 +43,13 @@ public class DashboardController {
             response.setMyTile(myTileResponse);
         }
 
-        final List<User> otherUsersInGroup = userRepository.findOtherUsersInGroup(currentUser.getId());
+        final List<User> otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(currentUser.getId());
 
         final List<OtherTileResponse> otherTiles = new ArrayList<>();
         for (final User otherUser : otherUsersInGroup) {
             final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser);
 
-            final Sentiment sentiment = userRepository.findSentimentByUserId(otherUser.getId());
+            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getId());
 
             OtherTileResponse tileResponse = new OtherTileResponse();
             tileResponse.setUser(other);

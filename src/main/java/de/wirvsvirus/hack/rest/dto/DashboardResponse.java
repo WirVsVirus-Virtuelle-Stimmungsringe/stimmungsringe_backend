@@ -1,7 +1,5 @@
-package de.wirvsvirus.hack.repository;
+package de.wirvsvirus.hack.rest.dto;
 
-import de.wirvsvirus.hack.rest.dto.MyTileResponse;
-import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
 import lombok.Data;
 
 import java.util.List;
