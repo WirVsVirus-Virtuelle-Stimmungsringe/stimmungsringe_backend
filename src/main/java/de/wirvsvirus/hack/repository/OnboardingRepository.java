@@ -30,4 +30,6 @@ public interface OnboardingRepository {
     Optional<String> findGroupByName(String groupName);
 
     Optional<String> findGroupNameForUser(UUID id);
+
+    Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 }

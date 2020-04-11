@@ -22,6 +22,8 @@ import java.util.*;
 @Profile("dynamodb")
 public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
+    private OnboardingRepositoryInMemory memory;
+
     private DynamoDBMapper dynamoDBMapper;
 
     @Autowired
@@ -30,6 +32,9 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     @PostConstruct
     public void startup() {
+
+        memory = new OnboardingRepositoryInMemory();
+//        memory.initMock();
 
         dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
 
@@ -55,67 +60,54 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     @Override
     public User findByUserId(final UUID userId) {
-        final UserData lookup = dynamoDBMapper.load(UserData.class, userId);
-        if (lookup == null) {
-            throw new IllegalStateException("User not found by id " + userId);
-        }
-
-        User user = new User(lookup.getUserId());
-        user.setName(lookup.getName());
-        user.setRoles(Lists.newArrayList(Role.ARBEITNEHMER)); // FIXME
-
-        return user;
+        return memory.findByUserId(userId);
     }
+
 
     @Override
     public void startNewGroup(final String groupName) {
-        final GroupData newGroup =
-                GroupData.builder()
-                .groupId(UUID.randomUUID())
-                .groupName(groupName)
-                .members(Collections.emptyList())
-                .build();
-
-        dynamoDBMapper.save(newGroup);
+        memory.startNewGroup(groupName);
     }
+
 
     @Override
     public void joinGroup(final String groupName, final UUID userId) {
-
-        // TODO optimize
-
-        #
-        dynamoDBMapper.load(GroupData.class, )
-
+        memory.joinGroup(groupName, userId);
     }
+
 
     @Override
     public List<User> findOtherUsersInGroup(final UUID userId) {
-        return null;
+        return memory.findOtherUsersInGroup(userId);
     }
 
     @Override
     public Sentiment findSentimentByUserId(final UUID userId) {
-        return null;
+        return findSentimentByUserId(userId);
     }
 
     @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
-
+        memory.updateStatus(userId, sentiment);
     }
 
     @Override
     public Optional<String> findGroupNameByUser(final UUID userId) {
-        return Optional.empty();
+        return memory.findGroupNameByUser(userId);
     }
 
     @Override
     public Optional<String> findGroupByName(final String groupName) {
-        return Optional.empty();
+        return memory.findGroupByName(groupName);
     }
 
     @Override
-    public Optional<String> findGroupNameForUser(final UUID id) {
-        return Optional.empty();
+    public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
+        return memory.findByDeviceIdentifier(deviceIdentifier);
+    }
+
+    @Override
+    public Optional<String> findGroupNameForUser(final UUID userId) {
+        return memory.findGroupNameByUser(userId);
     }
 }

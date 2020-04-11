@@ -34,7 +34,7 @@ public class DashboardController {
         {
             final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
-            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getId());
+            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
 
             MyTileResponse myTileResponse = new MyTileResponse();
             myTileResponse.setUser(me);
@@ -43,13 +43,13 @@ public class DashboardController {
             response.setMyTile(myTileResponse);
         }
 
-        final List<User> otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(currentUser.getId());
+        final List<User> otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(currentUser.getUserId());
 
         final List<OtherTileResponse> otherTiles = new ArrayList<>();
         for (final User otherUser : otherUsersInGroup) {
             final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser);
 
-            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getId());
+            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
 
             OtherTileResponse tileResponse = new OtherTileResponse();
             tileResponse.setUser(other);

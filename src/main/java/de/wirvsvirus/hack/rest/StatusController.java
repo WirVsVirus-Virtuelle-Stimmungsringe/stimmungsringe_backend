@@ -28,8 +28,8 @@ public class StatusController {
         final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
         Preconditions.checkNotNull(request.getSentiment(), "sentiment must not be null");
 
-        log.info("Updating status for user {} to {}", currentUser.getId(), request.getSentiment());
-        userRepository.updateStatus(currentUser.getId(), request.getSentiment());
+        log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());
+        userRepository.updateStatus(currentUser.getUserId(), request.getSentiment());
     }
 
 }

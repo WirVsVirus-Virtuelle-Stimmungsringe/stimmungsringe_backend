@@ -7,19 +7,27 @@ import java.util.UUID;
 
 public class User {
 
-    final private UUID id;
+    private final UUID userId;
+
+    private final String deviceIdentifier;
 
     private String name;
 
     private List<Role> roles;
 
-    public User(UUID userId) {
+    public User(UUID userId, String deviceIdentifier) {
         Preconditions.checkNotNull(userId);
-        this.id = userId;
+        Preconditions.checkNotNull(deviceIdentifier);
+        this.userId = userId;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     public String getName() {

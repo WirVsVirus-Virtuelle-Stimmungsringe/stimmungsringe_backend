@@ -5,8 +5,8 @@ import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
-import one.util.streamex.StreamEx;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +19,20 @@ import java.util.stream.Collectors;
 @Profile("!dynamodb")
 public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
-    private List<User> mockDb = new ArrayList<>();
     private Map<UUID, Sentiment> sentimentsByUser = new HashMap<>();
 
     @PostConstruct
     public void initMock() {
-        mockDb = MockFactory.allUsers();
 
         startNewGroup("Rasselbande");
         joinGroup("Rasselbande", UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
         joinGroup("Rasselbande", UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup("Rasselbande", UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
-        mockDb.forEach(user -> {
-            final Sentiment sentiment = MockFactory.sentimentByUser(user.getId());
-            updateStatus(user.getId(), sentiment);
-        });
+//        mockDb.forEach(user -> {
+//            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
+//            updateStatus(user.getUserId(), sentiment);
+//        });
 
     }
 
@@ -43,8 +41,9 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkNotNull(userId);
 
         return
-            StreamEx.of(mockDb)
-                .collect(MoreCollectors.onlyOne(user -> user.getId().equals(userId)))
+            EntryStream.of(MockFactory.allUsers)
+                .values()
+                .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
             .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
     }
 
@@ -67,8 +66,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public List<User> findOtherUsersInGroup(UUID userId) {
         return
-        mockDb.stream()
-            .filter(user -> !user.getId().equals(userId))
+            EntryStream.of(MockFactory.allUsers).values()
+            .filter(user -> !user.getUserId().equals(userId))
             .collect(Collectors.toList());
     }
 
@@ -106,5 +105,14 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Optional<String> findGroupNameForUser(final UUID userId) {
         return Optional.ofNullable(MockFactory.groupByUserId.get(userId));
+    }
+
+    @Override
+    public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
+        return
+                EntryStream.of(MockFactory.allUsers).values()
+                        .findAny(user ->
+                                user.getDeviceIdentifier()
+                                        .equals(deviceIdentifier));
     }
 }
