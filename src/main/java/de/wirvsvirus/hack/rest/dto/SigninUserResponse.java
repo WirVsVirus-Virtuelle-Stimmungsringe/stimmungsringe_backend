@@ -10,5 +10,6 @@ public class SigninUserResponse {
     private String userId;
 
     private boolean hasGroup;
+    private String groupId;
     private String groupName;
 }

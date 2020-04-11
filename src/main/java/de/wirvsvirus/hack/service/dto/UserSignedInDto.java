@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.service.dto;
 
+import de.wirvsvirus.hack.model.Group;
 import lombok.Builder;
 import lombok.Data;
 import lombok.With;
@@ -15,6 +16,6 @@ public class UserSignedInDto {
     @NotNull
     private UUID userId;
 
-    private Optional<String> groupName;
+    private Optional<Group> group;
 
 }

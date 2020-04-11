@@ -45,7 +45,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     public void startup() {
 
         memory = new OnboardingRepositoryInMemory();
-//        memory.initMock();
+        memory.initMock();
 
         dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
 

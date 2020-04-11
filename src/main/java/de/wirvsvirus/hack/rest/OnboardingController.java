@@ -32,13 +32,13 @@ public class OnboardingController {
         final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
         final String userId = signinResult.getUserId().toString();
 
-        final Optional<String> groupName = signinResult.getGroupName();
-        if (groupName.isPresent()) {
+        if (signinResult.getGroup().isPresent()) {
             return
                     SigninUserResponse.builder()
                             .userId(userId)
                             .hasGroup(true)
-                            .groupName(groupName.get())
+                            .groupId(signinResult.getGroup().get().getGroupId().toString())
+                            .groupName(signinResult.getGroup().get().getGroupName())
                             .build();
 
         } else {
@@ -56,6 +56,13 @@ public class OnboardingController {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         onboardingService.joinGroup(request.getGroupId(), user);
+    }
+
+    @PutMapping("/group/leave")
+    public void leaveGroup(@RequestBody @Valid final LeaveGroupRequest request) {
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+
+        onboardingService.leaveGroup(request.getGroupId(), user);
     }
 
     @PostMapping("/group/start")

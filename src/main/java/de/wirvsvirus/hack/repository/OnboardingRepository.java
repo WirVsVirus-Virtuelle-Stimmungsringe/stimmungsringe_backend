@@ -36,4 +36,6 @@ public interface OnboardingRepository {
     void createNewUser(User newUser);
 
     Optional<Group> findGroupById(UUID groupId);
+
+    void leaveGroup(UUID groupId, UUID userId);
 }

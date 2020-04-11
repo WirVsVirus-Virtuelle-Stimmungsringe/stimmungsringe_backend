@@ -35,7 +35,7 @@ public class OnboardingService {
             onboardingRepository.createNewUser(newUser);
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
-                    .groupName(Optional.empty())
+                    .group(Optional.empty())
                     .build();
         } else {
             final Optional<Group> group = onboardingRepository.findGroupNameForUser(
@@ -44,12 +44,12 @@ public class OnboardingService {
             if (group.isPresent()) {
                 return UserSignedInDto.builder()
                         .userId(userLookup.get().getUserId())
-                        .groupName(group.map(Group::getGroupName))
+                        .group(group)
                         .build();
             } else {
                 return UserSignedInDto.builder()
                         .userId(userLookup.get().getUserId())
-                        .groupName(group.map(Group::getGroupName))
+                        .group(group)
                         .build();
             }
         }
@@ -62,14 +62,33 @@ public class OnboardingService {
         final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
         if (currentGroup.isPresent()) {
             if (currentGroup.get().getGroupId().equals(groupId)) {
-                log.info("User is already member of group");
+                log.info("User is already member of requested group");
             } else {
-                throw new IllegalStateException("User is already member of a currentGroup - " + currentGroup.get());
+                log.info("User is already member of another group");
             }
         } else {
             final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
             Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
             onboardingRepository.joinGroup(lookup.get().getGroupId(), user.getUserId());
+        }
+
+    }
+
+    public void leaveGroup(final UUID groupId, final User user) {
+        log.info("User {} leaving group {}", user.getName(), groupId);
+
+        final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
+        if (currentGroup.isPresent()) {
+            if (currentGroup.get().getGroupId().equals(groupId)) {
+                final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
+                Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
+                onboardingRepository.leaveGroup(lookup.get().getGroupId(), user.getUserId());
+                log.info("... remove user {} from group {} with groupId {}", user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
+            } else {
+                log.info("User is member of another group");
+            }
+        } else {
+            log.info("User is not member of any group");
         }
 
     }
@@ -90,4 +109,5 @@ public class OnboardingService {
         }
 
     }
+
 }

@@ -28,10 +28,10 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
-//        mockDb.forEach(user -> {
-//            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
-//            updateStatus(user.getUserId(), sentiment);
-//        });
+        MockFactory.allUsers.values().forEach(user -> {
+            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
+            updateStatus(user.getUserId(), sentiment);
+        });
 
     }
 
@@ -76,6 +76,12 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 //        Preconditions.checkState(MockFactory.allGroups.contains(groupName), "Group <%s> does not exist", groupName);
 
         MockFactory.groupByUserId.put(userId, groupId);
+    }
+
+
+    @Override
+    public void leaveGroup(final UUID groupId, final UUID userId) {
+        MockFactory.groupByUserId.remove(userId);
     }
 
     /**
@@ -136,4 +142,6 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
                                 user.getDeviceIdentifier()
                                         .equals(deviceIdentifier));
     }
+
+
 }
