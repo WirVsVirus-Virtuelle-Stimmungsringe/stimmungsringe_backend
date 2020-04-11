@@ -158,6 +158,10 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         memory.joinGroup(groupId, userId);
     }
 
+    @Override
+    public void leaveGroup(final UUID groupId, final UUID userId) {
+        memory.leaveGroup(groupId, userId);
+    }
 
     @Override
     public List<User> findOtherUsersInGroup(final UUID userId) {
