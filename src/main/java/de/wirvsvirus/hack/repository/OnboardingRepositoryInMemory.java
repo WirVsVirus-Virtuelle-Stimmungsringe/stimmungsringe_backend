@@ -64,6 +64,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public Group startNewGroup(String groupName) {
+        Preconditions.checkState(groupName.length() >= 3);
         final Group newGroup = new Group(UUID.randomUUID());
         newGroup.setGroupName(groupName);
 

@@ -4,14 +4,15 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
 
 @DynamoDBTable(tableName = "Group")
+@NoArgsConstructor
 @ToString
-@Builder
 public class GroupData {
 
     private UUID groupId;

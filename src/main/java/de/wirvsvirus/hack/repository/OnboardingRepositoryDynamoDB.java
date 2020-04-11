@@ -4,20 +4,18 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
-import de.wirvsvirus.hack.repository.dynamodb.Mapper;
+import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -45,28 +43,45 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     public void startup() {
 
         memory = new OnboardingRepositoryInMemory();
-        memory.initMock();
+//        memory.initMock();
+        MockFactory.allUsers.clear(); // FIXME
+        log.info("Do not load mock data");
+
 
         dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
 
-        prepareTable(UserData.class);
-        prepareTable(GroupData.class);
+        prepareTable(UserData.class, false);
+        prepareTable(GroupData.class, false);
+
+        restoreFromStorage();
 
     }
 
-    private <T> void prepareTable(final Class<T> clazz) {
-        try {
-            DeleteTableRequest deleteTableRequest = dynamoDBMapper
-                .generateDeleteTableRequest(clazz);
-            amazonDynamoDB.deleteTable(deleteTableRequest);
-        } catch(ResourceNotFoundException rnfe) {
+    private <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
+        if (tryDeleteBefore) {
+            try {
+                DeleteTableRequest deleteTableRequest = dynamoDBMapper
+                        .generateDeleteTableRequest(clazz);
+                amazonDynamoDB.deleteTable(deleteTableRequest);
+                log.warn("Table {} deleted", clazz.getSimpleName());
+            } catch(ResourceNotFoundException rnfe) {
+                log.warn("Table {} des not exist", clazz.getSimpleName());
+            }
         }
-        CreateTableRequest tableRequest = dynamoDBMapper
-                .generateCreateTableRequest(clazz);
 
-        tableRequest.setProvisionedThroughput(
-                new ProvisionedThroughput(1L, 1L));
-        amazonDynamoDB.createTable(tableRequest);
+        try {
+            CreateTableRequest tableRequest = dynamoDBMapper
+                    .generateCreateTableRequest(clazz);
+
+            tableRequest.setProvisionedThroughput(
+                    new ProvisionedThroughput(1L, 1L));
+            amazonDynamoDB.createTable(tableRequest);
+            log.warn("Table {} created", clazz.getSimpleName());
+        } catch (ResourceInUseException riue) {
+            log.warn("Table {} already exists", clazz.getSimpleName());
+            // nothing
+        }
+
     }
 
     public void flushToStorage() {
@@ -77,23 +92,22 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         {
             for (final User user : MockFactory.allUsers.values()) {
                 // TODO tune: reduce consistency, store async
-                dynamoDBMapper.save(Mapper.dataFromUser(user, MockFactory.sentimentByUser(user.getUserId())));
+                dynamoDBMapper.save(DataMapper.dataFromUser(user, MockFactory.sentimentByUser(user.getUserId())));
                 countUsers++;
             }
 
-            log.debug("Flushed {} users to database", countUsers);
         }
 
         {
             for (final Group group : MockFactory.allGroups.values()) {
                 // TODO tune: reduce consistency, store async
-                dynamoDBMapper.save(Mapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
+                dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
                 countGroups++;
             }
 
-            log.debug("Flushed {} users and {} groups to database", countUsers, countGroups);
         }
 
+        log.debug("Flushed {} users and {} groups to database", countUsers, countGroups);
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
@@ -104,16 +118,21 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     public void restoreFromStorage() {
+        int countUsers = 0;
+        int countGroups = 0;
+
         {
             // TODO tune
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
 
             final PaginatedScanList<UserData> result = dynamoDBMapper.scan(UserData.class, scanAll);
             for (UserData userData : result) {
+                System.out.println("- " + userData);
                 Preconditions.checkState(!MockFactory.allUsers.containsKey(userData.getUserId()));
 
-                MockFactory.allUsers.put(userData.getUserId(), Mapper.userFromDatabase(userData));
+                MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
                 MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
+                countUsers++;
             }
 
         }
@@ -123,13 +142,17 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
             final PaginatedScanList<GroupData> result = dynamoDBMapper.scan(GroupData.class, scanAll);
             for (GroupData groupData : result) {
+                System.out.println("- " + groupData);
                 Preconditions.checkState(!MockFactory.allGroups.containsKey(groupData.getGroupId()));
 
-                MockFactory.allGroups.put(groupData.getGroupId(), Mapper.groupFromDatabase(groupData));
-
+                final Pair<Group, List<UUID>> pair = DataMapper.groupFromDatabase(groupData);
+                MockFactory.allGroups.put(groupData.getGroupId(), pair.getLeft());
+                pair.getRight().forEach(memberId -> MockFactory.groupByUserId.put(memberId, groupData.getGroupId()));
+                countGroups++;
             }
         }
 
+        log.debug("Restored {} users and {} groups to database", countUsers, countGroups);
     }
 
     @Override
@@ -140,6 +163,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void createNewUser(final User newUser) {
         memory.createNewUser(newUser);
+        flushToStorage();
     }
 
     @Override
@@ -149,18 +173,22 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     @Override
     public Group startNewGroup(final String groupName) {
-        return memory.startNewGroup(groupName);
+        final Group group = memory.startNewGroup(groupName);
+        flushToStorage();
+        return group;
     }
 
 
     @Override
     public void joinGroup(final UUID groupId, final UUID userId) {
         memory.joinGroup(groupId, userId);
+        flushToStorage();
     }
 
     @Override
     public void leaveGroup(final UUID groupId, final UUID userId) {
         memory.leaveGroup(groupId, userId);
+        flushToStorage();
     }
 
     @Override
@@ -176,6 +204,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         memory.updateStatus(userId, sentiment);
+        flushToStorage();
     }
 
     @Override
@@ -190,6 +219,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     @Override
     public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
+        flushToStorage();
         return memory.findByDeviceIdentifier(deviceIdentifier);
     }
 

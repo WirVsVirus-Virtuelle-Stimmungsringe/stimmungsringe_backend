@@ -4,14 +4,16 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import de.wirvsvirus.hack.model.Sentiment;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.UUID;
 
 @DynamoDBTable(tableName = "User")
+@NoArgsConstructor
 @ToString
-@Builder
 public class UserData {
 
     private UUID userId;
