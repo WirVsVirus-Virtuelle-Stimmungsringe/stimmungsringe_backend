@@ -25,6 +25,18 @@ public class OnboardingService {
 
     public UserSignedInDto signin(final String deviceIdentifier) {
 
+        if ("0000".equals(deviceIdentifier)) {
+            final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
+            newUser.setName("onboarding-fake");
+            newUser.setRoles(Collections.emptyList());
+            onboardingRepository.createNewUser(newUser);
+            log.warn("Fake onboarding user {}" + newUser);
+            return UserSignedInDto.builder()
+                    .userId(newUser.getUserId())
+                    .group(Optional.empty())
+                    .build();
+        }
+
         final Optional<User> userLookup =
                 onboardingRepository.findByDeviceIdentifier(deviceIdentifier);
 
