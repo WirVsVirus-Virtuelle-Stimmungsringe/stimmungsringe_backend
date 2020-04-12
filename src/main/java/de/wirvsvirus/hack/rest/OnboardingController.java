@@ -7,9 +7,11 @@ import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
+import de.wirvsvirus.hack.service.exception.GroupNameTakenException;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,15 +80,19 @@ public class OnboardingController {
     }
 
     @PostMapping("/group/start")
-    public StartNewGroupResponse startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
+    public ResponseEntity startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
-
-        return StartNewGroupResponse.builder()
-            .groupId(newGroup.getGroupId())
-            .groupName(newGroup.getGroupName())
-            .build();
+        try {
+            final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
+            return ResponseEntity.ok(
+                    StartNewGroupResponse.builder()
+                .groupId(newGroup.getGroupId())
+                .groupName(newGroup.getGroupName())
+                .build());
+        } catch (GroupNameTakenException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
 
     }
 

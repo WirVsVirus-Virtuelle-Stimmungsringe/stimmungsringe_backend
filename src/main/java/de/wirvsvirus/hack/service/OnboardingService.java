@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
+import de.wirvsvirus.hack.service.exception.GroupNameTakenException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,13 +110,13 @@ public class OnboardingService {
 
     }
 
-    public Group startNewGroup(final User user, final String groupName) {
+    public Group startNewGroup(final User user, final String groupName) throws GroupNameTakenException {
         log.info("New group {} by user {}", groupName, user.getName());
 
         final boolean groupExists = onboardingRepository.findGroupByName(groupName).isPresent();
 
         if (groupExists) {
-            throw new IllegalStateException("Cannot start group - group name already taken");
+            throw new GroupNameTakenException(groupName);
         } else {
             Preconditions.checkState(groupName.length() >= 3);
             final Group newGroup = onboardingRepository.startNewGroup(groupName);
