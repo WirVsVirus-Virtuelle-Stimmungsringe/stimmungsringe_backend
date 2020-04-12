@@ -29,17 +29,19 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
-        MockFactory.allUsers.values().forEach(user -> {
-            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
-            updateStatus(user.getUserId(), sentiment);
-        });
+//        MockFactory.allUsers.values().forEach(user -> {
+//            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
+//            updateStatus(user.getUserId(), sentiment);
+//        });
 
     }
 
     @Override
-    public void createNewUser(final User newUser) {
+    public void createNewUser(final User newUser, Sentiment sentiment) {
+        Preconditions.checkNotNull(sentiment);
         Preconditions.checkState(!MockFactory.allUsers.containsKey(newUser.getUserId()));
         MockFactory.allUsers.put(newUser.getUserId(), newUser);
+        MockFactory.sentimentByUser.put(newUser.getUserId(), sentiment);
     }
 
     @Override
@@ -110,7 +112,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Sentiment findSentimentByUserId(UUID userId) {
 
-        final Sentiment sentiment = MockFactory.sentimentByUser(userId);
+        final Sentiment sentiment = MockFactory.sentimentByUser.get(userId);
         Preconditions.checkNotNull(
             sentiment, "Lookup error on sentiment lookup for user %s", userId);
         return sentiment;

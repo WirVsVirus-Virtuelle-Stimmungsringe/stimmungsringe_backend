@@ -97,7 +97,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         {
             for (final User user : MockFactory.allUsers.values()) {
                 // TODO tune: reduce consistency, store async
-                dynamoDBMapper.save(DataMapper.dataFromUser(user, MockFactory.sentimentByUser(user.getUserId())));
+                dynamoDBMapper.save(DataMapper.dataFromUser(user, findSentimentByUserId(user.getUserId())));
                 countUsers++;
             }
 
@@ -166,8 +166,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public void createNewUser(final User newUser) {
-        memory.createNewUser(newUser);
+    public void createNewUser(final User newUser, final Sentiment sentiment) {
+        memory.createNewUser(newUser, sentiment);
         flushToStorage();
     }
 

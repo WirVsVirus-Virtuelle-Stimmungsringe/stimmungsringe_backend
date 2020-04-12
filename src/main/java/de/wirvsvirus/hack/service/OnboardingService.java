@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
@@ -29,7 +30,7 @@ public class OnboardingService {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setName("onboarding-fake");
             newUser.setRoles(Collections.emptyList());
-            onboardingRepository.createNewUser(newUser);
+            onboardingRepository.createNewUser(newUser, Sentiment.cloudyNight);
             log.warn("Fake onboarding user {}" + newUser);
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
@@ -47,7 +48,7 @@ public class OnboardingService {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setName("noname");
             newUser.setRoles(Collections.emptyList());
-            onboardingRepository.createNewUser(newUser);
+            onboardingRepository.createNewUser(newUser, Sentiment.sunnyWithClouds);
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
                     .group(Optional.empty())

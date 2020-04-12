@@ -36,7 +36,7 @@ public interface OnboardingRepository {
 
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 
-    void createNewUser(User newUser);
+    void createNewUser(User newUser, Sentiment sentiment);
 
     Optional<Group> findGroupById(UUID groupId);
 

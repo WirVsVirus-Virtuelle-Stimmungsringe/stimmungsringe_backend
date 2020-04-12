@@ -1,6 +1,5 @@
 package de.wirvsvirus.hack.mock;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Role;
@@ -50,6 +49,7 @@ public class MockFactory {
 
         users.forEach(user -> {
             allUsers.put(user.getUserId(), user);
+            sentimentByUser.put(user.getUserId(), dummySentimentByUser(user.getUserId()));
         });
     }
 
@@ -57,7 +57,7 @@ public class MockFactory {
         return new User(UUID.fromString(userId), userId.substring(0, 4));
     }
 
-    public static Sentiment sentimentByUser(final UUID userId) {
+    private static Sentiment dummySentimentByUser(final UUID userId) {
         if (UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef").equals(userId)) {
             return Sentiment.sunnyWithClouds;
         }
