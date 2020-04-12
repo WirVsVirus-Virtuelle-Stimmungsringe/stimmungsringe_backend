@@ -8,6 +8,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.*;
 import de.wirvsvirus.hack.spring.DynamoDBConfiguration;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.util.Map;
         "amazon.dynamodb.endpoint=http://localhost:8000/",
         "amazon.aws.accesskey=fakeMyKeyId",
         "amazon.aws.secretkey=fakeSecretAccessKey" })
+@Disabled
 public class DynamoDBIntegrationTest {
 
     private DynamoDBMapper dynamoDBMapper;
