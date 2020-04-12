@@ -110,7 +110,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Sentiment findSentimentByUserId(UUID userId) {
 
-        final Sentiment sentiment = MockFactory.sentimentByUser.get(userId);
+        final Sentiment sentiment = MockFactory.sentimentByUser(userId);
         Preconditions.checkNotNull(
             sentiment, "Lookup error on sentiment lookup for user %s", userId);
         return sentiment;
