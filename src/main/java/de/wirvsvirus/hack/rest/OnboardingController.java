@@ -5,6 +5,7 @@ import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
+import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,17 @@ public class OnboardingController {
                             .build();
 
         }
+    }
+
+    @PutMapping("/user/properties")
+    public void updateUserProperties(@RequestBody @Valid final UpdateUserPropertiesRequest request) {
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+
+        onboardingService.updateUser(user,
+            UserPropertiesDto.builder()
+                    .name(request.getName())
+                    .build());
+
     }
 
     @PutMapping("/group/join")

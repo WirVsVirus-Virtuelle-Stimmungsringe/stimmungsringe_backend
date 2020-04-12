@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +58,18 @@ public class OnboardingService {
             }
         }
 
+    }
+
+    public void updateUser(final User user, final UserPropertiesDto userProperties) {
+        final String name = userProperties.getName();
+
+        Preconditions.checkState(
+            name.equals(StringUtils.trim(name)),
+                "User name must not be surrounded by whitespace: <%s>", name);
+        Preconditions.checkState(name.length() >= 1,
+                "User name must be at least one character long");
+
+        onboardingRepository.updateUser(user.getUserId(), userProperties);
     }
 
     public void joinGroup(UUID groupId, User user) {

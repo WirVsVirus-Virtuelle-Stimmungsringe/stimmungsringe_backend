@@ -5,6 +5,7 @@ import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
@@ -50,6 +51,12 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
                 .values()
                 .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
             .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
+    }
+
+    @Override
+    public void updateUser(final UUID userId, final UserPropertiesDto userProperties) {
+        final User user = lookupUserById(userId);
+        user.setName(userProperties.getName());
     }
 
     @Override

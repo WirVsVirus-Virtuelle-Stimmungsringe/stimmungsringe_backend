@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.repository;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,8 @@ public interface OnboardingRepository {
 //    }
 
     User lookupUserById(UUID userId);
+
+    void updateUser(UUID userId, UserPropertiesDto userProperties);
 
     Group startNewGroup(String groupName);
 
@@ -38,4 +41,5 @@ public interface OnboardingRepository {
     Optional<Group> findGroupById(UUID groupId);
 
     void leaveGroup(UUID groupId, UUID userId);
+
 }
