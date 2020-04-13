@@ -10,6 +10,7 @@ public class Group {
 
     private final UUID groupId;
     private String groupName;
+    private String groupCode;
 
     public Group(final UUID groupId) {
         Preconditions.checkNotNull(groupId);
@@ -26,5 +27,13 @@ public class Group {
 
     public void setGroupName(final String groupName) {
         this.groupName = groupName;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(final String groupCode) {
+        this.groupCode = groupCode;
     }
 }

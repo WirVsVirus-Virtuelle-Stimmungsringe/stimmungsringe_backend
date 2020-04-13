@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.repository.dynamodb;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.service.GroupCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -34,6 +35,7 @@ public final class DataMapper {
         fixupGroup(groupData);
         final Group group = new Group(groupData.getGroupId());
         group.setGroupName(groupData.getGroupName());
+        group.setGroupCode(groupData.getGroupCode());
         return Pair.of(group, groupData.getMembers());
     }
 
@@ -41,6 +43,7 @@ public final class DataMapper {
         final GroupData groupData = new GroupData();
         groupData.setGroupId(group.getGroupId());
         groupData.setGroupName(group.getGroupName());
+        groupData.setGroupCode(group.getGroupCode());
         groupData.setMembers(members);
         return groupData;
     }
@@ -52,6 +55,11 @@ public final class DataMapper {
         if (groupData.getGroupName().contains("fixeed")) {
             log.warn("Fixed group name of {}", groupData.getGroupId());
             groupData.setGroupName("Rasselbande");
+        }
+        if(groupData.getGroupCode() == null) {
+            final String code = GroupCodeUtil.generateGroupCode();
+            log.warn("Fixing group code of {} with new code <{}>", groupData.getGroupId(), code);
+            groupData.setGroupCode(code);
         }
     }
 

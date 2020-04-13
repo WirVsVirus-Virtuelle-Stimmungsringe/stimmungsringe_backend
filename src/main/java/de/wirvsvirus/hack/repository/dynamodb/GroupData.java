@@ -17,6 +17,7 @@ public class GroupData {
 
     private UUID groupId;
     private String groupName;
+    private String groupCode;
     private List<UUID> members;
 
     @DynamoDBHashKey
@@ -35,6 +36,15 @@ public class GroupData {
 
     public void setGroupName(final String groupName) {
         this.groupName = groupName;
+    }
+
+    @DynamoDBAttribute
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(final String groupCode) {
+        this.groupCode = groupCode;
     }
 
     @DynamoDBAttribute

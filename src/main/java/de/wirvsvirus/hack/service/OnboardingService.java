@@ -132,7 +132,8 @@ public class OnboardingService {
             throw new GroupNameTakenException(groupName);
         } else {
             Preconditions.checkState(groupName.length() >= 3);
-            final Group newGroup = onboardingRepository.startNewGroup(groupName);
+            String groupCode = GroupCodeUtil.generateGroupCode();
+            final Group newGroup = onboardingRepository.startNewGroup(groupName, groupCode);
             onboardingRepository.joinGroup(newGroup.getGroupId(), user.getUserId());
             log.info("...started new group {} with groupid {}", newGroup.getGroupName(), newGroup.getGroupId());
             return newGroup;

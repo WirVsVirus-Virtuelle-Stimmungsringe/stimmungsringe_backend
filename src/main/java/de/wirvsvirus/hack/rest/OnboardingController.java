@@ -1,8 +1,8 @@
 package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.Group;
-import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
@@ -63,6 +63,21 @@ public class OnboardingController {
                     .name(request.getName())
                     .build());
 
+    }
+
+    /**
+     * used for group settings
+     */
+    @GetMapping("/group/settings")
+    public GroupSettingsResponse getGroupSettings() {
+        final Group group = onboardingRepository.findGroupByUser(UserInterceptor.getCurrentUserId())
+            .orElseThrow(() -> new IllegalStateException("User not in a group"));
+
+        return GroupSettingsResponse.builder()
+            .groupId(group.getGroupId())
+            .groupName(group.getGroupName())
+            .groupCode(group.getGroupCode())
+            .build();
     }
 
     @PutMapping("/group/join")

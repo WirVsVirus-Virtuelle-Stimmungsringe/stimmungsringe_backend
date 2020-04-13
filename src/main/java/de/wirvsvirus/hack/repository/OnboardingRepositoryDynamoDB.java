@@ -182,8 +182,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public Group startNewGroup(final String groupName) {
-        final Group group = memory.startNewGroup(groupName);
+    public Group startNewGroup(final String groupName, final String groupCode) {
+        final Group group = memory.startNewGroup(groupName, groupCode);
         flushToStorage();
         return group;
     }

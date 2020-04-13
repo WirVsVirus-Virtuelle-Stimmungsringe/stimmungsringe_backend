@@ -5,6 +5,7 @@ import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.service.GroupCodeUtil;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
@@ -24,7 +25,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @PostConstruct
     public void initMock() {
 
-        final Group rasselbande = startNewGroup("Rasselbande");
+        final Group rasselbande = startNewGroup("Rasselbande", "12345");
         joinGroup(rasselbande.getGroupId(), UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
@@ -72,10 +73,11 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public Group startNewGroup(String groupName) {
-        Preconditions.checkState(groupName.length() >= 3);
+    public Group startNewGroup(String groupName, String groupCode) {
+
         final Group newGroup = new Group(UUID.randomUUID());
         newGroup.setGroupName(groupName);
+        newGroup.setGroupCode(GroupCodeUtil.generateGroupCode());
 
         MockFactory.allGroups.put(newGroup.getGroupId(), newGroup);
         return newGroup;
