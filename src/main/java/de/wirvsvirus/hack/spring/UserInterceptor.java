@@ -27,6 +27,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
         if (request.getServletPath().endsWith("/signin")
                 || request.getServletPath().startsWith("/images/")
+                || request.getServletPath().startsWith("/debug/")
         ) {
             log.debug("Request for unauthenticated endpoint {}", request.getServletPath());
             Preconditions.checkState(request.getHeader(HEADER_USER_ID) == null,
