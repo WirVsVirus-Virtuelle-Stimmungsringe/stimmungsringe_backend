@@ -141,7 +141,9 @@ public class OnboardingService {
         log.info("New group {} by user {}", groupName, user.getName());
 
         Preconditions.checkState(groupName.length() >= 3);
-        String groupCode = GroupCodeUtil.generateGroupCode();
+        final String groupCode = GroupCodeUtil.generateGroupCode();
+        final Optional<Group> conflict = onboardingRepository.findGroupByCode(groupCode);
+        Preconditions.checkState(!conflict.isPresent(), "Group code cannot be used - conflicting");
         final Group newGroup = onboardingRepository.startNewGroup(groupName, groupCode);
         onboardingRepository.joinGroup(newGroup.getGroupId(), user.getUserId());
         log.info("...started new group {} with groupid {}", newGroup.getGroupName(), newGroup.getGroupId());
