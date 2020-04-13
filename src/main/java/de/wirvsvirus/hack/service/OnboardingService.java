@@ -8,6 +8,7 @@ import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
+import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class OnboardingService {
 
             Preconditions.checkState(deviceIdentifier.length() >= 3);
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
-            newUser.setName("noname");
+            newUser.setName("Max Mustermann");
             newUser.setRoles(Collections.emptyList());
             onboardingRepository.createNewUser(newUser, Sentiment.sunnyWithClouds);
             return UserSignedInDto.builder()
@@ -87,7 +88,7 @@ public class OnboardingService {
         onboardingRepository.updateUser(user.getUserId(), userSettings);
     }
 
-    public void updateGroup(final Optional<Group> group, final GroupSettingsDto groupSettings) {
+    public void updateGroup(final Group group, final GroupSettingsDto groupSettings) {
         final String groupName = groupSettings.getGroupName();
 
         if (groupName.isEmpty()) {
@@ -96,7 +97,7 @@ public class OnboardingService {
 
         groupSettings.setGroupName(StringUtils.trim(groupSettings.getGroupName()));
 
-        onboardingRepository.updateGroup(group.get().getGroupId(), groupSettings);
+        onboardingRepository.updateGroup(group.getGroupId(), groupSettings);
     }
 
     public void joinGroup(UUID groupId, User user) {
@@ -148,5 +149,19 @@ public class OnboardingService {
 
     }
 
+    /**
+     * make sure group exists and user is member of group
+     */
+    public Group lookupGroupCheckPermissions(final UUID groupId) {
+        final Group currentGroup = onboardingRepository.findGroupByUser(UserInterceptor.getCurrentUserId())
+                .orElseThrow(() -> new IllegalStateException("User not in a group"));
+
+        final Group group = onboardingRepository.findGroupById(groupId)
+                .orElseThrow(() -> new IllegalStateException("Group not found"));
+
+        Preconditions.checkState(group.getGroupId().equals(currentGroup.getGroupId()),
+                "Requested group must have current user as a member");
+        return group;
+    }
 
 }

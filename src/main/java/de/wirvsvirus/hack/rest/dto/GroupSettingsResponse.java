@@ -12,4 +12,6 @@ public class GroupSettingsResponse {
     private UUID groupId;
     private String groupName;
     private String groupCode;
+    // FIXME
+    private String userName;
 }

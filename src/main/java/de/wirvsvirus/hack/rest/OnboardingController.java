@@ -71,8 +71,8 @@ public class OnboardingController {
     @PutMapping("/group/{groupId}/settings")
     public void updateGroupSettings(@RequestBody @Valid final UpdateGroupSettingsRequest request,
                                     @NotNull @PathVariable("groupId") final UUID groupId) {
-        final Optional<Group> group = onboardingRepository.findGroupById(groupId);
-        Preconditions.checkState(group.isPresent());
+
+        final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
 
         onboardingService.updateGroup(group,
                 GroupSettingsDto.builder()
@@ -83,15 +83,17 @@ public class OnboardingController {
     /**
      * used for group settings
      */
-    @GetMapping("/group/settings")
-    public GroupSettingsResponse getGroupSettings() {
-        final Group group = onboardingRepository.findGroupByUser(UserInterceptor.getCurrentUserId())
-                .orElseThrow(() -> new IllegalStateException("User not in a group"));
+    @GetMapping("/group/{groupId}/settings")
+    public GroupSettingsResponse getGroupSettings(@NotNull @PathVariable("groupId") final UUID groupId) {
+
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
 
         return GroupSettingsResponse.builder()
                 .groupId(group.getGroupId())
                 .groupName(group.getGroupName())
                 .groupCode(group.getGroupCode())
+                .userName(user.getName())
                 .build();
     }
 
