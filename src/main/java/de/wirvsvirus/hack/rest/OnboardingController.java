@@ -80,6 +80,19 @@ public class OnboardingController {
                         .build());
     }
 
+
+    /**
+     * used for group settings
+     */
+    @GetMapping("/user/settings")
+    public UserSettingsResponse getUserSettings() {
+
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        return UserSettingsResponse.builder()
+                .userName(user.getName())
+                .build();
+    }
+
     /**
      * used for group settings
      */
