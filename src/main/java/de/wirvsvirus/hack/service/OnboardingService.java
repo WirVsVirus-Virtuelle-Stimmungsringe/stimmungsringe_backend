@@ -3,11 +3,10 @@ package de.wirvsvirus.hack.service;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
-import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
-import de.wirvsvirus.hack.service.exception.GroupNameTakenException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class OnboardingService {
                     .build();
         } else {
             final Optional<Group> group = onboardingRepository.findGroupForUser(
-                userLookup.get().getUserId());
+                    userLookup.get().getUserId());
 
             log.info("User {} signed in - group is {}", userLookup.get(), group);
 
@@ -78,7 +77,7 @@ public class OnboardingService {
         final String name = userProperties.getName();
 
         Preconditions.checkState(
-            name.equals(StringUtils.trim(name)),
+                name.equals(StringUtils.trim(name)),
                 "User name must not be surrounded by whitespace: <%s>", name);
         Preconditions.checkState(name.length() >= 1,
                 "User name must be at least one character long");
@@ -123,21 +122,15 @@ public class OnboardingService {
 
     }
 
-    public Group startNewGroup(final User user, final String groupName) throws GroupNameTakenException {
+    public Group startNewGroup(final User user, final String groupName) {
         log.info("New group {} by user {}", groupName, user.getName());
 
-        final boolean groupExists = onboardingRepository.findGroupByCode(groupName).isPresent();
-
-        if (groupExists) {
-            throw new GroupNameTakenException(groupName);
-        } else {
-            Preconditions.checkState(groupName.length() >= 3);
-            String groupCode = GroupCodeUtil.generateGroupCode();
-            final Group newGroup = onboardingRepository.startNewGroup(groupName, groupCode);
-            onboardingRepository.joinGroup(newGroup.getGroupId(), user.getUserId());
-            log.info("...started new group {} with groupid {}", newGroup.getGroupName(), newGroup.getGroupId());
-            return newGroup;
-        }
+        Preconditions.checkState(groupName.length() >= 3);
+        String groupCode = GroupCodeUtil.generateGroupCode();
+        final Group newGroup = onboardingRepository.startNewGroup(groupName, groupCode);
+        onboardingRepository.joinGroup(newGroup.getGroupId(), user.getUserId());
+        log.info("...started new group {} with groupid {}", newGroup.getGroupName(), newGroup.getGroupId());
+        return newGroup;
 
     }
 

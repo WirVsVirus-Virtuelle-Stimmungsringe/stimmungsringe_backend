@@ -7,11 +7,9 @@ import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
-import de.wirvsvirus.hack.service.exception.GroupNameTakenException;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,12 +34,13 @@ public class OnboardingController {
         final String userId = signinResult.getUserId().toString();
 
         if (signinResult.getGroup().isPresent()) {
+            final Group group = signinResult.getGroup().get();
             return
                     SigninUserResponse.builder()
                             .userId(userId)
                             .hasGroup(true)
-                            .groupId(signinResult.getGroup().get().getGroupId().toString())
-                            .groupName(signinResult.getGroup().get().getGroupName())
+                            .groupId(group.getGroupId().toString())
+                            .groupName(group.getGroupName())
                             .build();
 
         } else {
@@ -59,9 +58,9 @@ public class OnboardingController {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         onboardingService.updateUser(user,
-            UserPropertiesDto.builder()
-                    .name(request.getName())
-                    .build());
+                UserPropertiesDto.builder()
+                        .name(request.getName())
+                        .build());
 
     }
 
@@ -71,13 +70,13 @@ public class OnboardingController {
     @GetMapping("/group/settings")
     public GroupSettingsResponse getGroupSettings() {
         final Group group = onboardingRepository.findGroupByUser(UserInterceptor.getCurrentUserId())
-            .orElseThrow(() -> new IllegalStateException("User not in a group"));
+                .orElseThrow(() -> new IllegalStateException("User not in a group"));
 
         return GroupSettingsResponse.builder()
-            .groupId(group.getGroupId())
-            .groupName(group.getGroupName())
-            .groupCode(group.getGroupCode())
-            .build();
+                .groupId(group.getGroupId())
+                .groupName(group.getGroupName())
+                .groupCode(group.getGroupCode())
+                .build();
     }
 
     @PutMapping("/group/join")
@@ -95,37 +94,30 @@ public class OnboardingController {
     }
 
     @PostMapping("/group/start")
-    public ResponseEntity startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
+    public ResponseEntity<StartNewGroupResponse> startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        try {
-            final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
-            return ResponseEntity.ok(
-                    StartNewGroupResponse.builder()
-                .groupId(newGroup.getGroupId())
-                .groupName(newGroup.getGroupName())
-                .build());
-        } catch (GroupNameTakenException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
+        return ResponseEntity.ok(
+                StartNewGroupResponse.builder()
+                        .groupId(newGroup.getGroupId())
+                        .groupName(newGroup.getGroupName())
+                        .build());
 
     }
 
     @PostMapping("/group-by-code")
-    public ResponseEntity getGroupByCode(@RequestBody @Valid final FindGroupRequest request) {
+    public ResponseEntity<FindGroupResponse> getGroupByCode(@RequestBody @Valid final FindGroupRequest request) {
 
         final Optional<Group> match =
-            onboardingRepository.findGroupByCode(request.getGroupCode());
+                onboardingRepository.findGroupByCode(request.getGroupCode());
 
-        if (match.isPresent()) {
-            return ResponseEntity.ok(
-                    FindGroupResponse.builder()
-                        .groupId(match.get().getGroupId())
-                        .groupName(match.get().getGroupName())
-                        .build());
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+        return match.map(group -> ResponseEntity.ok(
+                FindGroupResponse.builder()
+                        .groupId(group.getGroupId())
+                        .groupName(group.getGroupName())
+                        .build())
+        ).orElseGet(() -> ResponseEntity.noContent().build());
 
     }
 
