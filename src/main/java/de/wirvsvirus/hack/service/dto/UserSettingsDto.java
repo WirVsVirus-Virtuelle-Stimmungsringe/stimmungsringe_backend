@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 @Builder
 @Data
-public class UserPropertiesDto {
+public class UserSettingsDto {
 
     private String name;
 

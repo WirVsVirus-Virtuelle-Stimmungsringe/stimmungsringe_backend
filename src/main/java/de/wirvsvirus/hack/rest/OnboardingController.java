@@ -1,11 +1,13 @@
 package de.wirvsvirus.hack.rest;
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
-import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
+import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
+import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/onboarding")
@@ -53,15 +57,27 @@ public class OnboardingController {
         }
     }
 
-    @PutMapping("/user/properties")
-    public void updateUserProperties(@RequestBody @Valid final UpdateUserPropertiesRequest request) {
+    @PutMapping("/user/settings")
+    public void updateUserSettings(@RequestBody @Valid final UpdateUserSettingsRequest request) {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         onboardingService.updateUser(user,
-                UserPropertiesDto.builder()
+                UserSettingsDto.builder()
                         .name(request.getName())
                         .build());
 
+    }
+
+    @PutMapping("/group/{groupId}/settings")
+    public void updateGroupSettings(@RequestBody @Valid final UpdateGroupSettingsRequest request,
+                                    @NotNull @PathVariable("groupId") final UUID groupId) {
+        final Optional<Group> group = onboardingRepository.findGroupById(groupId);
+        Preconditions.checkState(group.isPresent());
+
+        onboardingService.updateGroup(group,
+                GroupSettingsDto.builder()
+                        .groupName(request.getGroupName())
+                        .build());
     }
 
     /**

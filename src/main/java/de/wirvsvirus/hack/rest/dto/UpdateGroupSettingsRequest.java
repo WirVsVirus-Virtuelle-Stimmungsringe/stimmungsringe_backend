@@ -5,9 +5,9 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 
 @Data
-public class UpdateUserPropertiesRequest {
+public class UpdateGroupSettingsRequest {
 
     @NotEmpty
-    public String name;
+    public String groupName;
 
 }

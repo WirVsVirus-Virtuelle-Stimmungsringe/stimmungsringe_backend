@@ -13,7 +13,8 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
-import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
+import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
+import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import org.apache.commons.lang3.tuple.Pair;
@@ -175,8 +176,13 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public void updateUser(final UUID userId, final UserPropertiesDto userProperties) {
-        memory.updateUser(userId, userProperties);
+    public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
+        memory.updateUser(userId, userSettings);
+    }
+
+    @Override
+    public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
+        memory.updateGroup(groupId, groupSettings);
     }
 
     @Override

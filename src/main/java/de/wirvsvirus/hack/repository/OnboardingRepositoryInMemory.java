@@ -5,8 +5,8 @@ import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.service.GroupCodeUtil;
-import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
+import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
+import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
@@ -57,9 +57,16 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public void updateUser(final UUID userId, final UserPropertiesDto userProperties) {
+    public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         final User user = lookupUserById(userId);
-        user.setName(userProperties.getName());
+        user.setName(userSettings.getName());
+    }
+
+    @Override
+    public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
+        final Group group = MockFactory.allGroups.get(groupId);
+        Preconditions.checkNotNull(group);
+        group.setGroupName(groupSettings.getGroupName());
     }
 
     @Override

@@ -5,7 +5,8 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.service.dto.UserPropertiesDto;
+import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
+import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -73,16 +74,29 @@ public class OnboardingService {
 
     }
 
-    public void updateUser(final User user, final UserPropertiesDto userProperties) {
-        final String name = userProperties.getName();
+    public void updateUser(final User user, final UserSettingsDto userSettings) {
+        final String name = userSettings.getName();
 
-        Preconditions.checkState(
-                name.equals(StringUtils.trim(name)),
-                "User name must not be surrounded by whitespace: <%s>", name);
-        Preconditions.checkState(name.length() >= 1,
-                "User name must be at least one character long");
 
-        onboardingRepository.updateUser(user.getUserId(), userProperties);
+        if (name.isEmpty()) {
+            return;
+        }
+
+        userSettings.setName(StringUtils.trim(name));
+
+        onboardingRepository.updateUser(user.getUserId(), userSettings);
+    }
+
+    public void updateGroup(final Optional<Group> group, final GroupSettingsDto groupSettings) {
+        final String groupName = groupSettings.getGroupName();
+
+        if (groupName.isEmpty()) {
+            return;
+        }
+
+        groupSettings.setGroupName(StringUtils.trim(groupSettings.getGroupName()));
+
+        onboardingRepository.updateGroup(group.get().getGroupId(), groupSettings);
     }
 
     public void joinGroup(UUID groupId, User user) {
@@ -133,5 +147,6 @@ public class OnboardingService {
         return newGroup;
 
     }
+
 
 }
