@@ -77,7 +77,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
         final Group newGroup = new Group(UUID.randomUUID());
         newGroup.setGroupName(groupName);
-        newGroup.setGroupCode(GroupCodeUtil.generateGroupCode());
+        newGroup.setGroupCode(groupCode);
 
         MockFactory.allGroups.put(newGroup.getGroupId(), newGroup);
         return newGroup;
