@@ -25,8 +25,6 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -223,8 +221,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public Optional<Group> findGroupByName(final String groupName) {
-        return memory.findGroupByName(groupName);
+    public Optional<Group> findGroupByCode(final String groupCode) {
+        return memory.findGroupByCode(groupCode);
     }
 
     @Override

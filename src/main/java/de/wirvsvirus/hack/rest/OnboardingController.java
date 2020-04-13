@@ -111,11 +111,11 @@ public class OnboardingController {
 
     }
 
-    @PostMapping("/group-by-name")
-    public ResponseEntity getGroupByName(@RequestBody @Valid final FindGroupRequest request) {
+    @PostMapping("/group-by-code")
+    public ResponseEntity getGroupByCode(@RequestBody @Valid final FindGroupRequest request) {
 
         final Optional<Group> match =
-            onboardingRepository.findGroupByName(request.getGroupName());
+            onboardingRepository.findGroupByCode(request.getGroupCode());
 
         if (match.isPresent()) {
             return ResponseEntity.ok(
@@ -126,7 +126,6 @@ public class OnboardingController {
         } else {
             return ResponseEntity.noContent().build();
         }
-
 
     }
 

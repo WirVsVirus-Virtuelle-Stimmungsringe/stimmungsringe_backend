@@ -126,7 +126,7 @@ public class OnboardingService {
     public Group startNewGroup(final User user, final String groupName) throws GroupNameTakenException {
         log.info("New group {} by user {}", groupName, user.getName());
 
-        final boolean groupExists = onboardingRepository.findGroupByName(groupName).isPresent();
+        final boolean groupExists = onboardingRepository.findGroupByCode(groupName).isPresent();
 
         if (groupExists) {
             throw new GroupNameTakenException(groupName);

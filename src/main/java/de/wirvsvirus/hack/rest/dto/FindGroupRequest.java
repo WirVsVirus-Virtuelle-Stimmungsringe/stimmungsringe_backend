@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class FindGroupRequest {
 
-    private String groupName;
+    private String groupCode;
 }

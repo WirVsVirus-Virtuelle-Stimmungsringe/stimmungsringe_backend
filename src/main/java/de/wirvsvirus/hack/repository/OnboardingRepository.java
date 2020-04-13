@@ -30,7 +30,7 @@ public interface OnboardingRepository {
 
     Optional<Group> findGroupByUser(UUID userId);
 
-    Optional<Group> findGroupByName(String groupName);
+    Optional<Group> findGroupByCode(String groupCode);
 
     Optional<Group> findGroupForUser(UUID id);
 

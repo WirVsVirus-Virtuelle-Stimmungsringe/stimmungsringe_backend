@@ -134,10 +134,10 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public Optional<Group> findGroupByName(final String groupName) {
+    public Optional<Group> findGroupByCode(final String groupCode) {
 
         final List<Group> matches = EntryStream.of(MockFactory.allGroups)
-                .filterValues(group -> group.getGroupName().equals(groupName))
+                .filterValues(group -> group.getGroupCode().equals(groupCode))
                 .values()
                 .toList();
 
