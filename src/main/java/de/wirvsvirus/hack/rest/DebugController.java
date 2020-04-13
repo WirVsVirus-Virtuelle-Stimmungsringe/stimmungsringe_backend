@@ -33,6 +33,9 @@ public class DebugController {
         return MockFactory.allGroups.values();
     }
 
+    /**
+     * @param debugCode Secret debug hash - ask Stefan .. starts with "aeLeiv7...."
+     */
     private void checkDebugCode(final String debugCode) {
         final String hashed = Hashing.sha256().hashString(debugCode, StandardCharsets.ISO_8859_1).toString();
         final String expected = "ff43ee88b4ef1c750519c6d681dc9992d990f6e852021b48d8a5faf182af1f27";
