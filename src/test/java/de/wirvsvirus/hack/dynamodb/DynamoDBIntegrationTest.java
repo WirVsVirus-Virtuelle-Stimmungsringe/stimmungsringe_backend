@@ -45,21 +45,19 @@ public class DynamoDBIntegrationTest {
     @BeforeEach
     public void setup() throws Exception {
 
-        if (true) {
-            DeleteTableRequest deleteTableRequest = dynamoDBMapper
-                    .generateDeleteTableRequest(ProductInfo.class);
+        DeleteTableRequest deleteTableRequest = dynamoDBMapper
+                .generateDeleteTableRequest(ProductInfo.class);
 
-            try {
-                amazonDynamoDB.deleteTable(deleteTableRequest);
-            } catch(ResourceNotFoundException rnfe) {
-            }
-            CreateTableRequest tableRequest = dynamoDBMapper
-                    .generateCreateTableRequest(ProductInfo.class);
-
-            tableRequest.setProvisionedThroughput(
-                    new ProvisionedThroughput(1L, 1L));
-            amazonDynamoDB.createTable(tableRequest);
+        try {
+            amazonDynamoDB.deleteTable(deleteTableRequest);
+        } catch(ResourceNotFoundException rnfe) {
         }
+        CreateTableRequest tableRequest = dynamoDBMapper
+                .generateCreateTableRequest(ProductInfo.class);
+
+        tableRequest.setProvisionedThroughput(
+                new ProvisionedThroughput(1L, 1L));
+        amazonDynamoDB.createTable(tableRequest);
 
         for (int i=10; i<99;i++) {
             ProductInfo dave = new ProductInfo();
