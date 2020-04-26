@@ -7,7 +7,8 @@
 
 ### DynamoDB
 Die DynamoDB kann lokal gestartet werden - [siehe Anleitung](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html)
-Spring Boot Profile ist "dynamodb"
+
+Spring Boot Profile-Konstellationen: dynamodb-localdev, dynamodb
 
 `aws dynamodb list-tables --endpoint-url http://localhost:8000`
 
