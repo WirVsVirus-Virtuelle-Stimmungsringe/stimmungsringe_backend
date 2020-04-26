@@ -53,7 +53,7 @@ public class DynamoDBConfiguration {
 
     @Bean
     public DynamoDBMapper dynamoDBMapper(AmazonDynamoDB amazonDynamoDB) {
-        final String databasePrefix = DatabasePrefix.valueOf(tablePrefix.toUpperCase()).name().toLowerCase();
+        final String databasePrefix = DynamoDBTablePrefix.valueOf(tablePrefix.toUpperCase()).name().toLowerCase();
 
         final DynamoDBMapperConfig.TableNameOverride override = DynamoDBMapperConfig.TableNameOverride.withTableNamePrefix(
                 databasePrefix + "_");
@@ -69,7 +69,7 @@ public class DynamoDBConfiguration {
                 amazonAWSAccessKey, amazonAWSSecretKey);
     }
 
-    enum DatabasePrefix {
+    enum DynamoDBTablePrefix {
         /**
          * localhost:8000
          */
@@ -77,7 +77,11 @@ public class DynamoDBConfiguration {
         /**
          * AWS
          */
-        INTEG
+        INTEG,
+        /**
+         * local integration test
+         */
+        ITEST
     }
 
 }

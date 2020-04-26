@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -25,14 +26,17 @@ import java.util.Map;
  *
  */
 @ExtendWith (SpringExtension.class)
-@SpringBootTest(classes = DynamoDBConfiguration.class)
+@SpringBootTest(classes = {DynamoDBConfiguration.class})
 @TestPropertySource(properties = {
+        "dynamodb.table_prefix=itest",
         "amazon.dynamodb.endpoint=http://localhost:8000/",
         "amazon.aws.accesskey=fakeMyKeyId",
         "amazon.aws.secretkey=fakeSecretAccessKey" })
+@ActiveProfiles("dynamodb")
 @Disabled
 public class DynamoDBIntegrationTest {
 
+    @Autowired
     private DynamoDBMapper dynamoDBMapper;
 
     @Autowired
@@ -40,9 +44,8 @@ public class DynamoDBIntegrationTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
 
-        if (false) {
+        if (true) {
             DeleteTableRequest deleteTableRequest = dynamoDBMapper
                     .generateDeleteTableRequest(ProductInfo.class);
 
