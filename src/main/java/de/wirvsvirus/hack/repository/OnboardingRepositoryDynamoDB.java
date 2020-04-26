@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.repository;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.*;
@@ -35,6 +36,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     private OnboardingRepositoryInMemory memory;
 
+    @Autowired
     private DynamoDBMapper dynamoDBMapper;
 
     @Autowired
@@ -50,7 +52,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         log.info("Do not load mock data");
 
 
-        dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
 
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);

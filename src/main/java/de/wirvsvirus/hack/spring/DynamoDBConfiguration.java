@@ -1,14 +1,14 @@
 package de.wirvsvirus.hack.spring;
 
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +27,9 @@ public class DynamoDBConfiguration {
 
     @Value("${amazon.aws.secretkey}")
     private String amazonAWSSecretKey;
+
+    @Value("${dynamodb.table_prefix}")
+    private String tablePrefix;
 
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {
@@ -49,9 +52,32 @@ public class DynamoDBConfiguration {
     }
 
     @Bean
+    public DynamoDBMapper dynamoDBMapper(AmazonDynamoDB amazonDynamoDB) {
+        final String databasePrefix = DatabasePrefix.valueOf(tablePrefix.toUpperCase()).name().toLowerCase();
+
+        final DynamoDBMapperConfig.TableNameOverride override = DynamoDBMapperConfig.TableNameOverride.withTableNamePrefix(
+                databasePrefix + "_");
+
+        final DynamoDBMapperConfig mapperconfig = DynamoDBMapperConfig.builder()
+                .withTableNameOverride(override).build();
+        return new DynamoDBMapper(amazonDynamoDB, mapperconfig);
+    }
+
+    @Bean
     public AWSCredentials amazonAWSCredentials() {
         return new BasicAWSCredentials(
                 amazonAWSAccessKey, amazonAWSSecretKey);
+    }
+
+    enum DatabasePrefix {
+        /**
+         * localhost:8000
+         */
+        LOCALDEV,
+        /**
+         * AWS
+         */
+        INTEG
     }
 
 }
