@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,10 +41,12 @@ public class DashboardController {
             final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
             final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+            final Instant lastUpdated = onboardingRepository.findLastUpdatedByUserId(currentUser.getUserId());
 
             MyTileResponse myTileResponse = new MyTileResponse();
             myTileResponse.setUser(me);
             myTileResponse.setSentiment(sentiment);
+            myTileResponse.setLastUpdated(lastUpdated);
 
             response.setMyTile(myTileResponse);
         }
@@ -61,10 +64,12 @@ public class DashboardController {
             final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser);
 
             final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
+            final Instant lastUpdated = onboardingRepository.findLastUpdatedByUserId(otherUser.getUserId());
 
             OtherTileResponse tileResponse = new OtherTileResponse();
             tileResponse.setUser(other);
             tileResponse.setSentiment(sentiment);
+            tileResponse.setLastUpdated(lastUpdated);
 
             otherTiles.add(tileResponse);
         }

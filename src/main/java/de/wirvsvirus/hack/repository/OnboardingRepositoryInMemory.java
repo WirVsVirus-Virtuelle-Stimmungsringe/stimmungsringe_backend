@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,9 +27,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void initMock() {
 
         final Group rasselbande = startNewGroup("Rasselbande", "12345");
+
         joinGroup(rasselbande.getGroupId(), UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
+        touchLastUpdated(UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
+        touchLastUpdated(UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
+        touchLastUpdated(UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
         log.info("Created mock group " + rasselbande);
     }
@@ -39,6 +44,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkState(!MockFactory.allUsers.containsKey(newUser.getUserId()));
         MockFactory.allUsers.put(newUser.getUserId(), newUser);
         MockFactory.sentimentByUser.put(newUser.getUserId(), sentiment);
+        touchLastUpdated(newUser.getUserId());
     }
 
     @Override
@@ -56,6 +62,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         final User user = lookupUserById(userId);
         user.setName(userSettings.getName());
+        touchLastUpdated(userId);
     }
 
     @Override
@@ -124,8 +131,19 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
+    public Instant findLastUpdatedByUserId(UUID userId) {
+        final Instant lastUpdated = MockFactory.lastUpdatedByUser.get(userId);
+        Preconditions.checkNotNull(
+                lastUpdated, "Lookup error on last updated lookup for user %s", userId);
+        return lastUpdated;
+    }
+
+
+    @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
+        lookupUserById(userId);
         MockFactory.sentimentByUser.put(userId, sentiment);
+        touchLastUpdated(userId);
     }
 
 
@@ -164,5 +182,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
                                         .equals(deviceIdentifier));
     }
 
+    private void touchLastUpdated(final UUID userId) {
+        MockFactory.lastUpdatedByUser.put(userId, Instant.now());
+    }
 
 }

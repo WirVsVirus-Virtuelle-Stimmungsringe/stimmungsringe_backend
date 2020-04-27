@@ -4,11 +4,15 @@ import de.wirvsvirus.hack.model.Sentiment;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 public class OtherTileResponse {
 
     private UserMinimalResponse user;
 
     private Sentiment sentiment;
+
+    private Instant lastUpdated;
 
 }

@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -137,6 +138,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
                 MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
                 MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
+                MockFactory.lastUpdatedByUser.put(userData.getUserId(), Instant.parse("2020-04-01T12:00:00Z")); // TODO
                 countUsers++;
             }
 
@@ -214,6 +216,11 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public Sentiment findSentimentByUserId(final UUID userId) {
         return memory.findSentimentByUserId(userId);
+    }
+
+    @Override
+    public Instant findLastUpdatedByUserId(final UUID userId) {
+        return memory.findLastUpdatedByUserId(userId);
     }
 
     @Override

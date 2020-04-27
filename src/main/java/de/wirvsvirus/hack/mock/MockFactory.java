@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 
+import java.time.Instant;
 import java.util.*;
 
 public class MockFactory {
@@ -15,6 +16,7 @@ public class MockFactory {
     // TODO maintain order
     public static final Map<UUID, UUID> groupByUserId = new HashMap<>();
     public static Map<UUID, Sentiment> sentimentByUser = new HashMap<>();
+    public static Map<UUID, Instant> lastUpdatedByUser = new HashMap<>();
 
     static {
         final List<User> users = new ArrayList<>();
