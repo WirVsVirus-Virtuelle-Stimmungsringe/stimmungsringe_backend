@@ -4,10 +4,7 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.rest.dto.DashboardResponse;
-import de.wirvsvirus.hack.rest.dto.MyTileResponse;
-import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
-import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
+import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +31,25 @@ public class DashboardController {
 
         final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
 
-        DashboardResponse response = new DashboardResponse();
+        return DashboardResponse.builder()
+                .myTile(buildMyTileResponse(currentUser))
+                .otherTiles(buildOtherTileResponseList(currentUser, group))
+                .groupData(buildGroupData(group))
+                .build();
+    }
 
-        {
-            final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
+    private MyTileResponse buildMyTileResponse(final User currentUser) {
+        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
-            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
 
-            MyTileResponse myTileResponse = new MyTileResponse();
-            myTileResponse.setUser(me);
-            myTileResponse.setSentiment(sentiment);
+        return MyTileResponse.builder()
+                .user(me)
+                .sentiment(sentiment)
+                .build();
+    }
 
-            response.setMyTile(myTileResponse);
-        }
-
-
+    private List<OtherTileResponse> buildOtherTileResponseList(final User currentUser, final Optional<Group> group) {
         final List<User> otherUsersInGroup;
         if (group.isPresent()) {
             otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(group.get().getGroupId(), currentUser.getUserId());
@@ -62,17 +63,22 @@ public class DashboardController {
 
             final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
 
-            OtherTileResponse tileResponse = new OtherTileResponse();
-            tileResponse.setUser(other);
-            tileResponse.setSentiment(sentiment);
-
-            otherTiles.add(tileResponse);
+            otherTiles.add(
+                    OtherTileResponse.builder()
+                            .user(other)
+                            .sentiment(sentiment)
+                            .build()
+            );
         }
-
-        response.setOtherTiles(otherTiles);
-
-        return response;
+        return otherTiles;
     }
 
-
+    private DashboardResponse.GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
+        return groupOptional.map(group ->
+                DashboardResponse.GroupDataResponse.builder()
+                        .groupName(group.getGroupName())
+                        .groupCode(group.getGroupCode())
+                        .build()
+        ).orElse(null);
+    }
 }

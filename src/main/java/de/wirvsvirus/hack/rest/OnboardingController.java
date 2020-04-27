@@ -1,6 +1,5 @@
 package de.wirvsvirus.hack.rest;
 
-import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
@@ -90,6 +89,7 @@ public class OnboardingController {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         return UserSettingsResponse.builder()
                 .userName(user.getName())
+                .hasName(user.hasName())
                 .build();
     }
 

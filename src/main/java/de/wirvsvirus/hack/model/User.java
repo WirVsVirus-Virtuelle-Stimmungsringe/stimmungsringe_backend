@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import lombok.ToString;
 
 import java.util.List;
@@ -38,6 +39,10 @@ public class User {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public boolean hasName() {
+        return !Strings.isNullOrEmpty(name);
     }
 
     @Deprecated
