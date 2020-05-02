@@ -38,7 +38,7 @@ public class DashboardController {
     private ObjectMapper objectMapper;
 
     @GetMapping
-    public ResponseEntity<DashboardResponse> dashboardView() {
+    public DashboardResponse dashboardView() {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
@@ -50,9 +50,7 @@ public class DashboardController {
                 .groupData(buildGroupData(group))
                 .build();
 
-        final String hash = buildHash(response);
-
-        return ResponseEntity.status(HttpStatus.OK).header("X-Dashboard-Hash", hash).body(response);
+        return response;
 
     }
 
@@ -100,12 +98,4 @@ public class DashboardController {
         ).orElse(null);
     }
 
-    private String buildHash(final DashboardResponse response) {
-        try {
-            return Hashing.sha256().hashString(
-                    objectMapper.writeValueAsString(response), StandardCharsets.UTF_8).toString();
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException();
-        }
-    }
 }
