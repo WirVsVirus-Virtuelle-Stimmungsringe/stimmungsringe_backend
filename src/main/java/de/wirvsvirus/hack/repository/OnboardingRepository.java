@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +28,8 @@ public interface OnboardingRepository {
 
     Sentiment findSentimentByUserId(UUID userId);
 
+    Instant findLastStatusUpdateByUserId(UUID userId);
+
     void updateStatus(UUID userId, Sentiment sentiment);
 
     Optional<Group> findGroupByUser(UUID userId);
@@ -44,4 +47,6 @@ public interface OnboardingRepository {
     void leaveGroup(UUID groupId, UUID userId);
 
     void updateGroup(UUID groupId, GroupSettingsDto groupSettings);
+
+    void touchLastStatusUpdate(UUID userId);
 }

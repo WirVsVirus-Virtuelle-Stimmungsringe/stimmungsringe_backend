@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,9 +27,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void initMock() {
 
         final Group rasselbande = startNewGroup("Rasselbande", "12345");
+
         joinGroup(rasselbande.getGroupId(), UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
+        touchLastStatusUpdate(UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
+        touchLastStatusUpdate(UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
+        touchLastStatusUpdate(UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
         log.info("Created mock group " + rasselbande);
     }
@@ -124,7 +129,17 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
+    public Instant findLastStatusUpdateByUserId(UUID userId) {
+        final Instant lastStatusUpdate = MockFactory.lastStatusUpdateByUser.get(userId);
+        Preconditions.checkNotNull(
+                lastStatusUpdate, "Lookup error on last status update timestamp lookup for user %s", userId);
+        return lastStatusUpdate;
+    }
+
+
+    @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
+        lookupUserById(userId);
         MockFactory.sentimentByUser.put(userId, sentiment);
     }
 
@@ -164,5 +179,9 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
                                         .equals(deviceIdentifier));
     }
 
+    @Override
+    public void touchLastStatusUpdate(final UUID userId) {
+        MockFactory.lastStatusUpdateByUser.put(userId, Instant.now());
+    }
 
 }
