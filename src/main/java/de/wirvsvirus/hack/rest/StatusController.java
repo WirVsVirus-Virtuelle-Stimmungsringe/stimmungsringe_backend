@@ -21,15 +21,16 @@ import javax.validation.Valid;
 public class StatusController {
 
     @Autowired
-    private OnboardingRepository userRepository;
+    private OnboardingRepository onboardingRepository;
 
     @PutMapping
     public void updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
-        final User currentUser = userRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         Preconditions.checkNotNull(request.getSentiment(), "sentiment must not be null");
 
         log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());
-        userRepository.updateStatus(currentUser.getUserId(), request.getSentiment());
+        onboardingRepository.updateStatus(currentUser.getUserId(), request.getSentiment());
+        onboardingRepository.touchLastUpdated(currentUser.getUserId());
     }
 
 }

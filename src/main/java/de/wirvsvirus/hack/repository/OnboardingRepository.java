@@ -47,4 +47,6 @@ public interface OnboardingRepository {
     void leaveGroup(UUID groupId, UUID userId);
 
     void updateGroup(UUID groupId, GroupSettingsDto groupSettings);
+
+    void touchLastUpdated(UUID userId);
 }

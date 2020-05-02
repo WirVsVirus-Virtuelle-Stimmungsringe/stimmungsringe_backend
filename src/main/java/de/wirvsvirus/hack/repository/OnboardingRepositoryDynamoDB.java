@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @Profile("dynamodb")
-public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
+public class OnboardingRepositoryDynamoDB {
 
     private OnboardingRepositoryInMemory memory;
 
@@ -162,33 +162,33 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         log.debug("Restored {} users and {} groups to database", countUsers, countGroups);
     }
 
-    @Override
+    
     public Optional<Group> findGroupById(final UUID groupId) {
         return memory.findGroupById(groupId);
     }
 
-    @Override
+    
     public void createNewUser(final User newUser, final Sentiment sentiment) {
         memory.createNewUser(newUser, sentiment);
         flushToStorage();
     }
 
-    @Override
+    
     public User lookupUserById(final UUID userId) {
         return memory.lookupUserById(userId);
     }
 
-    @Override
+    
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         memory.updateUser(userId, userSettings);
     }
 
-    @Override
+    
     public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
         memory.updateGroup(groupId, groupSettings);
     }
 
-    @Override
+    
     public Group startNewGroup(final String groupName, final String groupCode) {
         final Group group = memory.startNewGroup(groupName, groupCode);
         flushToStorage();
@@ -196,56 +196,56 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
 
-    @Override
+    
     public void joinGroup(final UUID groupId, final UUID userId) {
         memory.joinGroup(groupId, userId);
         flushToStorage();
     }
 
-    @Override
+    
     public void leaveGroup(final UUID groupId, final UUID userId) {
         memory.leaveGroup(groupId, userId);
         flushToStorage();
     }
 
-    @Override
+    
     public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
         return memory.findOtherUsersInGroup(groupId, currentUserId);
     }
 
-    @Override
+    
     public Sentiment findSentimentByUserId(final UUID userId) {
         return memory.findSentimentByUserId(userId);
     }
 
-    @Override
+    
     public Instant findLastUpdatedByUserId(final UUID userId) {
         return memory.findLastUpdatedByUserId(userId);
     }
 
-    @Override
+    
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         memory.updateStatus(userId, sentiment);
         flushToStorage();
     }
 
-    @Override
+    
     public Optional<Group> findGroupByUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }
 
-    @Override
+    
     public Optional<Group> findGroupByCode(final String groupCode) {
         return memory.findGroupByCode(groupCode);
     }
 
-    @Override
+    
     public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
         flushToStorage();
         return memory.findByDeviceIdentifier(deviceIdentifier);
     }
 
-    @Override
+    
     public Optional<Group> findGroupForUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }

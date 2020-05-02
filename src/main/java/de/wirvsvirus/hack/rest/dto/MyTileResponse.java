@@ -7,6 +7,7 @@ import lombok.Data;
 import java.time.Instant;
 
 @Data
+@Builder
 public class MyTileResponse {
 
     private UserMinimalResponse user;

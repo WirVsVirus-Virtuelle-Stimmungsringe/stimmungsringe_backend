@@ -44,7 +44,6 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkState(!MockFactory.allUsers.containsKey(newUser.getUserId()));
         MockFactory.allUsers.put(newUser.getUserId(), newUser);
         MockFactory.sentimentByUser.put(newUser.getUserId(), sentiment);
-        touchLastUpdated(newUser.getUserId());
     }
 
     @Override
@@ -62,7 +61,6 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         final User user = lookupUserById(userId);
         user.setName(userSettings.getName());
-        touchLastUpdated(userId);
     }
 
     @Override
@@ -143,7 +141,6 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         lookupUserById(userId);
         MockFactory.sentimentByUser.put(userId, sentiment);
-        touchLastUpdated(userId);
     }
 
 
@@ -182,7 +179,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
                                         .equals(deviceIdentifier));
     }
 
-    private void touchLastUpdated(final UUID userId) {
+    @Override
+    public void touchLastUpdated(final UUID userId) {
         MockFactory.lastUpdatedByUser.put(userId, Instant.now());
     }
 
