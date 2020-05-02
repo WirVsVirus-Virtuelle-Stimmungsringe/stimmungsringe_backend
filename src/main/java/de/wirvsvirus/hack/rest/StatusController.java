@@ -30,7 +30,7 @@ public class StatusController {
 
         log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());
         onboardingRepository.updateStatus(currentUser.getUserId(), request.getSentiment());
-        onboardingRepository.touchLastUpdated(currentUser.getUserId());
+        onboardingRepository.touchLastStatusUpdate(currentUser.getUserId());
     }
 
 }

@@ -28,7 +28,7 @@ public interface OnboardingRepository {
 
     Sentiment findSentimentByUserId(UUID userId);
 
-    Instant findLastUpdatedByUserId(UUID userId);
+    Instant findLastStatusUpdateByUserId(UUID userId);
 
     void updateStatus(UUID userId, Sentiment sentiment);
 
@@ -48,5 +48,5 @@ public interface OnboardingRepository {
 
     void updateGroup(UUID groupId, GroupSettingsDto groupSettings);
 
-    void touchLastUpdated(UUID userId);
+    void touchLastStatusUpdate(UUID userId);
 }

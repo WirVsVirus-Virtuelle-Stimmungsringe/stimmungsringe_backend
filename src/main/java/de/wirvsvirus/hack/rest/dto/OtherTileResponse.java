@@ -14,6 +14,6 @@ public class OtherTileResponse {
 
     private Sentiment sentiment;
 
-    private Instant lastUpdated;
+    private Instant lastStatusUpdate;
 
 }

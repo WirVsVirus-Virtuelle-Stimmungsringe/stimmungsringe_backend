@@ -29,11 +29,11 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         final Group rasselbande = startNewGroup("Rasselbande", "12345");
 
         joinGroup(rasselbande.getGroupId(), UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
-        touchLastUpdated(UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
+        touchLastStatusUpdate(UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
-        touchLastUpdated(UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
+        touchLastStatusUpdate(UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
-        touchLastUpdated(UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
+        touchLastStatusUpdate(UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
         log.info("Created mock group " + rasselbande);
     }
@@ -129,11 +129,11 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public Instant findLastUpdatedByUserId(UUID userId) {
-        final Instant lastUpdated = MockFactory.lastUpdatedByUser.get(userId);
+    public Instant findLastStatusUpdateByUserId(UUID userId) {
+        final Instant lastStatusUpdate = MockFactory.lastStatusUpdateByUser.get(userId);
         Preconditions.checkNotNull(
-                lastUpdated, "Lookup error on last updated lookup for user %s", userId);
-        return lastUpdated;
+                lastStatusUpdate, "Lookup error on last status update timestamp lookup for user %s", userId);
+        return lastStatusUpdate;
     }
 
 
@@ -180,8 +180,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public void touchLastUpdated(final UUID userId) {
-        MockFactory.lastUpdatedByUser.put(userId, Instant.now());
+    public void touchLastStatusUpdate(final UUID userId) {
+        MockFactory.lastStatusUpdateByUser.put(userId, Instant.now());
     }
 
 }

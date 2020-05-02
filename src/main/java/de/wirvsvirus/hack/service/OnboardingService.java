@@ -32,6 +32,7 @@ public class OnboardingService {
             newUser.setName("onboarding-fake");
             newUser.setRoles(Collections.emptyList());
             onboardingRepository.createNewUser(newUser, Sentiment.cloudyNight);
+            onboardingRepository.touchLastStatusUpdate(newUser.getUserId());
             log.warn("Fake onboarding user {}", newUser.getUserId());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
@@ -49,6 +50,7 @@ public class OnboardingService {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setRoles(Collections.emptyList());
             onboardingRepository.createNewUser(newUser, Sentiment.sunnyWithClouds);
+            onboardingRepository.touchLastStatusUpdate(newUser.getUserId());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
                     .group(Optional.empty())

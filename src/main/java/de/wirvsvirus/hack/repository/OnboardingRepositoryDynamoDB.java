@@ -2,7 +2,6 @@ package de.wirvsvirus.hack.repository;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.*;
@@ -138,7 +137,7 @@ public class OnboardingRepositoryDynamoDB {
 
                 MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
                 MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
-                MockFactory.lastUpdatedByUser.put(userData.getUserId(), Instant.parse("2020-04-01T12:00:00Z")); // TODO
+                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), Instant.parse("2020-04-01T12:00:00Z")); // TODO
                 countUsers++;
             }
 
@@ -218,18 +217,11 @@ public class OnboardingRepositoryDynamoDB {
         return memory.findSentimentByUserId(userId);
     }
 
-    
-    public Instant findLastUpdatedByUserId(final UUID userId) {
-        return memory.findLastUpdatedByUserId(userId);
-    }
-
-    
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         memory.updateStatus(userId, sentiment);
         flushToStorage();
     }
 
-    
     public Optional<Group> findGroupByUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }
