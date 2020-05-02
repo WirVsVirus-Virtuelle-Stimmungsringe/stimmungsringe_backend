@@ -4,14 +4,18 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
-import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
+import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
+import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
+import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
@@ -32,7 +36,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @Profile("dynamodb")
-public class OnboardingRepositoryDynamoDB {
+public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     private OnboardingRepositoryInMemory memory;
 
@@ -117,9 +121,9 @@ public class OnboardingRepositoryDynamoDB {
 
     private List<UUID> membersByGroup(UUID groupId) {
         return EntryStream.of(MockFactory.groupByUserId)
-            .filterValues(gid -> gid.equals(groupId))
-            .keys()
-            .collect(Collectors.toList());
+                .filterValues(gid -> gid.equals(groupId))
+                .keys()
+                .collect(Collectors.toList());
     }
 
     private synchronized void restoreFromStorage() {
@@ -161,33 +165,33 @@ public class OnboardingRepositoryDynamoDB {
         log.debug("Restored {} users and {} groups to database", countUsers, countGroups);
     }
 
-    
+    @Override
     public Optional<Group> findGroupById(final UUID groupId) {
         return memory.findGroupById(groupId);
     }
 
-    
+    @Override
     public void createNewUser(final User newUser, final Sentiment sentiment) {
         memory.createNewUser(newUser, sentiment);
         flushToStorage();
     }
 
-    
+    @Override
     public User lookupUserById(final UUID userId) {
         return memory.lookupUserById(userId);
     }
 
-    
+    @Override
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         memory.updateUser(userId, userSettings);
     }
 
-    
+    @Override
     public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
         memory.updateGroup(groupId, groupSettings);
     }
 
-    
+    @Override
     public Group startNewGroup(final String groupName, final String groupCode) {
         final Group group = memory.startNewGroup(groupName, groupCode);
         flushToStorage();
@@ -195,50 +199,64 @@ public class OnboardingRepositoryDynamoDB {
     }
 
 
-    
+    @Override
     public void joinGroup(final UUID groupId, final UUID userId) {
         memory.joinGroup(groupId, userId);
         flushToStorage();
     }
 
-    
+    @Override
     public void leaveGroup(final UUID groupId, final UUID userId) {
         memory.leaveGroup(groupId, userId);
         flushToStorage();
     }
 
-    
+    @Override
     public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
         return memory.findOtherUsersInGroup(groupId, currentUserId);
     }
 
-    
+    @Override
     public Sentiment findSentimentByUserId(final UUID userId) {
         return memory.findSentimentByUserId(userId);
     }
 
+    @Override
+    public Instant findLastStatusUpdateByUserId(final UUID userId) {
+        return memory.findLastStatusUpdateByUserId(userId);
+    }
+
+    @Override
+    public void touchLastStatusUpdate(final UUID userId) {
+        memory.touchLastStatusUpdate(userId);
+    }
+
+    @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         memory.updateStatus(userId, sentiment);
         flushToStorage();
     }
 
+    @Override
     public Optional<Group> findGroupByUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }
 
-    
+    @Override
     public Optional<Group> findGroupByCode(final String groupCode) {
         return memory.findGroupByCode(groupCode);
     }
 
-    
+    @Override
     public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
         flushToStorage();
         return memory.findByDeviceIdentifier(deviceIdentifier);
     }
 
-    
+    @Override
     public Optional<Group> findGroupForUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }
+
+
 }
