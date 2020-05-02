@@ -2,17 +2,20 @@ package de.wirvsvirus.hack.repository;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
-import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
+import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
+import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
+import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
@@ -24,6 +27,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -117,9 +121,9 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     private List<UUID> membersByGroup(UUID groupId) {
         return EntryStream.of(MockFactory.groupByUserId)
-            .filterValues(gid -> gid.equals(groupId))
-            .keys()
-            .collect(Collectors.toList());
+                .filterValues(gid -> gid.equals(groupId))
+                .keys()
+                .collect(Collectors.toList());
     }
 
     private synchronized void restoreFromStorage() {
@@ -137,6 +141,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
                 MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
                 MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
+                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), Instant.parse("2020-04-01T12:00:00Z")); // TODO
                 countUsers++;
             }
 
@@ -217,6 +222,16 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
+    public Instant findLastStatusUpdateByUserId(final UUID userId) {
+        return memory.findLastStatusUpdateByUserId(userId);
+    }
+
+    @Override
+    public void touchLastStatusUpdate(final UUID userId) {
+        memory.touchLastStatusUpdate(userId);
+    }
+
+    @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         memory.updateStatus(userId, sentiment);
         flushToStorage();
@@ -242,4 +257,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     public Optional<Group> findGroupForUser(final UUID userId) {
         return memory.findGroupByUser(userId);
     }
+
+
 }
