@@ -4,6 +4,7 @@ import de.wirvsvirus.hack.model.Sentiment;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.annotation.Nonnegative;
 import java.time.Instant;
 
 @Data
@@ -14,6 +15,7 @@ public class MyTileResponse {
 
     private Sentiment sentiment;
 
+    @Nonnegative
     private Instant lastStatusUpdate;
 
 }
