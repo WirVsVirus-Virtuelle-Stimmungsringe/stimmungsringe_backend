@@ -43,21 +43,31 @@ public class DashboardController {
 
         final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
 
-        DashboardResponse response = new DashboardResponse();
+        final DashboardResponse response =
+            DashboardResponse.builder()
+                .myTile(buildMyTileResponse(currentUser))
+                .otherTiles(buildOtherTileResponseList(currentUser, group))
+                .groupData(buildGroupData(group))
+                .build();
 
-        {
-            final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
+        final String hash = buildHash(response);
 
-            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+        return ResponseEntity.status(HttpStatus.OK).header("X-Dashboard-Hash", hash).body(response);
 
-            MyTileResponse myTileResponse = new MyTileResponse();
-            myTileResponse.setUser(me);
-            myTileResponse.setSentiment(sentiment);
+    }
 
-            response.setMyTile(myTileResponse);
-        }
+    private MyTileResponse buildMyTileResponse(final User currentUser) {
+        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
 
+        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
 
+        return MyTileResponse.builder()
+                .user(me)
+                .sentiment(sentiment)
+                .build();
+    }
+
+    private List<OtherTileResponse> buildOtherTileResponseList(final User currentUser, final Optional<Group> group) {
         final List<User> otherUsersInGroup;
         if (group.isPresent()) {
             otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(group.get().getGroupId(), currentUser.getUserId());
@@ -71,28 +81,31 @@ public class DashboardController {
 
             final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
 
-            OtherTileResponse tileResponse = new OtherTileResponse();
-            tileResponse.setUser(other);
-            tileResponse.setSentiment(sentiment);
-
-            otherTiles.add(tileResponse);
+            otherTiles.add(
+                    OtherTileResponse.builder()
+                            .user(other)
+                            .sentiment(sentiment)
+                            .build()
+            );
         }
+        return otherTiles;
+    }
 
-        response.setOtherTiles(otherTiles);
-
-        final String hash = buildHash(response);
-
-        return ResponseEntity.status(HttpStatus.OK).header("X-Dashboard-Hash", hash).body(response);
+    private DashboardResponse.GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
+        return groupOptional.map(group ->
+                DashboardResponse.GroupDataResponse.builder()
+                        .groupName(group.getGroupName())
+                        .groupCode(group.getGroupCode())
+                        .build()
+        ).orElse(null);
     }
 
     private String buildHash(final DashboardResponse response) {
         try {
             return Hashing.sha256().hashString(
-                objectMapper.writeValueAsString(response), StandardCharsets.UTF_8).toString();
+                    objectMapper.writeValueAsString(response), StandardCharsets.UTF_8).toString();
         } catch (JsonProcessingException e) {
             throw new IllegalStateException();
         }
     }
-
-
 }

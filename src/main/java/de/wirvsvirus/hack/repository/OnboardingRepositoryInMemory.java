@@ -30,11 +30,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
         joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
-//        MockFactory.allUsers.values().forEach(user -> {
-//            final Sentiment sentiment = MockFactory.sentimentByUser(user.getUserId());
-//            updateStatus(user.getUserId(), sentiment);
-//        });
-
+        log.info("Created mock group " + rasselbande);
     }
 
     @Override
