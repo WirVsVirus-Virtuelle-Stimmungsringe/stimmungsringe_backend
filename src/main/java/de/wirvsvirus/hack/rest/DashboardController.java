@@ -5,21 +5,21 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.DashboardResponse;
+import de.wirvsvirus.hack.rest.dto.GroupDataResponse;
 import de.wirvsvirus.hack.rest.dto.MyTileResponse;
 import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
 import de.wirvsvirus.hack.spring.UserInterceptor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -35,15 +35,11 @@ public class DashboardController {
 
         final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
 
-        final DashboardResponse response =
-            DashboardResponse.builder()
+        return DashboardResponse.builder()
                 .myTile(buildMyTileResponse(currentUser))
                 .otherTiles(buildOtherTileResponseList(currentUser, group))
                 .groupData(buildGroupData(group))
                 .build();
-
-        return response;
-
     }
 
     private MyTileResponse buildMyTileResponse(final User currentUser) {
@@ -85,9 +81,10 @@ public class DashboardController {
         return otherTiles;
     }
 
-    private DashboardResponse.GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
+    private GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
         return groupOptional.map(group ->
-                DashboardResponse.GroupDataResponse.builder()
+                GroupDataResponse.builder()
+                        .groupId(group.getGroupId())
                         .groupName(group.getGroupName())
                         .groupCode(group.getGroupCode())
                         .build()

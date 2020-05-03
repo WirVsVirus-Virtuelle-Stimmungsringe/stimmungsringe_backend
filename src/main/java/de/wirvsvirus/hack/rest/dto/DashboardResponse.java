@@ -14,11 +14,4 @@ public class DashboardResponse {
     private List<OtherTileResponse> otherTiles;
 
     private GroupDataResponse groupData;
-
-    @Data
-    @Builder
-    public static class GroupDataResponse {
-        private String groupName;
-        private String groupCode;
-    }
 }

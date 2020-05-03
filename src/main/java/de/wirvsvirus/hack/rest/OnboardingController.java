@@ -125,27 +125,29 @@ public class OnboardingController {
     }
 
     @PostMapping("/group/start")
-    public ResponseEntity<StartNewGroupResponse> startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
+    public ResponseEntity<GroupDataResponse> startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
         return ResponseEntity.ok(
-                StartNewGroupResponse.builder()
+            GroupDataResponse.builder()
                         .groupId(newGroup.getGroupId())
                         .groupName(newGroup.getGroupName())
+                        .groupCode(newGroup.getGroupCode())
                         .build());
 
     }
 
     @PostMapping("/group-by-code")
-    public ResponseEntity<FindGroupResponse> getGroupByCode(@RequestBody @Valid final FindGroupRequest request) {
+    public ResponseEntity<GroupDataResponse> getGroupByCode(@RequestBody @Valid final FindGroupRequest request) {
 
         final Optional<Group> match =
                 onboardingRepository.findGroupByCode(request.getGroupCode());
 
         return match.map(group -> ResponseEntity.ok(
-                FindGroupResponse.builder()
+            GroupDataResponse.builder()
                         .groupId(group.getGroupId())
+                        .groupCode(group.getGroupCode())
                         .groupName(group.getGroupName())
                         .build())
         ).orElseGet(() -> ResponseEntity.noContent().build());
