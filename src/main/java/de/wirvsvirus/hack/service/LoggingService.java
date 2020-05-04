@@ -51,6 +51,7 @@ public class LoggingService {
                                 .filter(enumElement -> enumElement instanceof FileAppender)
                                 .map(enumElement -> (FileAppender<?>) enumElement)
                                 .map(fileAppender -> Paths.get(fileAppender.getFile())))
+                        .peek(logFile -> System.out.println("- " + logFile))
                         .collect(Collectors.toList());
 
     }

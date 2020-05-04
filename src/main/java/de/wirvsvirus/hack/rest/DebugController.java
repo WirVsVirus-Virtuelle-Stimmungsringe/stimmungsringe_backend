@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -64,7 +65,10 @@ public class DebugController {
             @RequestHeader("X-FAM-Debug") String debugCode) {
         checkDebugCode(debugCode);
 
-        final LocalDate startDate = StringUtils.isBlank(startDateRaw) ? LocalDate.parse("2020-01-01") : LocalDate.now();
+        final Predicate<String> removeLogsByDate =
+                StringUtils.isNotBlank(startDateRaw)
+                ? line -> removeLogsByDate(line, LocalDate.parse(startDateRaw))
+                : line -> false;
 
         response.setContentType("text/plain");
         response.setHeader(
@@ -75,9 +79,7 @@ public class DebugController {
             final PrintWriter writer = new PrintWriter(out);
 
             StreamEx.of(loggingService.readLogLines())
-                    .dropWhile(line -> {
-                        return filterLogByDate(line, startDate);
-                    })
+                    .dropWhile(removeLogsByDate)
                     .forEach(line -> writer.println(line));
 
             writer.flush();
@@ -88,12 +90,12 @@ public class DebugController {
     /**
      * 2020-05-04 10:44:49.512 user:- trace:- path:-  INFO
      */
-    private boolean filterLogByDate(final String line, final LocalDate startDate) {
-        if (!line.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")) {
+    private boolean removeLogsByDate(final String line, final LocalDate startDate) {
+        if (!line.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*")) {
             return false;
         }
         final LocalDate logDate = LocalDate.parse(line.substring(0, 10));
-        return !(logDate.isBefore(startDate));
+        return logDate.isBefore(startDate);
     }
 
     /**
