@@ -45,15 +45,6 @@ public class LoggingService {
 
         final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-//        for (final Logger logger : context.getLoggerList()) {
-//            StreamEx.of(logger.iteratorForAppenders())
-//                    .filter(enumElement -> enumElement instanceof FileAppender)
-//                    .map(enumElement -> (FileAppender<?>) enumElement)
-//                    .map(fileAppender -> Paths.get(fileAppender.getFile()))
-//                    .collect(Collectors.toList());
-//
-//        }
-
         return
                 StreamEx.of(context.getLoggerList())
                         .flatMap(logger -> StreamEx.of(logger.iteratorForAppenders())
@@ -61,7 +52,6 @@ public class LoggingService {
                                 .map(enumElement -> (FileAppender<?>) enumElement)
                                 .map(fileAppender -> Paths.get(fileAppender.getFile())))
                         .collect(Collectors.toList());
-
 
     }
 }
