@@ -8,6 +8,7 @@
     <logger name="org.springframework.web" level="WARN" />
 
     <logger name="de.wirvsvirus.hack" level="DEBUG" />
+    <logger name="de.wirvsvirus.hack.spring.UserInterceptor" level="WARN" />
 
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
