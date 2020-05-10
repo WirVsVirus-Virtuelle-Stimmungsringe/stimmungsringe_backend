@@ -232,6 +232,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void touchLastStatusUpdate(final UUID userId) {
         memory.touchLastStatusUpdate(userId);
+        flushToStorage();
     }
 
     @Override
