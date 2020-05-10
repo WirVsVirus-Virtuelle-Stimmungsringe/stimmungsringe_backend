@@ -66,9 +66,9 @@ public final class DataMapper {
         }
     }
 
-    public static Instant lastStatusUpdateFromDatbase(final UserData userData) {
+    public static Instant lastStatusUpdateFromDatabase(final UserData userData) {
         if (userData.getLastStatusUpdate() == null) {
-            return Instant.parse("2020-04-01T12:00:00Z");
+            return Instant.now();
         }
         return userData.getLastStatusUpdate().toInstant();
     }

@@ -144,7 +144,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
                 MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
                 MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
-                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatbase(userData));
+                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
                 countUsers++;
             }
 
