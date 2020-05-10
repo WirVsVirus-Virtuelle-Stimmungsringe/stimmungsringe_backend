@@ -8,6 +8,7 @@
 
 ### DynamoDB
 Die DynamoDB kann lokal gestartet werden - [siehe Anleitung](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html)
+`java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb`
 
 Spring Boot Profile-Konstellationen: dynamodb-localdev, dynamodb
 
