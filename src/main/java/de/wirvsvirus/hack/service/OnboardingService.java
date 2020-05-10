@@ -76,15 +76,10 @@ public class OnboardingService {
 
     }
 
-    public void updateUser(final User user, final UserSettingsDto userSettings) {
-        final String name = userSettings.getName();
-
-
-        if (name.isEmpty()) {
-            return;
+    public void patchUserSettings(final User user, final UserSettingsDto userSettings) {
+        if (StringUtils.isNotBlank(userSettings.getName())) {
+            userSettings.setName(StringUtils.trim(userSettings.getName()));
         }
-
-        userSettings.setName(StringUtils.trim(name));
 
         onboardingRepository.updateUser(user.getUserId(), userSettings);
     }

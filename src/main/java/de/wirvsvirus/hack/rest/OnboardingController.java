@@ -33,7 +33,7 @@ public class OnboardingController {
     @PutMapping("/signin")
     public SigninUserResponse signin(@RequestBody @Valid final SigninUserRequest request) {
 
-        final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
+        final UserSignedInDto signinResult =  onboardingService.signin(request.getDeviceIdentifier());
         final String userId = signinResult.getUserId().toString();
 
         if (signinResult.getGroup().isPresent()) {
@@ -60,7 +60,18 @@ public class OnboardingController {
     public void updateUserSettings(@RequestBody @Valid final UpdateUserSettingsRequest request) {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.updateUser(user,
+        onboardingService.patchUserSettings(user,
+                UserSettingsDto.builder()
+                        .name(request.getName())
+                        .build());
+
+    }
+
+    @PatchMapping("/user/settings")
+    public void patchUserSettings(@RequestBody @Valid final PatchUserSettingsRequest request) {
+        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+
+        onboardingService.patchUserSettings(user,
                 UserSettingsDto.builder()
                         .name(request.getName())
                         .build());
