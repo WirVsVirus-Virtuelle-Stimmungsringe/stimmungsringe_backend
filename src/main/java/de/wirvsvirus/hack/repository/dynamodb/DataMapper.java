@@ -7,6 +7,8 @@ import de.wirvsvirus.hack.service.GroupCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.sql.Date;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -22,12 +24,13 @@ public final class DataMapper {
         return user;
     }
 
-    public static UserData dataFromUser(User user, Sentiment sentiment) {
+    public static UserData dataFromUser(User user, Sentiment sentiment, final Instant lastStatusUpdate) {
         final UserData userData = new UserData();
         userData.setUserId(user.getUserId());
         userData.setDeviceIdentifier(user.getDeviceIdentifier());
         userData.setName(user.getName());
         userData.setSentiment(sentiment.name());
+        userData.setLastStatusUpdate(Date.from(lastStatusUpdate));
         return userData;
     }
 
@@ -63,5 +66,13 @@ public final class DataMapper {
         }
     }
 
+    public static Instant lastStatusUpdateFromDatbase(final UserData userData) {
+        if (userData.getLastStatusUpdate() == null) {
+            return Instant.parse("2020-04-01T12:00:00Z");
+        }
+        return userData.getLastStatusUpdate().toInstant();
+    }
+
     private DataMapper() {}
+
 }

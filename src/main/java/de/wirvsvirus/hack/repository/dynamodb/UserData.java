@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 @DynamoDBTable(tableName = "User")
@@ -20,6 +22,7 @@ public class UserData {
     private String name;
     private String deviceIdentifier;
     private String sentiment;
+    private Date lastStatusUpdate;
 
     @DynamoDBHashKey
     public UUID getUserId() {
@@ -57,4 +60,12 @@ public class UserData {
         this.sentiment = sentiment;
     }
 
+    @DynamoDBAttribute
+    public Date getLastStatusUpdate() {
+        return lastStatusUpdate;
+    }
+
+    public void setLastStatusUpdate(final Date lastStatusUpdate) {
+        this.lastStatusUpdate = lastStatusUpdate;
+    }
 }

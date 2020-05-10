@@ -101,7 +101,10 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         {
             for (final User user : MockFactory.allUsers.values()) {
                 // TODO tune: reduce consistency, store async
-                dynamoDBMapper.save(DataMapper.dataFromUser(user, findSentimentByUserId(user.getUserId())));
+                dynamoDBMapper.save(DataMapper.dataFromUser(user,
+                        findSentimentByUserId(user.getUserId()),
+                        findLastStatusUpdateByUserId(user.getUserId())
+                        ));
                 countUsers++;
             }
 
@@ -141,7 +144,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
                 MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
                 MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
-                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), Instant.parse("2020-04-01T12:00:00Z")); // TODO
+                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatbase(userData));
                 countUsers++;
             }
 
