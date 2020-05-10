@@ -11,12 +11,10 @@ import java.util.UUID;
 public class User {
 
     private final UUID userId;
-
     private final String deviceIdentifier;
-
     private String name;
-
     private List<Role> roles;
+    private StockAvatar stockAvatar;
 
     public User(UUID userId, String deviceIdentifier) {
         Preconditions.checkNotNull(userId);
@@ -53,4 +51,16 @@ public class User {
     public void setRoles(final List<Role> roles) {
         this.roles = roles;
     }
+
+    /**
+     * nullable
+     */
+    public StockAvatar getStockAvatar() {
+        return stockAvatar;
+    }
+
+    public void setStockAvatar(StockAvatar stockAvatar) {
+        this.stockAvatar = stockAvatar;
+    }
+
 }

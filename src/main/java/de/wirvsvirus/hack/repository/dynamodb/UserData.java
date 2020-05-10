@@ -3,13 +3,9 @@ package de.wirvsvirus.hack.repository.dynamodb;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import de.wirvsvirus.hack.model.Sentiment;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,6 +19,7 @@ public class UserData {
     private String deviceIdentifier;
     private String sentiment;
     private Date lastStatusUpdate;
+    private String stockAvatar;
 
     @DynamoDBHashKey
     public UUID getUserId() {
@@ -67,5 +64,14 @@ public class UserData {
 
     public void setLastStatusUpdate(final Date lastStatusUpdate) {
         this.lastStatusUpdate = lastStatusUpdate;
+    }
+
+    @DynamoDBAttribute
+    public String getStockAvatar() {
+        return stockAvatar;
+    }
+
+    public void setStockAvatar(String stockAvatar) {
+        this.stockAvatar = stockAvatar;
     }
 }
