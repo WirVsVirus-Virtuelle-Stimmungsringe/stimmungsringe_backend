@@ -174,8 +174,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public void createNewUser(final User newUser, final Sentiment sentiment) {
-        memory.createNewUser(newUser, sentiment);
+    public void createNewUser(final User newUser, final Sentiment sentiment, final Instant lastUpdate) {
+        memory.createNewUser(newUser, sentiment, lastUpdate);
         flushToStorage();
     }
 

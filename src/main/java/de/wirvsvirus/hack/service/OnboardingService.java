@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,8 +32,7 @@ public class OnboardingService {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setName("onboarding-fake");
             newUser.setRoles(Collections.emptyList());
-            onboardingRepository.createNewUser(newUser, Sentiment.cloudyNight);
-            onboardingRepository.touchLastStatusUpdate(newUser.getUserId());
+            onboardingRepository.createNewUser(newUser, Sentiment.cloudyNight, Instant.now());
             log.warn("Fake onboarding user {}", newUser.getUserId());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
@@ -49,8 +49,7 @@ public class OnboardingService {
             Preconditions.checkState(deviceIdentifier.length() >= 3);
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setRoles(Collections.emptyList());
-            onboardingRepository.createNewUser(newUser, Sentiment.sunnyWithClouds);
-            onboardingRepository.touchLastStatusUpdate(newUser.getUserId());
+            onboardingRepository.createNewUser(newUser, Sentiment.sunnyWithClouds, Instant.now());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
                     .group(Optional.empty())
