@@ -39,11 +39,12 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public void createNewUser(final User newUser, Sentiment sentiment) {
+    public void createNewUser(final User newUser, Sentiment sentiment, final Instant lastUpdate) {
         Preconditions.checkNotNull(sentiment);
         Preconditions.checkState(!MockFactory.allUsers.containsKey(newUser.getUserId()));
         MockFactory.allUsers.put(newUser.getUserId(), newUser);
         MockFactory.sentimentByUser.put(newUser.getUserId(), sentiment);
+        MockFactory.lastStatusUpdateByUser.put(newUser.getUserId(), lastUpdate);
     }
 
     @Override

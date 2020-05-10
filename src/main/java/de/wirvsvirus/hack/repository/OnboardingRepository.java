@@ -40,7 +40,7 @@ public interface OnboardingRepository {
 
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 
-    void createNewUser(User newUser, Sentiment sentiment);
+    void createNewUser(User newUser, Sentiment sentiment, final Instant lastUpdate);
 
     Optional<Group> findGroupById(UUID groupId);
 
