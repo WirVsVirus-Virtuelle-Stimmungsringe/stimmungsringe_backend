@@ -2,8 +2,6 @@ package de.wirvsvirus.hack.spring;
 
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,15 +17,13 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response, Object object) throws Exception {
+                             HttpServletResponse response, Object object) {
 
         if (request.getServletPath().startsWith("/error")) {
             return true;
         }
 
-        if (request.getServletPath().endsWith("/signin")
-                || request.getServletPath().startsWith("/images/")
-                || request.getServletPath().startsWith("/debug/")
+        if (request.getServletPath().endsWith("/signin") || request.getServletPath().startsWith("/debug/")
         ) {
             log.debug("Request for unauthenticated endpoint {}", request.getServletPath());
             Preconditions.checkState(request.getHeader(HEADER_USER_ID) == null,

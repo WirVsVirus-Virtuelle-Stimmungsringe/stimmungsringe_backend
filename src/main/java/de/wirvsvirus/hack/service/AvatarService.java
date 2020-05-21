@@ -1,25 +1,29 @@
 package de.wirvsvirus.hack.service;
 
+import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.OnboardingRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class AvatarService {
-    @Autowired
-    private OnboardingRepository onboardingRepository;
 
-    public ClassPathResource getAvatarUrl(User user) {
+    public ClassPathResource getUserAvatarUrl(User user) {
         if (user.getStockAvatar() == null) {
             return new ClassPathResource("/images/stockavatars/avatar-fallback.jpg");
         }
 
+        return getStockAvatarUrl(user.getStockAvatar());
+    }
+
+    public ClassPathResource getStockAvatarUrl(StockAvatar stockAvatar) {
+        Preconditions.checkArgument(stockAvatar != null, "stockAvatar must be set!");
+
         return new ClassPathResource(
-                String.format("/images/stockavatars/%s.png", user.getStockAvatar().name().toLowerCase())
+                String.format("/images/stockavatars/%s.png", stockAvatar.name().toLowerCase())
         );
     }
 }
