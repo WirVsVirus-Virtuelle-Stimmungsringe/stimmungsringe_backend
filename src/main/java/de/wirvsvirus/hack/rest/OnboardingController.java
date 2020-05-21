@@ -63,6 +63,7 @@ public class OnboardingController {
         onboardingService.updateUser(user,
                 UserSettingsDto.builder()
                         .name(request.getName())
+                        .stockAvatar(request.getStockAvatar())
                         .build());
 
     }

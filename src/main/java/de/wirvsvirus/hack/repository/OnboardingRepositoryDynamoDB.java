@@ -187,11 +187,13 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         memory.updateUser(userId, userSettings);
+        flushToStorage();
     }
 
     @Override
     public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
         memory.updateGroup(groupId, groupSettings);
+        flushToStorage();
     }
 
     @Override
