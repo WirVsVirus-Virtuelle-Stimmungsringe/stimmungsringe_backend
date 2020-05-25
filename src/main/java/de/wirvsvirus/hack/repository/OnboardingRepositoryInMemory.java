@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.repository;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
@@ -10,6 +11,7 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -167,12 +169,6 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public Optional<Group> findGroupForUser(final UUID userId) {
-        return Optional.ofNullable(MockFactory.groupByUserId.get(userId))
-                .map(MockFactory.allGroups::get);
-    }
-
-    @Override
     public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
         return
                 EntryStream.of(MockFactory.allUsers).values()
@@ -186,4 +182,18 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         MockFactory.lastStatusUpdateByUser.put(userId, Instant.now());
     }
 
+    @Override
+    public void sendMessage(final Message message) {
+        Preconditions.checkNotNull(message.getSenderUserId());
+        Preconditions.checkNotNull(message.getReceipientUserId());
+
+        MockFactory.userToUserMessages.add(message);
+    }
+
+    @Override
+    public List<Message> findMessagesByUser(final UUID userId) {
+        return MockFactory.userToUserMessages.stream()
+            .filter(message -> message.getReceipientUserId().equals(userId))
+                .collect(Collectors.toList());
+    }
 }

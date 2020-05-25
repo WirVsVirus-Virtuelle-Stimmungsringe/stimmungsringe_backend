@@ -55,7 +55,7 @@ public class OnboardingService {
                     .group(Optional.empty())
                     .build();
         } else {
-            final Optional<Group> group = onboardingRepository.findGroupForUser(
+            final Optional<Group> group = onboardingRepository.findGroupByUser(
                     userLookup.get().getUserId());
 
             log.info("User {} signed in - group is {}", userLookup.get(), group);

@@ -12,6 +12,7 @@ import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
@@ -260,9 +261,15 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public Optional<Group> findGroupForUser(final UUID userId) {
-        return memory.findGroupByUser(userId);
+    public void sendMessage(final Message message) {
+        // FIXME
+        System.out.println("FIXME");
+        memory.sendMessage(message);
+        flushToStorage(); // TODO
     }
 
-
+    @Override
+    public List<Message> findMessagesByUser(final UUID userId) {
+        return memory.findMessagesByUser(userId);
+    }
 }

@@ -1,10 +1,13 @@
 package de.wirvsvirus.hack.mock;
 
+import com.google.common.collect.BiMap;
 import com.google.common.collect.Lists;
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Instant;
 import java.util.*;
@@ -17,6 +20,11 @@ public class MockFactory {
     public static final Map<UUID, UUID> groupByUserId = new HashMap<>();
     public static Map<UUID, Sentiment> sentimentByUser = new HashMap<>();
     public static Map<UUID, Instant> lastStatusUpdateByUser = new HashMap<>();
+
+    /**
+     * (from,to) -> list message
+     */
+    public static List<Message> userToUserMessages = new ArrayList<>();
 
     static {
         final List<User> users = new ArrayList<>();

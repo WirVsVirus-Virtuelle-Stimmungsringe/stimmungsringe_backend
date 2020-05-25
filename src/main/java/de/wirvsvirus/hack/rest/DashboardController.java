@@ -1,11 +1,14 @@
 package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.DashboardResponse;
 import de.wirvsvirus.hack.rest.dto.GroupDataResponse;
+import de.wirvsvirus.hack.rest.dto.MessageInboxResponse;
+import de.wirvsvirus.hack.rest.dto.MessageResponse;
 import de.wirvsvirus.hack.rest.dto.MyTileResponse;
 import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
@@ -15,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +44,7 @@ public class DashboardController {
                 .myTile(buildMyTileResponse(currentUser))
                 .otherTiles(buildOtherTileResponseList(currentUser, group))
                 .groupData(buildGroupData(group))
+                .inbox(buildMessageInbox(currentUser))
                 .build();
     }
 
@@ -89,6 +95,16 @@ public class DashboardController {
                         .groupCode(group.getGroupCode())
                         .build()
         ).orElse(null);
+    }
+
+    private MessageInboxResponse buildMessageInbox(User currentUser) {
+        final List<Message> messages = onboardingRepository.findMessagesByUser(currentUser.getUserId());
+
+        final List<MessageResponse> responseList = messages.stream()
+                .map(message -> MessageResponse.builder().text(message.getText()).build())
+                .collect(Collectors.toList());
+
+        return MessageInboxResponse.builder().messages(responseList).build();
     }
 
 }
