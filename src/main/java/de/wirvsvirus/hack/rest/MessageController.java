@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest;
 
+import com.google.common.collect.ImmutableList;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
@@ -94,10 +95,13 @@ public class MessageController {
 
         }
 
-        final List<Message> messages = onboardingRepository.findMessagesByRecipientId(currentUser.getUserId());
+        final ImmutableList<Message> messages = ImmutableList.copyOf(onboardingRepository.findMessagesByRecipientId(currentUser.getUserId())).reverse();
 
         final List<MessageResponse> responseList = messages.stream()
-                .map(message -> MessageResponse.builder().text(message.getText()).build())
+                .map(message -> MessageResponse.builder()
+                        .senderUserId(message.getSenderUserId())
+                        .text(message.getText())
+                        .build())
                 .collect(Collectors.toList());
 
         return MessageInboxResponse.builder().messages(responseList).build();

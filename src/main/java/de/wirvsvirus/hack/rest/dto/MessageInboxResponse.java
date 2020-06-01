@@ -9,7 +9,9 @@ import java.util.List;
 @Builder
 public class MessageInboxResponse {
 
+    /**
+     * descending order
+     */
     private List<MessageResponse> messages;
-
 
 }
