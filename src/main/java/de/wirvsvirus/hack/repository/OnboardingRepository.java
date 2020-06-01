@@ -52,4 +52,6 @@ public interface OnboardingRepository {
     void sendMessage(User sender, User recipient, String text);
 
     List<Message> findMessagesByRecipientId(UUID userId);
+
+    void clearMessagesByRecipientId(UUID userId);
 }

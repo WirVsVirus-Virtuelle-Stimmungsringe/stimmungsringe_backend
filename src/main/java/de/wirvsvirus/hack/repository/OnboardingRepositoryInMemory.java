@@ -211,4 +211,14 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
             .filter(message -> message.getRecipientUserId().equals(userId))
             .collect(Collectors.toList());
     }
+
+    @Override
+    public void clearMessagesByRecipientId(final UUID userId) {
+        final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
+        final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
+        Preconditions.checkNotNull(messageList);
+        MockFactory.allGroupMessages.put(group.getGroupId(), new ArrayList<>());
+    }
+
+
 }

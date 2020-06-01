@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.UpdateStatusRequest;
+import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,17 @@ public class StatusController {
     @Autowired
     private OnboardingRepository onboardingRepository;
 
+    @Autowired
+    private OnboardingService onboardingService;
+
     @PutMapping
     public void updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         Preconditions.checkNotNull(request.getSentiment(), "sentiment must not be null");
 
         log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());
-        onboardingRepository.updateStatus(currentUser.getUserId(), request.getSentiment());
-        onboardingRepository.touchLastStatusUpdate(currentUser.getUserId());
+
+        onboardingService.updateSentimentStatus(currentUser, request.getSentiment());
     }
 
 }

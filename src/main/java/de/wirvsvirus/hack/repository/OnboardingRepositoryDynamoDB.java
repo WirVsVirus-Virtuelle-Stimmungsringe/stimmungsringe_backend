@@ -275,4 +275,10 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     public List<Message> findMessagesByRecipientId(final UUID userId) {
         return memory.findMessagesByRecipientId(userId);
     }
+
+    @Override
+    public void clearMessagesByRecipientId(final UUID userId) {
+        memory.clearMessagesByRecipientId(userId);
+        flushToStorage();
+    }
 }

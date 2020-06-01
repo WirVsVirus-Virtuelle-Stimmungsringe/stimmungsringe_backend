@@ -171,4 +171,9 @@ public class OnboardingService {
         return group;
     }
 
+    public void updateSentimentStatus(final User user, final Sentiment sentiment) {
+        onboardingRepository.updateStatus(user.getUserId(), sentiment);
+        onboardingRepository.touchLastStatusUpdate(user.getUserId());
+        onboardingRepository.clearMessagesByRecipientId(user.getUserId());
+    }
 }
