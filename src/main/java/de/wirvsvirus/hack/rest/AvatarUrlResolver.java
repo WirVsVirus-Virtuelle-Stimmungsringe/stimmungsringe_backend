@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest;
 
+import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,10 @@ public class AvatarUrlResolver {
             return FALLBACK_AVATAR_PATH;
         }
 
-        return String.format("%s/%s", STOCK_AVATAR_PATH, user.getStockAvatar().name());
+        return getStockAvatarUrl(user.getStockAvatar());
+    }
+
+    public String getStockAvatarUrl(StockAvatar stockAvatar) {
+        return String.format("%s/%s", STOCK_AVATAR_PATH, stockAvatar.name());
     }
 }

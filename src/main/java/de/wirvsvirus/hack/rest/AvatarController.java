@@ -21,7 +21,9 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(AvatarController.CONTROLLER_PATH)
@@ -34,10 +36,23 @@ public class AvatarController {
     @Autowired
     private AvatarService avatarService;
 
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
+
     @GetMapping(value = "/available")
     public AvailableAvatarsResponse getAvailableAvatars() {
+        final List<AvailableAvatarsResponse.StockAvatarResponse> stockAvatarResponses =
+                Arrays.stream(StockAvatar.values())
+                        .map(stockAvatar ->
+                                AvailableAvatarsResponse.StockAvatarResponse.builder()
+                                        .avatarName(stockAvatar.name())
+                                        .avatarUrl(avatarUrlResolver.getStockAvatarUrl(stockAvatar))
+                                        .build()
+                        )
+                        .collect(Collectors.toList());
+
         return AvailableAvatarsResponse.builder()
-                .stockAvatars(Arrays.asList(StockAvatar.values()))
+                .stockAvatars(stockAvatarResponses)
                 .build();
     }
 
