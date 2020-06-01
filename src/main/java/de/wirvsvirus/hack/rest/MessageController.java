@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -95,10 +96,12 @@ public class MessageController {
 
         }
 
-        final ImmutableList<Message> messages = ImmutableList.copyOf(onboardingRepository.findMessagesByRecipientId(currentUser.getUserId())).reverse();
+        final List<Message> messages = onboardingRepository.findMessagesByRecipientId(currentUser.getUserId());
 
         final List<MessageResponse> responseList = messages.stream()
+                .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .map(message -> MessageResponse.builder()
+                        .createdAt(message.getCreatedAt())
                         .senderUserId(message.getSenderUserId())
                         .text(message.getText())
                         .build())

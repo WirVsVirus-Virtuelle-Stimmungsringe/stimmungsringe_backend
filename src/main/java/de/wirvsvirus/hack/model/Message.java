@@ -2,15 +2,24 @@ package de.wirvsvirus.hack.model;
 
 import lombok.ToString;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @ToString
 public class Message {
 
+    private Instant createdAt;
     private UUID senderUserId;
     private UUID recipientUserId;
-
     private String text;
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(final Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public UUID getSenderUserId() {
         return senderUserId;
