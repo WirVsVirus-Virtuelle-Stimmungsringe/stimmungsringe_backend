@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
-public class SendMessageRequest {
+@Builder
+public class AvailableMessagesResponse {
 
-    private String text;
+    private List<MessageTemplate> messageTemplates;
+
 
 }

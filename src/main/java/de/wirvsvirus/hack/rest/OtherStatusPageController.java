@@ -72,17 +72,4 @@ public class OtherStatusPageController {
         return response;
     }
 
-    @PostMapping(value = "/{otherUserId}/message")
-    public void sendMessage(
-            @RequestBody @Valid SendMessageRequest request,
-            @PathVariable("otherUserId") @NotNull UUID otherUserId) {
-
-        final UUID currentUserId = UserInterceptor.getCurrentUserId();
-        final User currentUser = userRepository.lookupUserById(currentUserId);
-        final User otherUser = userRepository.lookupUserById(otherUserId);
-
-        messagingService.sendMessage(otherUser, currentUser);
-
-
-    }
 }
