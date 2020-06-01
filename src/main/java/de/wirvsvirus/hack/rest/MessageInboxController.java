@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/inbox")
+@RequestMapping("/message")
 @Slf4j
 public class MessageInboxController {
 
@@ -32,7 +32,7 @@ public class MessageInboxController {
     @Autowired
     private MessageService messageService;
 
-    @GetMapping
+    @GetMapping("/inbox")
     public MessageInboxResponse getInbox() {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
