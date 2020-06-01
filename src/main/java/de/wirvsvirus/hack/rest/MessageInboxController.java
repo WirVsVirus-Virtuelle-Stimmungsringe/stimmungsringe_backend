@@ -11,10 +11,14 @@ import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,16 +41,25 @@ public class MessageInboxController {
         return inboxResponse;
     }
 
+    @PostMapping("/send/{recipientUserId}")
+    public void sendMessage(@NotNull @PathVariable("recipientUserId") final UUID recipientUserId) {
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User recipient = onboardingRepository.lookupUserById(recipientUserId);
+
+        messageService.sendMessage(currentUser, recipient);
+
+    }
+
     private MessageInboxResponse buildMessageInbox(User currentUser) {
 
         // FIXME test
-        if (onboardingRepository.findMessagesByReceipientId(currentUser.getUserId()).size() < 4) {
+        if (onboardingRepository.findMessagesByRecipientId(currentUser.getUserId()).size() < 4) {
             messageService.sendMessage(onboardingRepository.lookupUserById(MockFactory.frida.getUserId()),
                     currentUser);
 
         }
 
-        final List<Message> messages = onboardingRepository.findMessagesByReceipientId(currentUser.getUserId());
+        final List<Message> messages = onboardingRepository.findMessagesByRecipientId(currentUser.getUserId());
 
         final List<MessageResponse> responseList = messages.stream()
                 .map(message -> MessageResponse.builder().text(message.getText()).build())

@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Message {
 
     private UUID senderUserId;
-    private UUID receipientUserId;
+    private UUID recipientUserId;
 
     private String text;
 
@@ -20,12 +20,12 @@ public class Message {
         this.senderUserId = senderUserId;
     }
 
-    public UUID getReceipientUserId() {
-        return receipientUserId;
+    public UUID getRecipientUserId() {
+        return recipientUserId;
     }
 
-    public void setReceipientUserId(final UUID receipientUserId) {
-        this.receipientUserId = receipientUserId;
+    public void setRecipientUserId(final UUID recipientUserId) {
+        this.recipientUserId = recipientUserId;
     }
 
     public String getText() {

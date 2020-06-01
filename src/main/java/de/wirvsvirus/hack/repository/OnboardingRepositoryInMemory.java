@@ -197,18 +197,18 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
         final Message message = new Message();
         message.setSenderUserId(sender.getUserId());
-        message.setReceipientUserId(recipient.getUserId());
+        message.setRecipientUserId(recipient.getUserId());
         message.setText(text);
         MockFactory.allGroupMessages.get(group1.getGroupId()).add(message);
     }
 
     @Override
-    public List<Message> findMessagesByReceipientId(final UUID userId) {
+    public List<Message> findMessagesByRecipientId(final UUID userId) {
         final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
         final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
         Preconditions.checkNotNull(messageList);
         return messageList.stream()
-            .filter(message -> message.getReceipientUserId().equals(userId))
+            .filter(message -> message.getRecipientUserId().equals(userId))
             .collect(Collectors.toList());
     }
 }
