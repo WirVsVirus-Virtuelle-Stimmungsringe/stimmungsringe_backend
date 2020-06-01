@@ -8,7 +8,7 @@ import de.wirvsvirus.hack.rest.dto.OtherStatusPageResponse;
 import de.wirvsvirus.hack.rest.dto.SendMessageRequest;
 import de.wirvsvirus.hack.rest.dto.SuggestionResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
-import de.wirvsvirus.hack.service.MessagingService;
+import de.wirvsvirus.hack.service.MessageService;
 import de.wirvsvirus.hack.service.RoleBasedTextSuggestionsService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +35,7 @@ public class OtherStatusPageController {
     private OnboardingRepository userRepository;
 
     @Autowired
-    private MessagingService messagingService;
+    private MessageService messagingService;
 
     @Autowired
     private RoleBasedTextSuggestionsService suggestionsService;

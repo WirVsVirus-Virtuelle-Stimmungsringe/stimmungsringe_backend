@@ -51,5 +51,5 @@ public interface OnboardingRepository {
 
     void sendMessage(User sender, User recipient, String text);
 
-    List<Message> findMessagesByUser(UUID userId);
+    List<Message> findMessagesByReceipientId(UUID userId);
 }

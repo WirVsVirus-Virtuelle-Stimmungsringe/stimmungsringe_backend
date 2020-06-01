@@ -44,7 +44,6 @@ public class DashboardController {
                 .myTile(buildMyTileResponse(currentUser))
                 .otherTiles(buildOtherTileResponseList(currentUser, group))
                 .groupData(buildGroupData(group))
-                .inbox(buildMessageInbox(currentUser))
                 .build();
     }
 
@@ -97,14 +96,6 @@ public class DashboardController {
         ).orElse(null);
     }
 
-    private MessageInboxResponse buildMessageInbox(User currentUser) {
-        final List<Message> messages = onboardingRepository.findMessagesByUser(currentUser.getUserId());
 
-        final List<MessageResponse> responseList = messages.stream()
-                .map(message -> MessageResponse.builder().text(message.getText()).build())
-                .collect(Collectors.toList());
-
-        return MessageInboxResponse.builder().messages(responseList).build();
-    }
 
 }

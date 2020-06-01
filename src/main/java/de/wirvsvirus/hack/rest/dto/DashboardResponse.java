@@ -15,5 +15,4 @@ public class DashboardResponse {
 
     private GroupDataResponse groupData;
 
-    private MessageInboxResponse inbox;
 }

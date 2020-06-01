@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -162,6 +163,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                 final Pair<Group, List<UUID>> pair = DataMapper.groupFromDatabase(groupData);
                 MockFactory.allGroups.put(groupData.getGroupId(), pair.getLeft());
                 pair.getRight().forEach(memberId -> MockFactory.groupByUserId.put(memberId, groupData.getGroupId()));
+                MockFactory.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
+
                 countGroups++;
             }
         }
@@ -269,7 +272,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public List<Message> findMessagesByUser(final UUID userId) {
-        return memory.findMessagesByUser(userId);
+    public List<Message> findMessagesByReceipientId(final UUID userId) {
+        return memory.findMessagesByReceipientId(userId);
     }
 }

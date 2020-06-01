@@ -29,18 +29,19 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
         final Group rasselbande = startNewGroup("Rasselbande", "12345");
 
-        joinGroup(rasselbande.getGroupId(), UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
-        touchLastStatusUpdate(UUID.fromString("cafecafe-b855-46ba-b907-321d2d38beef"));
-        joinGroup(rasselbande.getGroupId(), UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
-        touchLastStatusUpdate(UUID.fromString("12340000-b855-46ba-b907-321d2d38feeb"));
-        joinGroup(rasselbande.getGroupId(), UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
-        touchLastStatusUpdate(UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
+        joinGroup(rasselbande.getGroupId(), MockFactory.daniela.getUserId());
+        touchLastStatusUpdate(MockFactory.daniela.getUserId());
+        joinGroup(rasselbande.getGroupId(), MockFactory.frida.getUserId());
+        touchLastStatusUpdate(MockFactory.frida.getUserId());
+        joinGroup(rasselbande.getGroupId(), MockFactory.otto.getUserId());
+        touchLastStatusUpdate(MockFactory.otto.getUserId());
+
 
         log.info("Created mock group " + rasselbande);
 
-        sendMessage(MockFactory.stefan, MockFactory.otto, "Hallo, Otto!");
-        sendMessage(MockFactory.frida, MockFactory.stefan, "Ich denk' an dich!");
-        sendMessage(MockFactory.daniela, MockFactory.stefan, "Ich denk' an dich!");
+        sendMessage(MockFactory.frida, MockFactory.otto, "Hallo, Otto!");
+        sendMessage(MockFactory.frida, MockFactory.daniela, "Ich denk' an dich!");
+        sendMessage(MockFactory.daniela, MockFactory.frida, "Ich denk' an dich!");
         sendMessage(MockFactory.frida, MockFactory.otto, "Ich denk' an dich!");
     }
 
@@ -96,6 +97,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         newGroup.setGroupCode(groupCode);
 
         MockFactory.allGroups.put(newGroup.getGroupId(), newGroup);
+        MockFactory.allGroupMessages.putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
         return newGroup;
     }
 
@@ -188,20 +190,20 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public void sendMessage(final User sender, final User recipient, final String text) {
-        final Optional<Group> group1 = findGroupByUser(sender.getUserId());
+        final Group group1 = findGroupByUser(sender.getUserId()).orElseThrow(() -> new IllegalStateException("User not in any group"));
         final Optional<Group> group2 = findGroupByUser(recipient.getUserId());
         Preconditions.checkState(
-                group1.orElseThrow(() -> new IllegalStateException("User not in any group"))
-                        .equals(group2.orElseThrow(() -> new IllegalStateException("User not in any group"))));
+                group1.equals(group2.orElseThrow(() -> new IllegalStateException("User not in any group"))));
 
         final Message message = new Message();
         message.setSenderUserId(sender.getUserId());
         message.setReceipientUserId(recipient.getUserId());
         message.setText(text);
+        MockFactory.allGroupMessages.get(group1.getGroupId()).add(message);
     }
 
     @Override
-    public List<Message> findMessagesByUser(final UUID userId) {
+    public List<Message> findMessagesByReceipientId(final UUID userId) {
         final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
         final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
         Preconditions.checkNotNull(messageList);
