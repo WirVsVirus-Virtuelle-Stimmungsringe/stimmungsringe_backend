@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class MessageTemplate {
 
+    private boolean used;
     private String text;
 
 }

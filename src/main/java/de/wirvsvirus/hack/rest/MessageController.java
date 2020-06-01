@@ -10,6 +10,7 @@ import de.wirvsvirus.hack.rest.dto.MessageResponse;
 import de.wirvsvirus.hack.rest.dto.MessageTemplate;
 import de.wirvsvirus.hack.rest.dto.SendMessageRequest;
 import de.wirvsvirus.hack.service.MessageService;
+import de.wirvsvirus.hack.service.dto.MessageTemplateDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,12 +72,15 @@ public class MessageController {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         final User recipient = onboardingRepository.lookupUserById(recipientUserId);
 
-        final List<String> availableMessages =
+        final List<MessageTemplateDto> availableMessages =
                 messageService.calcAvailableMessages(currentUser, recipient);
 
         return AvailableMessagesResponse.builder()
                 .messageTemplates(availableMessages.stream()
-                        .map(text -> MessageTemplate.builder().text(text).build())
+                        .map(template -> MessageTemplate.builder()
+                                .used(template.isUsed())
+                                .text(template.getText())
+                                .build())
                         .collect(Collectors.toList()))
                 .build();
     }

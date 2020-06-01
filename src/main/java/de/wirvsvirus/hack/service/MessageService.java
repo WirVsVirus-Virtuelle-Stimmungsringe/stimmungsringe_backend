@@ -6,7 +6,9 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.service.dto.MessageTemplateDto;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,15 +43,16 @@ public class MessageService {
         onboardingRepository.sendMessage(sender, recipient, text);
     }
 
-    public List<String> calcAvailableMessages(final User currentUser, final User recipient) {
+    public List<MessageTemplateDto> calcAvailableMessages(final User currentUser, final User recipient) {
         final Set<String> usedMessageTexts = onboardingRepository.findMessagesByRecipientId(recipient.getUserId())
                 .stream()
                 .map(Message::getText)
                 .collect(Collectors.toSet());
-        final ArrayList<String> textTemplates = Lists.newArrayList("Say Hello", "Kick ass");
-
-        return textTemplates.stream()
-                .filter(text -> !usedMessageTexts.contains(text))
-                .collect(Collectors.toList());
+        return StreamEx.of("Say Hello", "Kick ass")
+                .map(text -> {
+                    boolean used = usedMessageTexts.contains(text);
+                    return MessageTemplateDto.builder().used(used).text(text).build();
+                })
+                .toList();
     }
 }
