@@ -11,7 +11,6 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +37,11 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         touchLastStatusUpdate(UUID.fromString("deadbeef-b855-46ba-b907-321d01010101"));
 
         log.info("Created mock group " + rasselbande);
+
+        sendMessage(MockFactory.stefan, MockFactory.otto, "Hallo, Otto!");
+        sendMessage(MockFactory.frida, MockFactory.stefan, "Ich denk' an dich!");
+        sendMessage(MockFactory.daniela, MockFactory.stefan, "Ich denk' an dich!");
+        sendMessage(MockFactory.frida, MockFactory.otto, "Ich denk' an dich!");
     }
 
     @Override
@@ -183,17 +187,26 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     }
 
     @Override
-    public void sendMessage(final Message message) {
-        Preconditions.checkNotNull(message.getSenderUserId());
-        Preconditions.checkNotNull(message.getReceipientUserId());
+    public void sendMessage(final User sender, final User recipient, final String text) {
+        final Optional<Group> group1 = findGroupByUser(sender.getUserId());
+        final Optional<Group> group2 = findGroupByUser(recipient.getUserId());
+        Preconditions.checkState(
+                group1.orElseThrow(() -> new IllegalStateException("User not in any group"))
+                        .equals(group2.orElseThrow(() -> new IllegalStateException("User not in any group"))));
 
-        MockFactory.userToUserMessages.add(message);
+        final Message message = new Message();
+        message.setSenderUserId(sender.getUserId());
+        message.setReceipientUserId(recipient.getUserId());
+        message.setText(text);
     }
 
     @Override
     public List<Message> findMessagesByUser(final UUID userId) {
-        return MockFactory.userToUserMessages.stream()
+        final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
+        final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
+        Preconditions.checkNotNull(messageList);
+        return messageList.stream()
             .filter(message -> message.getReceipientUserId().equals(userId))
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
     }
 }

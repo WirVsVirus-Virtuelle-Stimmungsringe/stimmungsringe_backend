@@ -20,17 +20,19 @@ public class MockFactory {
     public static Map<UUID, Instant> lastStatusUpdateByUser = new HashMap<>();
 
     /**
-     * (from,to) -> list message
+     * groupId -> list message
      */
-    public static List<Message> userToUserMessages = new ArrayList<>();
+    public static Map<UUID, List<Message>> allGroupMessages = new HashMap<>();
+
+    public static final User daniela;
+    public static final User frida;
+    public static final User otto;
+    public static final User stefan;
 
     static {
         final List<User> users = new ArrayList<>();
 
-        final User daniela;
-        final User frida;
-        final User otto;
-        final User stefan;
+
 
         {
             User user = createUser("cafecafe-b855-46ba-b907-321d2d38beef");
@@ -69,23 +71,10 @@ public class MockFactory {
             sentimentByUser.put(user.getUserId(), dummySentimentByUser(user.getUserId()));
         });
 
-        userToUserMessages.add(createMessage(stefan, otto, "Hallo, Otto!"));
-        userToUserMessages.add(createMessage(frida, stefan, "Ich denk' an dich!"));
-        userToUserMessages.add(createMessage(daniela, stefan, "Ich denk' an dich!"));
-        userToUserMessages.add(createMessage(frida, otto, "Ich denk' an dich!"));
-
     }
 
     private static User createUser(final String userId) {
         return new User(UUID.fromString(userId), userId.substring(0, 4));
-    }
-
-    private static Message createMessage(final User sender, final User recipient, final String text) {
-        final Message message = new Message();
-        message.setSenderUserId(sender.getUserId());
-        message.setReceipientUserId(recipient.getUserId());
-        message.setText(text);
-        return message;
     }
 
     private static Sentiment dummySentimentByUser(final UUID userId) {

@@ -49,7 +49,7 @@ public interface OnboardingRepository {
 
     void touchLastStatusUpdate(UUID userId);
 
-    void sendMessage(Message message);
+    void sendMessage(User sender, User recipient, String text);
 
     List<Message> findMessagesByUser(UUID userId);
 }

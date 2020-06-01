@@ -261,10 +261,10 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     @Override
-    public void sendMessage(final Message message) {
+    public void sendMessage(final User sender, final User recipient, final String text) {
         // FIXME
         System.out.println("FIXME");
-        memory.sendMessage(message);
+        memory.sendMessage(sender, recipient, text);
         flushToStorage(); // TODO
     }
 
