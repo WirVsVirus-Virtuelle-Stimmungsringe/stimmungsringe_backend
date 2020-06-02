@@ -25,6 +25,9 @@ public class MyStatusPageController {
     @Autowired
     private OnboardingRepository userRepository;
 
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
+
     @GetMapping
     public MyStatusPageResponse viewMyStatusPage() {
 
@@ -32,7 +35,7 @@ public class MyStatusPageController {
 
         MyStatusPageResponse response = new MyStatusPageResponse();
 
-        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
+        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
 
         final Sentiment sentiment = userRepository.findSentimentByUserId(currentUser.getUserId());
         final List<SuggestionResponse> suggestions = new ArrayList<>();

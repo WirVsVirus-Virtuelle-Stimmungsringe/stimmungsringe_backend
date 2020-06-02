@@ -62,6 +62,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         final User user = lookupUserById(userId);
         user.setName(userSettings.getName());
+        user.setStockAvatar(userSettings.getStockAvatar());
     }
 
     @Override

@@ -2,9 +2,11 @@ package de.wirvsvirus.hack.repository.dynamodb;
 
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
+import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.GroupCodeUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Date;
@@ -21,6 +23,9 @@ public final class DataMapper {
         final User user = new User(userData.getUserId(), userData.getDeviceIdentifier());
         user.setName(userData.getName());
         user.setRoles(Collections.emptyList());
+        if (StringUtils.isNotBlank(userData.getStockAvatar())) {
+            user.setStockAvatar(StockAvatar.valueOf(userData.getStockAvatar()));
+        }
         return user;
     }
 
@@ -31,6 +36,9 @@ public final class DataMapper {
         userData.setName(user.getName());
         userData.setSentiment(sentiment.name());
         userData.setLastStatusUpdate(Date.from(lastStatusUpdate));
+        if (user.getStockAvatar() != null) {
+            userData.setStockAvatar(user.getStockAvatar().name());
+        }
         return userData;
     }
 
@@ -59,7 +67,7 @@ public final class DataMapper {
             log.warn("Fixed group name of {}", groupData.getGroupId());
             groupData.setGroupName("Rasselbande");
         }
-        if(groupData.getGroupCode() == null) {
+        if (groupData.getGroupCode() == null) {
             final String code = GroupCodeUtil.generateGroupCode();
             log.warn("Fixing group code of {} with new code <{}>", groupData.getGroupId(), code);
             groupData.setGroupCode(code);
@@ -73,6 +81,7 @@ public final class DataMapper {
         return userData.getLastStatusUpdate().toInstant();
     }
 
-    private DataMapper() {}
+    private DataMapper() {
+    }
 
 }

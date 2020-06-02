@@ -76,16 +76,21 @@ public class OnboardingService {
     }
 
     public void updateUser(final User user, final UserSettingsDto userSettings) {
-        final String name = userSettings.getName();
 
-
-        if (name.isEmpty()) {
-            return;
+        if (StringUtils.isNotBlank(userSettings.getName())) {
+            userSettings.setName(StringUtils.trim(userSettings.getName()));
+        } else {
+            // restore stored name (if any) when name is null/empty
+            userSettings.setName(user.getName());
         }
 
-        userSettings.setName(StringUtils.trim(name));
+        if (userSettings.getStockAvatar() == null) {
+            // restore stored avatar (if any) when avatar is empty
+            userSettings.setStockAvatar(user.getStockAvatar());
+        }
 
         onboardingRepository.updateUser(user.getUserId(), userSettings);
+
     }
 
     public void updateGroup(final Group group, final GroupSettingsDto groupSettings) {
