@@ -11,7 +11,7 @@ import java.util.UUID;
 public class MessageResponse {
 
     private Instant createdAt;
-    private UUID senderUserId;
+    private UserMinimalResponse senderUser;
     private String text;
 
 }

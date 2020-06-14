@@ -10,6 +10,7 @@ import de.wirvsvirus.hack.rest.dto.MessageInboxResponse;
 import de.wirvsvirus.hack.rest.dto.MessageResponse;
 import de.wirvsvirus.hack.rest.dto.MessageTemplate;
 import de.wirvsvirus.hack.rest.dto.SendMessageRequest;
+import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
 import de.wirvsvirus.hack.service.MessageService;
 import de.wirvsvirus.hack.service.dto.MessageTemplateDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
@@ -39,6 +40,9 @@ public class MessageController {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
 
     @GetMapping("/inbox")
     public MessageInboxResponse getInbox() {
@@ -102,12 +106,18 @@ public class MessageController {
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .map(message -> MessageResponse.builder()
                         .createdAt(message.getCreatedAt())
-                        .senderUserId(message.getSenderUserId())
+                        .senderUser(resolveSenderUser(message.getSenderUserId()))
                         .text(message.getText())
                         .build())
                 .collect(Collectors.toList());
 
         return MessageInboxResponse.builder().messages(responseList).build();
+    }
+
+    private UserMinimalResponse resolveSenderUser(UUID senderUserId) {
+        final User senderUser = onboardingRepository.lookupUserById(senderUserId);
+        return Mappers.mapResponseFromDomain(senderUser,
+                avatarUrlResolver::getUserAvatarUrl);
     }
 
 }
