@@ -13,9 +13,14 @@ public class UserMinimalResponse {
 
     @NotNull
     private UUID userId;
+
     @NotEmpty
     private String displayName;
+
     private boolean hasName;
+
+    @NotEmpty
+    private String avatarUrl;
 
 }
 

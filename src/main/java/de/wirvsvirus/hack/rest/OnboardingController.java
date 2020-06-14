@@ -91,6 +91,7 @@ public class OnboardingController {
         return UserSettingsResponse.builder()
                 .userName(user.getName())
                 .hasName(user.hasName())
+                .stockAvatar(user.getStockAvatar())
                 .build();
     }
 

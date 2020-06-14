@@ -40,19 +40,22 @@ public class OtherStatusPageController {
     @Autowired
     private RoleBasedTextSuggestionsService suggestionsService;
 
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
+
     @GetMapping(value = "/{otherUserId}")
     public OtherStatusPageResponse viewOtherStatusPage(
-            @PathVariable("otherUserId") @NotNull  UUID otherUserId) {
+            @PathVariable("otherUserId") @NotNull UUID otherUserId) {
 
         Preconditions.checkState(
-            !otherUserId.equals(UserInterceptor.getCurrentUserId()),
+                !otherUserId.equals(UserInterceptor.getCurrentUserId()),
                 "Cannot have others' perspective on your own page");
 
         final User otherUser = userRepository.lookupUserById(otherUserId);
 
         OtherStatusPageResponse response = new OtherStatusPageResponse();
 
-        final UserMinimalResponse me = Mappers.mapResponseFromDomain(otherUser);
+        final UserMinimalResponse me = Mappers.mapResponseFromDomain(otherUser, avatarUrlResolver::getUserAvatarUrl);
         final Sentiment sentiment = userRepository.findSentimentByUserId(otherUserId);
 
         final List<SuggestionResponse> suggestions = new ArrayList<>();

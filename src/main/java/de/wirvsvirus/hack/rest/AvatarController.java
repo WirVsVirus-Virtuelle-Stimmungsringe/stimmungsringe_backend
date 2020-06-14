@@ -3,8 +3,6 @@ package de.wirvsvirus.hack.rest;
 import com.amazonaws.util.IOUtils;
 import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.model.StockAvatar;
-import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.AvailableAvatarsResponse;
 import de.wirvsvirus.hack.service.AvatarService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,40 +21,55 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/avatar")
+@RequestMapping(AvatarController.CONTROLLER_PATH)
 @Slf4j
 public class AvatarController {
-    @Autowired
-    private OnboardingRepository onboardingRepository;
+    static final String CONTROLLER_PATH = "/avatar";
+    static final String FALLBACK_AVATAR_ENDPOINT = "/fallback";
+    static final String STOCK_AVATAR_ENDPOINT = "/stock";
 
     @Autowired
     private AvatarService avatarService;
 
-    @GetMapping(value = "/{userId}")
-    public ResponseEntity<Resource> getAvatarForUser(@NotNull @PathVariable("userId") UUID userId) {
-        final User user = onboardingRepository.lookupUserById(userId);
-        final ClassPathResource avatarResource = avatarService.getUserAvatarUrl(user);
-
-        return copyResourceToResponse(avatarResource, CacheControl.empty());
-    }
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
 
     @GetMapping(value = "/available")
     public AvailableAvatarsResponse getAvailableAvatars() {
+        final List<AvailableAvatarsResponse.StockAvatarResponse> stockAvatarResponses =
+                Arrays.stream(StockAvatar.values())
+                        .map(stockAvatar ->
+                                AvailableAvatarsResponse.StockAvatarResponse.builder()
+                                        .avatarName(stockAvatar.name())
+                                        .avatarUrl(avatarUrlResolver.getStockAvatarUrl(stockAvatar))
+                                        .build()
+                        )
+                        .collect(Collectors.toList());
+
         return AvailableAvatarsResponse.builder()
-                .stockAvatars(Arrays.asList(StockAvatar.values()))
+                .stockAvatars(stockAvatarResponses)
                 .build();
     }
 
-    @GetMapping(value = "/stock/{stockAvatar}")
+    @GetMapping(value = FALLBACK_AVATAR_ENDPOINT)
+    public ResponseEntity<Resource> getFallbackAvatar() {
+        CacheControl cacheConfiguration = CacheControl
+                .maxAge(30, TimeUnit.DAYS)
+                .cachePublic();
+        return copyResourceToResponse(avatarService.getFallbackAvatarResource(), cacheConfiguration);
+    }
+
+    @GetMapping(value = STOCK_AVATAR_ENDPOINT + "/{stockAvatar}")
     public ResponseEntity<Resource> getStockAvatar(@NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) {
         CacheControl cacheConfiguration = CacheControl
                 .maxAge(1, TimeUnit.DAYS)
                 .cachePublic();
-        return copyResourceToResponse(avatarService.getStockAvatarUrl(stockAvatar), cacheConfiguration);
+        return copyResourceToResponse(avatarService.getStockAvatarResource(stockAvatar), cacheConfiguration);
     }
 
     private ResponseEntity<Resource> copyResourceToResponse(final ClassPathResource avatarResource, final CacheControl cacheConfiguration) {
