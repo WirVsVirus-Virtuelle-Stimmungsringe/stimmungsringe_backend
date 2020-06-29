@@ -1,27 +1,16 @@
 package de.wirvsvirus.hack.rest;
 
-import com.google.common.collect.ImmutableList;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.rest.dto.AvailableMessagesResponse;
-import de.wirvsvirus.hack.rest.dto.MessageInboxResponse;
-import de.wirvsvirus.hack.rest.dto.MessageResponse;
-import de.wirvsvirus.hack.rest.dto.MessageTemplate;
-import de.wirvsvirus.hack.rest.dto.SendMessageRequest;
-import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
+import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.MessageService;
 import de.wirvsvirus.hack.service.dto.MessageTemplateDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -94,9 +83,10 @@ public class MessageController {
     private MessageInboxResponse buildMessageInbox(User currentUser) {
 
         // FIXME test
-        if (onboardingRepository.findMessagesByRecipientId(currentUser.getUserId()).size() < 4) {
+        final int messageCountForUser = onboardingRepository.findMessagesByRecipientId(currentUser.getUserId()).size();
+        if (messageCountForUser < 4) {
             messageService.sendMessage(onboardingRepository.lookupUserById(MockFactory.frida.getUserId()),
-                    currentUser, "auto-gen sample message");
+                    currentUser, "auto-gen sample message " + (messageCountForUser + 1));
 
         }
 

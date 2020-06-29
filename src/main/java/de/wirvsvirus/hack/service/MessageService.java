@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +46,7 @@ public class MessageService {
                 .stream()
                 .map(Message::getText)
                 .collect(Collectors.toSet());
-        return StreamEx.of("Say Hello", "Kick ass")
+        return StreamEx.of("Ich denk' an dich!", "Kopf hoch!")
                 .map(text -> {
                     boolean used = usedMessageTexts.contains(text);
                     return MessageTemplateDto.builder().used(used).text(text).build();

@@ -1,11 +1,7 @@
 package de.wirvsvirus.hack.mock;
 
 import com.google.common.collect.Lists;
-import de.wirvsvirus.hack.model.Group;
-import de.wirvsvirus.hack.model.Message;
-import de.wirvsvirus.hack.model.Role;
-import de.wirvsvirus.hack.model.Sentiment;
-import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.model.*;
 
 import java.time.Instant;
 import java.util.*;
@@ -38,6 +34,7 @@ public class MockFactory {
             User user = createUser("cafecafe-b855-46ba-b907-321d2d38beef");
             user.setName("Daniela");
             user.setRoles(Lists.newArrayList(Role.ARBEITNEHMER, Role.ELTERNTEIL, Role.ME_TIME));
+            user.setStockAvatar(StockAvatar.LISA);
             users.add(user);
             daniela = user;
         }
@@ -46,6 +43,7 @@ public class MockFactory {
             User user = createUser("12340000-b855-46ba-b907-321d2d38feeb");
             user.setName("Frida");
             user.setRoles(Lists.newArrayList(Role.KIND));
+            user.setStockAvatar(StockAvatar.DANI);
             users.add(user);
             frida = user;
         }
@@ -62,6 +60,7 @@ public class MockFactory {
             User user = createUser("abbaabba-3333-46ba-b907-321d01055555");
             user.setName("Stefan");
             user.setRoles(Lists.newArrayList(Role.ARBEITNEHMER, Role.PARTNER));
+            user.setStockAvatar(StockAvatar.STEFAN);
             users.add(user);
             stefan = user;
         }

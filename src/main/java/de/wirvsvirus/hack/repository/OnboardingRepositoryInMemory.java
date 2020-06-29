@@ -59,10 +59,10 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkNotNull(userId);
 
         return
-            EntryStream.of(MockFactory.allUsers)
-                .values()
-                .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
-            .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
+                EntryStream.of(MockFactory.allUsers)
+                        .values()
+                        .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
+                        .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
     }
 
     @Override
@@ -84,8 +84,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkNotNull(groupId);
 
         return EntryStream.of(MockFactory.allGroups)
-            .values()
-            .findAny(group -> group.getGroupId().equals(groupId));
+                .values()
+                .findAny(group -> group.getGroupId().equals(groupId));
 
     }
 
@@ -120,13 +120,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
         return
-        EntryStream.of(MockFactory.groupByUserId)
-            .filterValues(gid -> gid.equals(groupId))
-            .filterKeys(MockFactory.allUsers::containsKey)
-                .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
-                .keys()
-                .map(MockFactory.allUsers::get)
-                .collect(Collectors.toList());
+                EntryStream.of(MockFactory.groupByUserId)
+                        .filterValues(gid -> gid.equals(groupId))
+                        .filterKeys(MockFactory.allUsers::containsKey)
+                        .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
+                        .keys()
+                        .map(MockFactory.allUsers::get)
+                        .collect(Collectors.toList());
     }
 
     @Override
@@ -134,7 +134,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
         final Sentiment sentiment = MockFactory.sentimentByUser.get(userId);
         Preconditions.checkNotNull(
-            sentiment, "Lookup error on sentiment lookup for user %s", userId);
+                sentiment, "Lookup error on sentiment lookup for user %s", userId);
         return sentiment;
     }
 
@@ -157,7 +157,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Optional<Group> findGroupByUser(final UUID userId) {
         return Optional.ofNullable(
-            MockFactory.groupByUserId.get(userId))
+                MockFactory.groupByUserId.get(userId))
                 .map(MockFactory.allGroups::get);
     }
 
@@ -209,8 +209,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
         Preconditions.checkNotNull(messageList);
         return messageList.stream()
-            .filter(message -> message.getRecipientUserId().equals(userId))
-            .collect(Collectors.toList());
+                .filter(message -> message.getRecipientUserId().equals(userId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -218,7 +218,12 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
         final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
         Preconditions.checkNotNull(messageList);
-        MockFactory.allGroupMessages.put(group.getGroupId(), new ArrayList<>());
+
+        final List<Message> messagesWithoutOwn = messageList.stream()
+                .filter(message -> !message.getRecipientUserId().equals(userId))
+                .collect(Collectors.toList());
+
+        MockFactory.allGroupMessages.put(group.getGroupId(), messagesWithoutOwn);
     }
 
 
