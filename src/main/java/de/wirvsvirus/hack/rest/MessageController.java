@@ -82,14 +82,6 @@ public class MessageController {
 
     private MessageInboxResponse buildMessageInbox(User currentUser) {
 
-        // FIXME test
-        final int messageCountForUser = onboardingRepository.findMessagesByRecipientId(currentUser.getUserId()).size();
-        if (messageCountForUser < 4) {
-            messageService.sendMessage(onboardingRepository.lookupUserById(MockFactory.frida.getUserId()),
-                    currentUser, "auto-gen sample message " + (messageCountForUser + 1));
-
-        }
-
         final List<Message> messages = onboardingRepository.findMessagesByRecipientId(currentUser.getUserId());
 
         final List<MessageResponse> responseList = messages.stream()
