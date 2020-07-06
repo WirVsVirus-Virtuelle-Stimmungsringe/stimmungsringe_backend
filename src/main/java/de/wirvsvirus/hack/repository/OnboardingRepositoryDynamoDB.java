@@ -259,7 +259,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     @Override
     public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
-        flushToStorage();
         return memory.findByDeviceIdentifier(deviceIdentifier);
     }
 
