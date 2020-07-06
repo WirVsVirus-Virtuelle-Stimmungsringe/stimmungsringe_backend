@@ -1,9 +1,11 @@
 package de.wirvsvirus.hack.service.impl;
 
 import de.wirvsvirus.hack.exception.PushMessageNotSendException;
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Notification;
 import de.wirvsvirus.hack.model.NotificationData;
 import de.wirvsvirus.hack.model.NotificationMessage;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.PushNotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,10 +16,13 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.UUID;
 
 @Service
 @Slf4j
 public class PushNotificationServiceImpl implements PushNotificationService {
+
+    private OnboardingRepository onboardingRepository;
 
     @Value("${notification.service.url:}")
     private String notificationServiceUrl;
@@ -33,6 +38,19 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         log.info("Notification Service Url: " + this.notificationServiceUrl);
         log.info("Notification Sender Id: " + this.notificationSenderId);
         log.info("Nofitication Auth Key is set: " + StringUtils.isNoneBlank(this.notificationAuthKey));
+    }
+
+    @Override
+    public void registerFcmTokenForUser(final UUID userId, final String deviceIdentifier, final String fcmToken) {
+        log.info("Register FCM Token for user {}: {}", userId,
+                StringUtils.abbreviate(fcmToken, 8));
+
+        final Device device = new Device();
+        device.setUserId(userId);
+        device.setDeviceIdentifier(deviceIdentifier);
+        device.setFcmToken(fcmToken);
+        onboardingRepository.addDevice(device);
+
     }
 
     @Override

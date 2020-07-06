@@ -20,6 +20,11 @@ public class MockFactory {
      */
     public static Map<UUID, List<Message>> allGroupMessages = new HashMap<>();
 
+    /**
+     * userId -> list devices
+     */
+    public static Map<UUID, List<Device>> allDevicesByUser = new HashMap<>();
+
     public static final User daniela;
     public static final User frida;
     public static final User otto;

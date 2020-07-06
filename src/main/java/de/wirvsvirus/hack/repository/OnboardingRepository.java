@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository;
 
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -54,4 +55,6 @@ public interface OnboardingRepository {
     List<Message> findMessagesByRecipientId(UUID userId);
 
     void clearMessagesByRecipientId(UUID userId);
+
+    void addDevice(Device device);
 }

@@ -13,4 +13,9 @@ public class SigninUserRequest {
     @NotNull
     private String deviceIdentifier;
 
+    /**
+     * firebase push token
+     */
+    private String fcmToken;
+
 }

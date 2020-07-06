@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.repository;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -16,7 +17,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -224,6 +229,27 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
                 .collect(Collectors.toList());
 
         MockFactory.allGroupMessages.put(group.getGroupId(), messagesWithoutOwn);
+    }
+
+    @Override
+    public void addDevice(final Device device) {
+        Preconditions.checkNotNull(device.getUserId());
+        Preconditions.checkNotNull(device.getDeviceIdentifier());
+        Preconditions.checkNotNull(device.getFcmToken());
+
+        MockFactory.allDevicesByUser.putIfAbsent(device.getUserId(), new ArrayList<>());
+
+        final List<Device> devices = MockFactory.allDevicesByUser.get(device.getUserId());
+
+        final Optional<Device> existing = devices.stream()
+                .collect(MoreCollectors.onlyOne(
+                        de -> de.getUserId().equals(device.getUserId())
+                                && de.getDeviceIdentifier().equals(device.getDeviceIdentifier())));
+
+        if (!existing.isPresent()
+                || !existing.get().getFcmToken().equals(device.getFcmToken())) {
+            devices.add(device);
+        }
     }
 
 

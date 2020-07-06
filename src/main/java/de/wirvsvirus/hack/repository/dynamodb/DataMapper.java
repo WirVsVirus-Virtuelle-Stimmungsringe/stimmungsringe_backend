@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository.dynamodb;
 
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.StockAvatar;
@@ -79,6 +80,22 @@ public final class DataMapper {
             return Instant.now();
         }
         return userData.getLastStatusUpdate().toInstant();
+    }
+
+    public static UserDeviceData dataFromDevice(final Device device) {
+        final UserDeviceData deviceData = new UserDeviceData();
+        deviceData.setUserId(device.getUserId());
+        deviceData.setDeviceIdentifier(device.getDeviceIdentifier());
+        deviceData.setFcmToken(device.getFcmToken());
+        return deviceData;
+    }
+
+    public static Device deviceDataFromDatabase(final UserDeviceData deviceData) {
+        final Device device = new Device();
+        device.setUserId(deviceData.getUserId());
+        device.setDeviceIdentifier(deviceData.getDeviceIdentifier());
+        device.setFcmToken(deviceData.getFcmToken());
+        return device;
     }
 
     private DataMapper() {

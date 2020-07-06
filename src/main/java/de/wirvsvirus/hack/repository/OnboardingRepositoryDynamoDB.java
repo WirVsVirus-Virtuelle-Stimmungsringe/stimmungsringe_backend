@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -18,10 +19,12 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
+import de.wirvsvirus.hack.repository.dynamodb.UserDeviceData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -30,7 +33,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -99,6 +104,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         int countUsers = 0;
         int countGroups = 0;
+        int countDevices = 0;
 
         {
             for (final User user : MockFactory.allUsers.values()) {
@@ -121,6 +127,15 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         }
 
+        {
+            EntryStream.of(MockFactory.allDevicesByUser)
+                    .flatMapValues(Collection::stream)
+                    .values()
+                .forEach(device -> dynamoDBMapper.save(DataMapper.dataFromDevice(device)));
+
+             //   countDevices++; // TODO
+        }
+
         log.debug("Flushed {} users and {} groups to database", countUsers, countGroups);
     }
 
@@ -134,6 +149,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     private synchronized void restoreFromStorage() {
         int countUsers = 0;
         int countGroups = 0;
+        int countDevices = 0;
 
         {
             // TODO tune
@@ -167,6 +183,24 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
                 countGroups++;
             }
+        }
+
+        {
+            final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
+
+            final PaginatedScanList<UserDeviceData> result = dynamoDBMapper.scan(UserDeviceData.class, scanAll);
+
+            for (UserDeviceData deviceData : result) {
+                System.out.println("- " + deviceData);
+
+                MockFactory.allDevicesByUser.putIfAbsent(deviceData.getUserId(), new ArrayList<>());
+                final List<Device> devices = MockFactory.allDevicesByUser.get(deviceData.getUserId());
+
+                devices.add(DataMapper.deviceDataFromDatabase(deviceData));
+
+                countDevices++;
+            }
+
         }
 
         log.debug("Restored {} users and {} groups to database", countUsers, countGroups);
@@ -279,6 +313,12 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void clearMessagesByRecipientId(final UUID userId) {
         memory.clearMessagesByRecipientId(userId);
+        flushToStorage();
+    }
+
+    @Override
+    public void addDevice(final Device device) {
+        memory.addDevice(device);
         flushToStorage();
     }
 }
