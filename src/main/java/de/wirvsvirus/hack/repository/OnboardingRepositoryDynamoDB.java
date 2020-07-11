@@ -9,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Group;
@@ -22,6 +23,7 @@ import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -29,10 +31,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,33 +99,44 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     }
 
-    private synchronized void flushToStorage() {
+    private void flushToStorage() {
+        log.debug("Flushing to storage ....");
+        final StopWatch stopWatch = StopWatch.createStarted();
 
-        int countUsers = 0;
-        int countGroups = 0;
-
-        {
-            for (final User user : MockFactory.allUsers.values()) {
-                // TODO tune: reduce consistency, store async
-                dynamoDBMapper.save(DataMapper.dataFromUser(user,
-                        findSentimentByUserId(user.getUserId()),
-                        findLastStatusUpdateByUserId(user.getUserId())
-                        ));
-                countUsers++;
+        synchronized (this) {
+            if (stopWatch.getTime(TimeUnit.SECONDS) > 5) {
+                log.warn("... flushing to storage was blocked for {}ms", stopWatch.getTime(TimeUnit.MILLISECONDS));
             }
+
+            int countUsers = 0;
+            int countGroups = 0;
+
+            {
+                for (final User user : MockFactory.allUsers.values()) {
+                    // TODO tune: reduce consistency, store async
+                    dynamoDBMapper.save(DataMapper.dataFromUser(user,
+                            findSentimentByUserId(user.getUserId()),
+                            findLastStatusUpdateByUserId(user.getUserId())
+                    ));
+                    countUsers++;
+                }
+
+            }
+
+            {
+                for (final Group group : MockFactory.allGroups.values()) {
+                    // TODO tune: reduce consistency, store async
+                    dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
+                    countGroups++;
+                }
+
+            }
+
+            log.debug("Flushed {} users and {} groups to database in {}ms",
+                    countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
 
         }
 
-        {
-            for (final Group group : MockFactory.allGroups.values()) {
-                // TODO tune: reduce consistency, store async
-                dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
-                countGroups++;
-            }
-
-        }
-
-        log.debug("Flushed {} users and {} groups to database", countUsers, countGroups);
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
