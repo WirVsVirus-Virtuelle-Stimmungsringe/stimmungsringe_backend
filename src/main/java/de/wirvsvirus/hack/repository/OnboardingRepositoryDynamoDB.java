@@ -27,6 +27,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +55,9 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Autowired
     private AmazonDynamoDB amazonDynamoDB;
 
+    // control flushing of dirty data from memory
+    private AtomicInteger memoryVersion = new AtomicInteger(10);
+    private AtomicInteger databaseVersion = new AtomicInteger(0);
 
     @PostConstruct
     public void startup() {
@@ -61,15 +67,31 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         MockFactory.allUsers.clear(); // FIXME
         log.info("Do not load mock data");
 
-
-
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
 
         restoreFromStorage();
-        // flush to make sure that fixed get persisted
+        // flush to make sure that patched data get persisted
         flushToStorage();
 
+    }
+
+    @Scheduled(initialDelayString = "PT10S", fixedDelayString = "PT0.500S")
+    public void autoFlushStorage() {
+        final int currentMemoryVersion = memoryVersion.get();
+        final int currentDatabaseVersion = databaseVersion.get();
+        if (currentMemoryVersion == currentDatabaseVersion) {
+            log.trace("Memory and database version are in sync: {}", currentMemoryVersion);
+            return;
+        }
+        Preconditions.checkState(currentMemoryVersion > currentDatabaseVersion);
+
+        writeDataToStorage();
+
+        // done
+        log.debug("Bump database version to {}", currentDatabaseVersion);
+        final boolean updated = databaseVersion.compareAndSet(currentDatabaseVersion, currentMemoryVersion);
+        Preconditions.checkState(updated, "CAS update failed - should never happen!");
     }
 
     private  <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
@@ -100,43 +122,42 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     private void flushToStorage() {
+        memoryVersion.incrementAndGet();
+    }
+
+    /**
+     * note: use only from autoflush facility
+     */
+    private synchronized void writeDataToStorage() {
         log.debug("Flushing to storage ....");
         final StopWatch stopWatch = StopWatch.createStarted();
 
-        synchronized (this) {
-            if (stopWatch.getTime(TimeUnit.SECONDS) > 5) {
-                log.warn("... flushing to storage was blocked for {}ms", stopWatch.getTime(TimeUnit.MILLISECONDS));
+        int countUsers = 0;
+        int countGroups = 0;
+
+        {
+            for (final User user : MockFactory.allUsers.values()) {
+                // TODO tune: reduce consistency, store async
+                dynamoDBMapper.save(DataMapper.dataFromUser(user,
+                        findSentimentByUserId(user.getUserId()),
+                        findLastStatusUpdateByUserId(user.getUserId())
+                ));
+                countUsers++;
             }
-
-            int countUsers = 0;
-            int countGroups = 0;
-
-            {
-                for (final User user : MockFactory.allUsers.values()) {
-                    // TODO tune: reduce consistency, store async
-                    dynamoDBMapper.save(DataMapper.dataFromUser(user,
-                            findSentimentByUserId(user.getUserId()),
-                            findLastStatusUpdateByUserId(user.getUserId())
-                    ));
-                    countUsers++;
-                }
-
-            }
-
-            {
-                for (final Group group : MockFactory.allGroups.values()) {
-                    // TODO tune: reduce consistency, store async
-                    dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
-                    countGroups++;
-                }
-
-            }
-
-            log.debug("Flushed {} users and {} groups to database in {}ms",
-                    countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
 
         }
 
+        {
+            for (final Group group : MockFactory.allGroups.values()) {
+                // TODO tune: reduce consistency, store async
+                dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
+                countGroups++;
+            }
+
+        }
+
+        log.debug("Flushed {} users and {} groups to database in {}ms",
+                countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
