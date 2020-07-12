@@ -1,7 +1,7 @@
 package de.wirvsvirus.hack.repository;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -29,29 +29,29 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
         final Group rasselbande = startNewGroup("Rasselbande", "12345");
 
-        joinGroup(rasselbande.getGroupId(), MockFactory.daniela.getUserId());
-        touchLastStatusUpdate(MockFactory.daniela.getUserId());
-        joinGroup(rasselbande.getGroupId(), MockFactory.frida.getUserId());
-        touchLastStatusUpdate(MockFactory.frida.getUserId());
-        joinGroup(rasselbande.getGroupId(), MockFactory.otto.getUserId());
-        touchLastStatusUpdate(MockFactory.otto.getUserId());
+        joinGroup(rasselbande.getGroupId(), InMemoryDatastore.daniela.getUserId());
+        touchLastStatusUpdate(InMemoryDatastore.daniela.getUserId());
+        joinGroup(rasselbande.getGroupId(), InMemoryDatastore.frida.getUserId());
+        touchLastStatusUpdate(InMemoryDatastore.frida.getUserId());
+        joinGroup(rasselbande.getGroupId(), InMemoryDatastore.otto.getUserId());
+        touchLastStatusUpdate(InMemoryDatastore.otto.getUserId());
 
 
         log.info("Created mock group " + rasselbande);
 
-        sendMessage(MockFactory.frida, MockFactory.otto, "Hallo, Otto!");
-        sendMessage(MockFactory.frida, MockFactory.daniela, "Ich denk' an dich!");
-        sendMessage(MockFactory.daniela, MockFactory.frida, "Ich denk' an dich!");
-        sendMessage(MockFactory.frida, MockFactory.otto, "Ich denk' an dich!");
+        sendMessage(InMemoryDatastore.frida, InMemoryDatastore.otto, "Hallo, Otto!");
+        sendMessage(InMemoryDatastore.frida, InMemoryDatastore.daniela, "Ich denk' an dich!");
+        sendMessage(InMemoryDatastore.daniela, InMemoryDatastore.frida, "Ich denk' an dich!");
+        sendMessage(InMemoryDatastore.frida, InMemoryDatastore.otto, "Ich denk' an dich!");
     }
 
     @Override
     public void createNewUser(final User newUser, Sentiment sentiment, final Instant lastUpdate) {
         Preconditions.checkNotNull(sentiment);
-        Preconditions.checkState(!MockFactory.allUsers.containsKey(newUser.getUserId()));
-        MockFactory.allUsers.put(newUser.getUserId(), newUser);
-        MockFactory.sentimentByUser.put(newUser.getUserId(), sentiment);
-        MockFactory.lastStatusUpdateByUser.put(newUser.getUserId(), lastUpdate);
+        Preconditions.checkState(!InMemoryDatastore.allUsers.containsKey(newUser.getUserId()));
+        InMemoryDatastore.allUsers.put(newUser.getUserId(), newUser);
+        InMemoryDatastore.sentimentByUser.put(newUser.getUserId(), sentiment);
+        InMemoryDatastore.lastStatusUpdateByUser.put(newUser.getUserId(), lastUpdate);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkNotNull(userId);
 
         return
-                EntryStream.of(MockFactory.allUsers)
+                EntryStream.of(InMemoryDatastore.allUsers)
                         .values()
                         .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
                         .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
@@ -74,7 +74,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
-        final Group group = MockFactory.allGroups.get(groupId);
+        final Group group = InMemoryDatastore.allGroups.get(groupId);
         Preconditions.checkNotNull(group);
         group.setGroupName(groupSettings.getGroupName());
     }
@@ -83,7 +83,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public Optional<Group> findGroupById(final UUID groupId) {
         Preconditions.checkNotNull(groupId);
 
-        return EntryStream.of(MockFactory.allGroups)
+        return EntryStream.of(InMemoryDatastore.allGroups)
                 .values()
                 .findAny(group -> group.getGroupId().equals(groupId));
 
@@ -96,8 +96,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         newGroup.setGroupName(groupName);
         newGroup.setGroupCode(groupCode);
 
-        MockFactory.allGroups.put(newGroup.getGroupId(), newGroup);
-        MockFactory.allGroupMessages.putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
+        InMemoryDatastore.allGroups.put(newGroup.getGroupId(), newGroup);
+        InMemoryDatastore.allGroupMessages.putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
         return newGroup;
     }
 
@@ -105,13 +105,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void joinGroup(UUID groupId, UUID userId) {
 //        Preconditions.checkState(MockFactory.allGroups.contains(groupName), "Group <%s> does not exist", groupName);
 
-        MockFactory.groupByUserId.put(userId, groupId);
+        InMemoryDatastore.groupByUserId.put(userId, groupId);
     }
 
 
     @Override
     public void leaveGroup(final UUID groupId, final UUID userId) {
-        MockFactory.groupByUserId.remove(userId);
+        InMemoryDatastore.groupByUserId.remove(userId);
     }
 
     /**
@@ -120,19 +120,19 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
         return
-                EntryStream.of(MockFactory.groupByUserId)
+                EntryStream.of(InMemoryDatastore.groupByUserId)
                         .filterValues(gid -> gid.equals(groupId))
-                        .filterKeys(MockFactory.allUsers::containsKey)
+                        .filterKeys(InMemoryDatastore.allUsers::containsKey)
                         .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
                         .keys()
-                        .map(MockFactory.allUsers::get)
+                        .map(InMemoryDatastore.allUsers::get)
                         .collect(Collectors.toList());
     }
 
     @Override
     public Sentiment findSentimentByUserId(UUID userId) {
 
-        final Sentiment sentiment = MockFactory.sentimentByUser.get(userId);
+        final Sentiment sentiment = InMemoryDatastore.sentimentByUser.get(userId);
         Preconditions.checkNotNull(
                 sentiment, "Lookup error on sentiment lookup for user %s", userId);
         return sentiment;
@@ -140,7 +140,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public Instant findLastStatusUpdateByUserId(UUID userId) {
-        final Instant lastStatusUpdate = MockFactory.lastStatusUpdateByUser.get(userId);
+        final Instant lastStatusUpdate = InMemoryDatastore.lastStatusUpdateByUser.get(userId);
         Preconditions.checkNotNull(
                 lastStatusUpdate, "Lookup error on last status update timestamp lookup for user %s", userId);
         return lastStatusUpdate;
@@ -150,21 +150,21 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         lookupUserById(userId);
-        MockFactory.sentimentByUser.put(userId, sentiment);
+        InMemoryDatastore.sentimentByUser.put(userId, sentiment);
     }
 
 
     @Override
     public Optional<Group> findGroupByUser(final UUID userId) {
         return Optional.ofNullable(
-                MockFactory.groupByUserId.get(userId))
-                .map(MockFactory.allGroups::get);
+                InMemoryDatastore.groupByUserId.get(userId))
+                .map(InMemoryDatastore.allGroups::get);
     }
 
     @Override
     public Optional<Group> findGroupByCode(final String groupCode) {
 
-        final List<Group> matches = EntryStream.of(MockFactory.allGroups)
+        final List<Group> matches = EntryStream.of(InMemoryDatastore.allGroups)
                 .filterValues(group -> group.getGroupCode().equals(groupCode))
                 .values()
                 .toList();
@@ -177,7 +177,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
         return
-                EntryStream.of(MockFactory.allUsers).values()
+                EntryStream.of(InMemoryDatastore.allUsers).values()
                         .findAny(user ->
                                 user.getDeviceIdentifier()
                                         .equals(deviceIdentifier));
@@ -185,7 +185,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @Override
     public void touchLastStatusUpdate(final UUID userId) {
-        MockFactory.lastStatusUpdateByUser.put(userId, Instant.now());
+        InMemoryDatastore.lastStatusUpdateByUser.put(userId, Instant.now());
     }
 
     @Override
@@ -200,13 +200,13 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         message.setSenderUserId(sender.getUserId());
         message.setRecipientUserId(recipient.getUserId());
         message.setText(text);
-        MockFactory.allGroupMessages.get(group1.getGroupId()).add(message);
+        InMemoryDatastore.allGroupMessages.get(group1.getGroupId()).add(message);
     }
 
     @Override
     public List<Message> findMessagesByRecipientId(final UUID userId) {
         final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
-        final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
+        final List<Message> messageList = InMemoryDatastore.allGroupMessages.get(group.getGroupId());
         Preconditions.checkNotNull(messageList);
         return messageList.stream()
                 .filter(message -> message.getRecipientUserId().equals(userId))
@@ -216,14 +216,14 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public void clearMessagesByRecipientId(final UUID userId) {
         final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
-        final List<Message> messageList = MockFactory.allGroupMessages.get(group.getGroupId());
+        final List<Message> messageList = InMemoryDatastore.allGroupMessages.get(group.getGroupId());
         Preconditions.checkNotNull(messageList);
 
         final List<Message> messagesWithoutOwn = messageList.stream()
                 .filter(message -> !message.getRecipientUserId().equals(userId))
                 .collect(Collectors.toList());
 
-        MockFactory.allGroupMessages.put(group.getGroupId(), messagesWithoutOwn);
+        InMemoryDatastore.allGroupMessages.put(group.getGroupId(), messagesWithoutOwn);
     }
 
 

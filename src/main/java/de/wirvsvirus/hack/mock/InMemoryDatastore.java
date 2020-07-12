@@ -6,7 +6,7 @@ import de.wirvsvirus.hack.model.*;
 import java.time.Instant;
 import java.util.*;
 
-public class MockFactory {
+public class InMemoryDatastore {
 
     public static final Map<UUID, User> allUsers = new HashMap<>();
     public static final Map<UUID, Group> allGroups = new HashMap<>();
@@ -27,8 +27,6 @@ public class MockFactory {
 
     static {
         final List<User> users = new ArrayList<>();
-
-
 
         {
             User user = createUser("cafecafe-b855-46ba-b907-321d2d38beef");

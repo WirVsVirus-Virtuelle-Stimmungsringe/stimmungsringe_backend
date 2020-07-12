@@ -10,7 +10,7 @@ import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -22,9 +22,11 @@ import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -33,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,24 +52,49 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Autowired
     private AmazonDynamoDB amazonDynamoDB;
 
+    // control flushing of dirty data from memory
+    private AtomicInteger memoryVersion;
+    private AtomicInteger databaseVersion;
 
     @PostConstruct
     public void startup() {
 
         memory = new OnboardingRepositoryInMemory();
 //        memory.initMock();
-        MockFactory.allUsers.clear(); // FIXME
+        InMemoryDatastore.allUsers.clear(); // FIXME
         log.info("Do not load mock data");
-
-
 
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
 
         restoreFromStorage();
-        // flush to make sure that fixed get persisted
+
+        memoryVersion = new AtomicInteger(1);
+        databaseVersion = new AtomicInteger(1);
+        // flush to make sure that patched data get persisted
         flushToStorage();
 
+    }
+
+    @Scheduled(initialDelayString = "PT10S", fixedDelayString = "PT0.500S")
+    public void autoFlushStorage() {
+        final int currentMemoryVersion = memoryVersion.get();
+        final int currentDatabaseVersion = databaseVersion.get();
+        if (currentMemoryVersion == currentDatabaseVersion) {
+            log.trace("Memory and database version are in sync: {}", currentMemoryVersion);
+            return;
+        }
+        Preconditions.checkState(currentMemoryVersion > currentDatabaseVersion);
+
+        log.debug("Bump database version to {} - not flushed yet", currentMemoryVersion);
+        final boolean updated = databaseVersion.compareAndSet(currentDatabaseVersion, currentMemoryVersion);
+        // note: CAS is useless ... actually databaseVersion is not subject to concurrent access; it's exclusively controlled byp this method
+        Preconditions.checkState(updated, "CAS update failed - should never happen!");
+
+        // note: in case this fails the write operation won't be retried
+        writeDataToStorage();
+
+        log.debug("Flushed data version {}", currentMemoryVersion);
     }
 
     private  <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
@@ -95,37 +124,48 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     }
 
-    private synchronized void flushToStorage() {
+    private void flushToStorage() {
+        Preconditions.checkNotNull(memoryVersion);
+        memoryVersion.incrementAndGet();
+    }
+
+    /**
+     * note: use only from autoflush facility
+     */
+    private synchronized void writeDataToStorage() {
+        log.debug("Flushing to storage ....");
+        final StopWatch stopWatch = StopWatch.createStarted();
 
         int countUsers = 0;
         int countGroups = 0;
 
         {
-            for (final User user : MockFactory.allUsers.values()) {
-                // TODO tune: reduce consistency, store async
+            for (final User user : InMemoryDatastore.allUsers.values()) {
+                // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromUser(user,
                         findSentimentByUserId(user.getUserId()),
                         findLastStatusUpdateByUserId(user.getUserId())
-                        ));
+                ));
                 countUsers++;
             }
 
         }
 
         {
-            for (final Group group : MockFactory.allGroups.values()) {
-                // TODO tune: reduce consistency, store async
+            for (final Group group : InMemoryDatastore.allGroups.values()) {
+                // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
                 countGroups++;
             }
 
         }
 
-        log.debug("Flushed {} users and {} groups to database", countUsers, countGroups);
+        log.debug("Flushed {} users and {} groups to database in {}ms",
+                countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
-        return EntryStream.of(MockFactory.groupByUserId)
+        return EntryStream.of(InMemoryDatastore.groupByUserId)
                 .filterValues(gid -> gid.equals(groupId))
                 .keys()
                 .collect(Collectors.toList());
@@ -142,11 +182,11 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final PaginatedScanList<UserData> result = dynamoDBMapper.scan(UserData.class, scanAll);
             for (UserData userData : result) {
                 System.out.println("- " + userData);
-                Preconditions.checkState(!MockFactory.allUsers.containsKey(userData.getUserId()));
+                Preconditions.checkState(!InMemoryDatastore.allUsers.containsKey(userData.getUserId()));
 
-                MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
-                MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
-                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
+                InMemoryDatastore.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
+                InMemoryDatastore.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
+                InMemoryDatastore.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
                 countUsers++;
             }
 
@@ -158,12 +198,12 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final PaginatedScanList<GroupData> result = dynamoDBMapper.scan(GroupData.class, scanAll);
             for (GroupData groupData : result) {
                 System.out.println("- " + groupData);
-                Preconditions.checkState(!MockFactory.allGroups.containsKey(groupData.getGroupId()));
+                Preconditions.checkState(!InMemoryDatastore.allGroups.containsKey(groupData.getGroupId()));
 
                 final Pair<Group, List<UUID>> pair = DataMapper.groupFromDatabase(groupData);
-                MockFactory.allGroups.put(groupData.getGroupId(), pair.getLeft());
-                pair.getRight().forEach(memberId -> MockFactory.groupByUserId.put(memberId, groupData.getGroupId()));
-                MockFactory.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
+                InMemoryDatastore.allGroups.put(groupData.getGroupId(), pair.getLeft());
+                pair.getRight().forEach(memberId -> InMemoryDatastore.groupByUserId.put(memberId, groupData.getGroupId()));
+                InMemoryDatastore.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
 
                 countGroups++;
             }
