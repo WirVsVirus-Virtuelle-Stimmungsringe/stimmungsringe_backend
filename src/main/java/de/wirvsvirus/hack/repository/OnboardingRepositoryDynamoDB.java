@@ -88,12 +88,13 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         log.debug("Bump database version to {} - not flushed yet", currentMemoryVersion);
         final boolean updated = databaseVersion.compareAndSet(currentDatabaseVersion, currentMemoryVersion);
+        // note: CAS is useless ... actually databaseVersion is not subject to concurrent access; it's exclusively controlled byp this method
         Preconditions.checkState(updated, "CAS update failed - should never happen!");
 
-        // note: in case this failes the write operation won't be retried
+        // note: in case this fails the write operation won't be retried
         writeDataToStorage();
 
-        log.debug("Flushed database version {}", currentMemoryVersion);
+        log.debug("Flushed data version {}", currentMemoryVersion);
     }
 
     private  <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
