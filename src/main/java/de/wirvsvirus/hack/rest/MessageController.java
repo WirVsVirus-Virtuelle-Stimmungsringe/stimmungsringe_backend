@@ -1,6 +1,5 @@
 package de.wirvsvirus.hack.rest;
 
-import de.wirvsvirus.hack.mock.MockFactory;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;

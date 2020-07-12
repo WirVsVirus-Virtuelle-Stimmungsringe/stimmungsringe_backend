@@ -9,9 +9,8 @@ import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.mock.MockFactory;
+import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -32,13 +31,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -56,21 +53,24 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     private AmazonDynamoDB amazonDynamoDB;
 
     // control flushing of dirty data from memory
-    private AtomicInteger memoryVersion = new AtomicInteger(10);
-    private AtomicInteger databaseVersion = new AtomicInteger(0);
+    private AtomicInteger memoryVersion;
+    private AtomicInteger databaseVersion;
 
     @PostConstruct
     public void startup() {
 
         memory = new OnboardingRepositoryInMemory();
 //        memory.initMock();
-        MockFactory.allUsers.clear(); // FIXME
+        InMemoryDatastore.allUsers.clear(); // FIXME
         log.info("Do not load mock data");
 
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
 
         restoreFromStorage();
+
+        memoryVersion = new AtomicInteger(1);
+        databaseVersion = new AtomicInteger(1);
         // flush to make sure that patched data get persisted
         flushToStorage();
 
@@ -86,11 +86,11 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         }
         Preconditions.checkState(currentMemoryVersion > currentDatabaseVersion);
 
-
         log.debug("Bump database version to {} - not flushed yet", currentMemoryVersion);
         final boolean updated = databaseVersion.compareAndSet(currentDatabaseVersion, currentMemoryVersion);
         Preconditions.checkState(updated, "CAS update failed - should never happen!");
 
+        // note: in case this failes the write operation won't be retried
         writeDataToStorage();
 
         log.debug("Flushed database version {}", currentMemoryVersion);
@@ -124,6 +124,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     private void flushToStorage() {
+        Preconditions.checkNotNull(memoryVersion);
         memoryVersion.incrementAndGet();
     }
 
@@ -138,8 +139,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         int countGroups = 0;
 
         {
-            for (final User user : MockFactory.allUsers.values()) {
-                // TODO tune: reduce consistency, store async
+            for (final User user : InMemoryDatastore.allUsers.values()) {
+                // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromUser(user,
                         findSentimentByUserId(user.getUserId()),
                         findLastStatusUpdateByUserId(user.getUserId())
@@ -150,8 +151,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         }
 
         {
-            for (final Group group : MockFactory.allGroups.values()) {
-                // TODO tune: reduce consistency, store async
+            for (final Group group : InMemoryDatastore.allGroups.values()) {
+                // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
                 countGroups++;
             }
@@ -163,7 +164,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
-        return EntryStream.of(MockFactory.groupByUserId)
+        return EntryStream.of(InMemoryDatastore.groupByUserId)
                 .filterValues(gid -> gid.equals(groupId))
                 .keys()
                 .collect(Collectors.toList());
@@ -180,11 +181,11 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final PaginatedScanList<UserData> result = dynamoDBMapper.scan(UserData.class, scanAll);
             for (UserData userData : result) {
                 System.out.println("- " + userData);
-                Preconditions.checkState(!MockFactory.allUsers.containsKey(userData.getUserId()));
+                Preconditions.checkState(!InMemoryDatastore.allUsers.containsKey(userData.getUserId()));
 
-                MockFactory.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
-                MockFactory.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
-                MockFactory.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
+                InMemoryDatastore.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
+                InMemoryDatastore.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
+                InMemoryDatastore.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
                 countUsers++;
             }
 
@@ -196,12 +197,12 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final PaginatedScanList<GroupData> result = dynamoDBMapper.scan(GroupData.class, scanAll);
             for (GroupData groupData : result) {
                 System.out.println("- " + groupData);
-                Preconditions.checkState(!MockFactory.allGroups.containsKey(groupData.getGroupId()));
+                Preconditions.checkState(!InMemoryDatastore.allGroups.containsKey(groupData.getGroupId()));
 
                 final Pair<Group, List<UUID>> pair = DataMapper.groupFromDatabase(groupData);
-                MockFactory.allGroups.put(groupData.getGroupId(), pair.getLeft());
-                pair.getRight().forEach(memberId -> MockFactory.groupByUserId.put(memberId, groupData.getGroupId()));
-                MockFactory.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
+                InMemoryDatastore.allGroups.put(groupData.getGroupId(), pair.getLeft());
+                pair.getRight().forEach(memberId -> InMemoryDatastore.groupByUserId.put(memberId, groupData.getGroupId()));
+                InMemoryDatastore.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
 
                 countGroups++;
             }
