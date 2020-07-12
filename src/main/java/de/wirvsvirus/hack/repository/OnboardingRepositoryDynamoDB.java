@@ -86,12 +86,14 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         }
         Preconditions.checkState(currentMemoryVersion > currentDatabaseVersion);
 
-        writeDataToStorage();
 
-        // done
-        log.debug("Bump database version to {}", currentDatabaseVersion);
+        log.debug("Bump database version to {} - not flushed yet", currentMemoryVersion);
         final boolean updated = databaseVersion.compareAndSet(currentDatabaseVersion, currentMemoryVersion);
         Preconditions.checkState(updated, "CAS update failed - should never happen!");
+
+        writeDataToStorage();
+
+        log.debug("Flushed database version {}", currentMemoryVersion);
     }
 
     private  <T> void prepareTable(final Class<T> clazz, final boolean tryDeleteBefore) {
