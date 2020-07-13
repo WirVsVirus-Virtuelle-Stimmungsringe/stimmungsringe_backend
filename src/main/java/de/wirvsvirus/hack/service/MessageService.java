@@ -44,6 +44,7 @@ public class MessageService {
     public List<MessageTemplateDto> calcAvailableMessages(final User currentUser, final User recipient) {
         final Set<String> usedMessageTexts = onboardingRepository.findMessagesByRecipientId(recipient.getUserId())
                 .stream()
+                .filter(message -> message.getSenderUserId().equals(currentUser.getUserId()))
                 .map(Message::getText)
                 .collect(Collectors.toSet());
         return StreamEx.of("Ich denk' an dich!", "Kopf hoch!")
