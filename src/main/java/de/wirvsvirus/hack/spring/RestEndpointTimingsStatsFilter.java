@@ -35,8 +35,8 @@ public class RestEndpointTimingsStatsFilter implements Filter {
         try {
             chain.doFilter(req, resp);
         } finally {
-            LOGGER.debug("Time spent in endpoint {}: {} ms", ((HttpServletRequest) req).getRequestURI(),
-                    BigDecimal.valueOf(stopWatch.getTime(TimeUnit.MICROSECONDS), 3).round(new MathContext(1)));
+            LOGGER.debug("Time spent in endpoint {}: {} us", ((HttpServletRequest) req).getRequestURI(),
+                    stopWatch.getTime(TimeUnit.MICROSECONDS));
         }
     }
 
