@@ -8,10 +8,28 @@ import java.util.UUID;
 @ToString
 public class Message {
 
+    private UUID groupId;
+    private UUID messageId;
     private Instant createdAt;
     private UUID senderUserId;
     private UUID recipientUserId;
     private String text;
+
+    public UUID getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(final UUID groupId) {
+        this.groupId = groupId;
+    }
+
+    public UUID getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(final UUID messageId) {
+        this.messageId = messageId;
+    }
 
     public Instant getCreatedAt() {
         return createdAt;
