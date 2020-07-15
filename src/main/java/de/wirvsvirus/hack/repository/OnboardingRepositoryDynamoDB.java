@@ -17,6 +17,7 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
+import de.wirvsvirus.hack.repository.dynamodb.MessageData;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
@@ -140,6 +141,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         int countUsers = 0;
         int countGroups = 0;
+        int countMessages = 0;
 
         {
             for (final User user : InMemoryDatastore.allUsers.values()) {
@@ -162,6 +164,15 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         }
 
+        {
+            for (final List<Message> messages : InMemoryDatastore.allGroupMessages.values()) {
+                for (final Message message : messages) {
+                    dynamoDBMapper.save(DataMapper.dataFromMessage(message));
+                    countMessages++;
+                }
+            }
+        }
+
         log.debug("Flushed {} users and {} groups to database in {}ms",
                 countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
@@ -176,6 +187,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     private synchronized void restoreFromStorage() {
         int countUsers = 0;
         int countGroups = 0;
+        int countMessages = 0;
 
         {
             // TODO tune
@@ -208,6 +220,19 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                 InMemoryDatastore.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
 
                 countGroups++;
+            }
+        }
+
+        {
+            final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
+
+            final PaginatedScanList<MessageData> result = dynamoDBMapper.scan(MessageData.class, scanAll);
+            for (MessageData messageData : result) {
+                final Message message = DataMapper.messageFromDatabase(messageData);
+                InMemoryDatastore.allGroupMessages.putIfAbsent(message.getGroupId(), new ArrayList<>());
+                InMemoryDatastore.allGroupMessages.get(message.getGroupId()).add(message);
+
+                countMessages++;
             }
         }
 
