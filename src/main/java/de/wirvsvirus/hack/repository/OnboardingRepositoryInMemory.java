@@ -191,9 +191,6 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     @Override
     public void sendMessage(final User sender, final User recipient, final String text) {
         final Group group1 = findGroupByUser(sender.getUserId()).orElseThrow(() -> new IllegalStateException("User not in any group"));
-        final Optional<Group> group2 = findGroupByUser(recipient.getUserId());
-        Preconditions.checkState(
-                group1.equals(group2.orElseThrow(() -> new IllegalStateException("User not in any group"))));
 
         final Message message = new Message();
         message.setGroupId(group1.getGroupId());
