@@ -67,6 +67,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
+        prepareTable(MessageData.class, false);
 
         restoreFromStorage();
 
@@ -96,7 +97,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             writeDataToStorage();
             log.debug("Flushed data version {}", currentMemoryVersion);
         } catch (final Exception ex) {
-            log.error("Failed to flush data version {}", currentDatabaseVersion);
+            log.error("Failed to flush data version {}", currentDatabaseVersion, ex);
         }
     }
 
@@ -173,8 +174,9 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             }
         }
 
-        log.debug("Flushed {} users and {} groups to database in {}ms",
-                countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
+        log.debug("Flushed {} users and {} groups and {} messages to database in {}ms",
+                countUsers, countGroups, countMessages,
+                stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
@@ -236,7 +238,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             }
         }
 
-        log.debug("Restored {} users and {} groups to database", countUsers, countGroups);
+        log.debug("Restored {} users and {} groups and {} messages to database",
+                countUsers, countGroups, countMessages);
     }
 
     @Override

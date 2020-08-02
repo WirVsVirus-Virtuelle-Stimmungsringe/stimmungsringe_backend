@@ -64,7 +64,7 @@ public final class DataMapper {
         final Message message = new Message();
         message.setGroupId(messageData.getGroupId());
         message.setMessageId(messageData.getMessageId());
-        message.setCreatedAt(messageData.getCreatedAt());
+        message.setCreatedAt(messageData.getCreatedAt().toInstant());
         message.setSenderUserId(messageData.getSenderUserId());
         message.setRecipientUserId(messageData.getRecipientUserId());
         message.setText(messageData.getText());
@@ -73,9 +73,9 @@ public final class DataMapper {
 
     public static MessageData dataFromMessage(final Message message) {
         final MessageData messageData = new MessageData();
-        messageData.setGroupId(message.getGroupId());
         messageData.setMessageId(message.getMessageId());
-        messageData.setCreatedAt(message.getCreatedAt());
+        messageData.setGroupId(message.getGroupId());
+        messageData.setCreatedAt(Date.from(message.getCreatedAt()));
         messageData.setSenderUserId(message.getSenderUserId());
         messageData.setRecipientUserId(message.getRecipientUserId());
         messageData.setText(message.getText());

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 @DynamoDBTable(tableName = "Message")
@@ -14,22 +15,12 @@ import java.util.UUID;
 @ToString
 public class MessageData {
 
-    private UUID groupId;
     private UUID messageId;
-
-    private Instant createdAt;
+    private UUID groupId;
+    private Date createdAt;
     private UUID senderUserId;
     private UUID recipientUserId;
     private String text;
-
-    @DynamoDBHashKey
-    public UUID getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(final UUID groupId) {
-        this.groupId = groupId;
-    }
 
     @DynamoDBHashKey
     public UUID getMessageId() {
@@ -41,11 +32,20 @@ public class MessageData {
     }
 
     @DynamoDBAttribute
-    public Instant getCreatedAt() {
+    public UUID getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(final UUID groupId) {
+        this.groupId = groupId;
+    }
+
+    @DynamoDBAttribute
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(final Instant createdAt) {
+    public void setCreatedAt(final Date createdAt) {
         this.createdAt = createdAt;
     }
 
