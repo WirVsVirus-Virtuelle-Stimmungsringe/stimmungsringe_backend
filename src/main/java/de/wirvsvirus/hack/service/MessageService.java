@@ -26,15 +26,14 @@ public class MessageService {
     public void sendMessage(final User sender, final User recipient, final String text) {
         Preconditions.checkArgument(StringUtils.isNotBlank(text));
         final Group group1 = onboardingRepository.findGroupByUser(sender.getUserId())
-                .orElseThrow(() -> new IllegalStateException());
+                .orElseThrow(() -> new IllegalStateException("User not in any group"));
         final Group group2 = onboardingRepository.findGroupByUser(recipient.getUserId())
-                .orElseThrow(() -> new IllegalStateException());
+                .orElseThrow(() -> new IllegalStateException("User not in any group"));
         Preconditions.checkState(group1.getGroupId().equals(group2.getGroupId()),
                 "Users must be in same group");
         Preconditions.checkState(
                 !recipient.getUserId().equals(sender.getUserId()),
                 "Cannot send message to himself");
-
 
         log.warn("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
 

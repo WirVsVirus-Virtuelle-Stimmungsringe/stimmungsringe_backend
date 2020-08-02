@@ -72,7 +72,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         memoryVersion = new AtomicInteger(1);
         databaseVersion = new AtomicInteger(1);
         // flush to make sure that patched data get persisted
-        flushToStorage();
+        markForFlush();
 
     }
 
@@ -126,7 +126,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
     }
 
-    private void flushToStorage() {
+    private void markForFlush() {
         Preconditions.checkNotNull(memoryVersion);
         memoryVersion.incrementAndGet();
     }
@@ -222,7 +222,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void createNewUser(final User newUser, final Sentiment sentiment, final Instant lastUpdate) {
         memory.createNewUser(newUser, sentiment, lastUpdate);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
@@ -233,19 +233,19 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
         memory.updateUser(userId, userSettings);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
     public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
         memory.updateGroup(groupId, groupSettings);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
     public Group startNewGroup(final String groupName, final String groupCode) {
         final Group group = memory.startNewGroup(groupName, groupCode);
-        flushToStorage();
+        markForFlush();
         return group;
     }
 
@@ -253,13 +253,13 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void joinGroup(final UUID groupId, final UUID userId) {
         memory.joinGroup(groupId, userId);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
     public void leaveGroup(final UUID groupId, final UUID userId) {
         memory.leaveGroup(groupId, userId);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
@@ -280,13 +280,13 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void touchLastStatusUpdate(final UUID userId) {
         memory.touchLastStatusUpdate(userId);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
     public void updateStatus(final UUID userId, final Sentiment sentiment) {
         memory.updateStatus(userId, sentiment);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
@@ -307,7 +307,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void sendMessage(final User sender, final User recipient, final String text) {
         memory.sendMessage(sender, recipient, text);
-        flushToStorage();
+        markForFlush();
     }
 
     @Override
@@ -318,6 +318,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void clearMessagesByRecipientId(final UUID userId) {
         memory.clearMessagesByRecipientId(userId);
-        flushToStorage();
+        markForFlush();
     }
 }
