@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
@@ -16,8 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -176,4 +180,16 @@ public class OnboardingService {
         onboardingRepository.touchLastStatusUpdate(user.getUserId());
         onboardingRepository.clearMessagesByRecipientId(user.getUserId());
     }
+
+    public List<User> listOtherUsersForDashboard(final User user, final UUID groupId) {
+        final List<User> otherUsers = onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId());
+
+        return otherUsers.stream()
+            .sorted(Comparator.comparing((User otherUser) ->
+                InMemoryDatastore.lastStatusUpdateByUser.get(otherUser.getUserId()))
+                    .reversed()
+                    .thenComparing(User::getUserId)) // fallback in case the timestamp match
+                .collect(Collectors.toList());
+    }
+
 }

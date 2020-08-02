@@ -1,11 +1,15 @@
 package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.Group;
-import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.rest.dto.*;
+import de.wirvsvirus.hack.rest.dto.DashboardResponse;
+import de.wirvsvirus.hack.rest.dto.GroupDataResponse;
+import de.wirvsvirus.hack.rest.dto.MyTileResponse;
+import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
+import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
+import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,9 @@ public class DashboardController {
 
     @Autowired
     private OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private OnboardingService onboardingService;
 
     @Autowired
     private AvatarUrlResolver avatarUrlResolver;
@@ -59,7 +66,7 @@ public class DashboardController {
     private List<OtherTileResponse> buildOtherTileResponseList(final User currentUser, final Optional<Group> group) {
         final List<User> otherUsersInGroup;
         if (group.isPresent()) {
-            otherUsersInGroup = onboardingRepository.findOtherUsersInGroup(group.get().getGroupId(), currentUser.getUserId());
+            otherUsersInGroup = onboardingService.listOtherUsersForDashboard(currentUser, group.get().getGroupId());
         } else {
             otherUsersInGroup = Collections.emptyList();
         }
@@ -91,7 +98,6 @@ public class DashboardController {
                         .build()
         ).orElse(null);
     }
-
 
 
 }
