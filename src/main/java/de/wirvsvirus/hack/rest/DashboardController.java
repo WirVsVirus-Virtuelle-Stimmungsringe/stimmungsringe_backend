@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
@@ -90,5 +91,7 @@ public class DashboardController {
                         .build()
         ).orElse(null);
     }
+
+
 
 }

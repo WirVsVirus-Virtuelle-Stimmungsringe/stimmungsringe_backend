@@ -55,7 +55,7 @@ public class OnboardingService {
                     .group(Optional.empty())
                     .build();
         } else {
-            final Optional<Group> group = onboardingRepository.findGroupForUser(
+            final Optional<Group> group = onboardingRepository.findGroupByUser(
                     userLookup.get().getUserId());
 
             log.info("User {} signed in - group is {}", userLookup.get(), group);
@@ -171,4 +171,9 @@ public class OnboardingService {
         return group;
     }
 
+    public void updateSentimentStatus(final User user, final Sentiment sentiment) {
+        onboardingRepository.updateStatus(user.getUserId(), sentiment);
+        onboardingRepository.touchLastStatusUpdate(user.getUserId());
+        onboardingRepository.clearMessagesByRecipientId(user.getUserId());
+    }
 }

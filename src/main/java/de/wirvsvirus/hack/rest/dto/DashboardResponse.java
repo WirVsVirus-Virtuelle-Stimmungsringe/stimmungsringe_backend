@@ -14,4 +14,5 @@ public class DashboardResponse {
     private List<OtherTileResponse> otherTiles;
 
     private GroupDataResponse groupData;
+
 }
