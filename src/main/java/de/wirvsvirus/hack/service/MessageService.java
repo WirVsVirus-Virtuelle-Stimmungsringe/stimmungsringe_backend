@@ -46,7 +46,7 @@ public class MessageService {
                 .filter(message -> message.getSenderUserId().equals(currentUser.getUserId()))
                 .map(Message::getText)
                 .collect(Collectors.toSet());
-        return StreamEx.of("Ich denk' an dich!", "Kopf hoch!")
+        return StreamEx.of("Ich denk' an dich!", "Kopf hoch!", "Ich bin für dich da.", "Bleib' stark!")
                 .map(text -> {
                     boolean used = usedMessageTexts.contains(text);
                     return MessageTemplateDto.builder().used(used).text(text).build();
