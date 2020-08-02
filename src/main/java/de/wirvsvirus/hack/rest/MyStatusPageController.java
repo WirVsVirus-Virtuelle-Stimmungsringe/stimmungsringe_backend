@@ -23,7 +23,7 @@ public class MyStatusPageController {
     private RoleBasedTextSuggestionsService suggestionsService;
 
     @Autowired
-    private OnboardingRepository userRepository;
+    private OnboardingRepository onboardingRepository;
 
     @Autowired
     private AvatarUrlResolver avatarUrlResolver;
@@ -31,13 +31,13 @@ public class MyStatusPageController {
     @GetMapping
     public MyStatusPageResponse viewMyStatusPage() {
 
-        final User currentUser = userRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         MyStatusPageResponse response = new MyStatusPageResponse();
 
         final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
 
-        final Sentiment sentiment = userRepository.findSentimentByUserId(currentUser.getUserId());
+        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
         final List<SuggestionResponse> suggestions = new ArrayList<>();
 
         currentUser.getRoles().stream()

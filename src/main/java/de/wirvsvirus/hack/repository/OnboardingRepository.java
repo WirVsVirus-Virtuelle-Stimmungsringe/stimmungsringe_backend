@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.repository;
 
 import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
@@ -36,8 +37,6 @@ public interface OnboardingRepository {
 
     Optional<Group> findGroupByCode(String groupCode);
 
-    Optional<Group> findGroupForUser(UUID id);
-
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 
     void createNewUser(User newUser, Sentiment sentiment, final Instant lastUpdate);
@@ -49,4 +48,10 @@ public interface OnboardingRepository {
     void updateGroup(UUID groupId, GroupSettingsDto groupSettings);
 
     void touchLastStatusUpdate(UUID userId);
+
+    void sendMessage(User sender, User recipient, String text);
+
+    List<Message> findMessagesByRecipientId(UUID userId);
+
+    void clearMessagesByRecipientId(UUID userId);
 }

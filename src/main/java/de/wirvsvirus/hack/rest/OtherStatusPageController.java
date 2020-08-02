@@ -66,4 +66,5 @@ public class OtherStatusPageController {
 
         return response;
     }
+
 }
