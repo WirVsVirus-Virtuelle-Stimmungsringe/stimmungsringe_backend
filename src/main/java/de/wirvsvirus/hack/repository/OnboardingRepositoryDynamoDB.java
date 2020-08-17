@@ -140,10 +140,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         log.debug("Flushing to storage ....");
         final StopWatch stopWatch = StopWatch.createStarted();
 
-        int countUsers = 0;
-        int countGroups = 0;
-        int countMessages = 0;
-
         {
             for (final User user : InMemoryDatastore.allUsers.values()) {
                 // TODO tune: reduce consistency
@@ -151,7 +147,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                         findSentimentByUserId(user.getUserId()),
                         findLastStatusUpdateByUserId(user.getUserId())
                 ));
-                countUsers++;
             }
 
         }
@@ -160,7 +155,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             for (final Group group : InMemoryDatastore.allGroups.values()) {
                 // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
-                countGroups++;
             }
 
         }
@@ -169,13 +163,14 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             for (final List<Message> messages : InMemoryDatastore.allGroupMessages.values()) {
                 for (final Message message : messages) {
                     dynamoDBMapper.save(DataMapper.dataFromMessage(message));
-                    countMessages++;
                 }
             }
         }
 
         log.debug("Flushed {} users and {} groups and {} messages to database in {}ms",
-                countUsers, countGroups, countMessages,
+                InMemoryDatastore.allUsers.size(),
+                InMemoryDatastore.allGroups.size(),
+                InMemoryDatastore.allGroupMessages.size(),
                 stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
 
