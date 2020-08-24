@@ -17,6 +17,7 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
+import de.wirvsvirus.hack.repository.dynamodb.MessageData;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
@@ -66,6 +67,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
 
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
+        prepareTable(MessageData.class, false);
 
         restoreFromStorage();
 
@@ -95,7 +97,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             writeDataToStorage();
             log.debug("Flushed data version {}", currentMemoryVersion);
         } catch (final Exception ex) {
-            log.error("Failed to flush data version {}", currentDatabaseVersion);
+            log.error("Failed to flush data version {}", currentDatabaseVersion, ex);
         }
     }
 
@@ -138,9 +140,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         log.debug("Flushing to storage ....");
         final StopWatch stopWatch = StopWatch.createStarted();
 
-        int countUsers = 0;
-        int countGroups = 0;
-
         {
             for (final User user : InMemoryDatastore.allUsers.values()) {
                 // TODO tune: reduce consistency
@@ -148,7 +147,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                         findSentimentByUserId(user.getUserId()),
                         findLastStatusUpdateByUserId(user.getUserId())
                 ));
-                countUsers++;
             }
 
         }
@@ -157,13 +155,23 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             for (final Group group : InMemoryDatastore.allGroups.values()) {
                 // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
-                countGroups++;
             }
 
         }
 
-        log.debug("Flushed {} users and {} groups to database in {}ms",
-                countUsers, countGroups, stopWatch.getTime(TimeUnit.MILLISECONDS));
+        {
+            for (final List<Message> messages : InMemoryDatastore.allGroupMessages.values()) {
+                for (final Message message : messages) {
+                    dynamoDBMapper.save(DataMapper.dataFromMessage(message));
+                }
+            }
+        }
+
+        log.debug("Flushed {} users and {} groups and {} messages to database in {}ms",
+                InMemoryDatastore.allUsers.size(),
+                InMemoryDatastore.allGroups.size(),
+                InMemoryDatastore.allGroupMessages.size(),
+                stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
 
     private List<UUID> membersByGroup(UUID groupId) {
@@ -176,6 +184,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     private synchronized void restoreFromStorage() {
         int countUsers = 0;
         int countGroups = 0;
+        int countMessages = 0;
 
         {
             // TODO tune
@@ -211,7 +220,21 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             }
         }
 
-        log.debug("Restored {} users and {} groups to database", countUsers, countGroups);
+        {
+            final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
+
+            final PaginatedScanList<MessageData> result = dynamoDBMapper.scan(MessageData.class, scanAll);
+            for (MessageData messageData : result) {
+                final Message message = DataMapper.messageFromDatabase(messageData);
+                InMemoryDatastore.allGroupMessages.putIfAbsent(message.getGroupId(), new ArrayList<>());
+                InMemoryDatastore.allGroupMessages.get(message.getGroupId()).add(message);
+
+                countMessages++;
+            }
+        }
+
+        log.debug("Restored {} users and {} groups and {} messages to database",
+                countUsers, countGroups, countMessages);
     }
 
     @Override
