@@ -187,11 +187,10 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         int countMessages = 0;
 
         {
-            // TODO tune
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
 
             final PaginatedScanList<UserData> result = dynamoDBMapper.scan(UserData.class, scanAll);
-            for (UserData userData : result) {
+            for (final UserData userData : result) {
                 System.out.println("- " + userData);
                 Preconditions.checkState(!InMemoryDatastore.allUsers.containsKey(userData.getUserId()));
 
@@ -207,7 +206,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
 
             final PaginatedScanList<GroupData> result = dynamoDBMapper.scan(GroupData.class, scanAll);
-            for (GroupData groupData : result) {
+            for (final GroupData groupData : result) {
                 System.out.println("- " + groupData);
                 Preconditions.checkState(!InMemoryDatastore.allGroups.containsKey(groupData.getGroupId()));
 
@@ -224,7 +223,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
 
             final PaginatedScanList<MessageData> result = dynamoDBMapper.scan(MessageData.class, scanAll);
-            for (MessageData messageData : result) {
+            for (final MessageData messageData : result) {
                 final Message message = DataMapper.messageFromDatabase(messageData);
                 InMemoryDatastore.allGroupMessages.putIfAbsent(message.getGroupId(), new ArrayList<>());
                 InMemoryDatastore.allGroupMessages.get(message.getGroupId()).add(message);
