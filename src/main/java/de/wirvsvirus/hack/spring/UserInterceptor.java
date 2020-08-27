@@ -23,10 +23,6 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
             return true;
         }
 
-        if (request.getServletPath().startsWith("/info")) {
-            return true;
-        }
-
         if (request.getServletPath().endsWith("/signin") || request.getServletPath().startsWith("/debug/")
         ) {
             log.debug("Request for unauthenticated endpoint {}", request.getServletPath());
