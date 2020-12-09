@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.repository.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -27,7 +28,7 @@ public class UserDeviceData {
         this.userId = userId;
     }
 
-    @DynamoDBHashKey
+    @DynamoDBRangeKey
     public String getDeviceIdentifier() {
         return deviceIdentifier;
     }

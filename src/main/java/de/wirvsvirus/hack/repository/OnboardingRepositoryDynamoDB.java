@@ -73,6 +73,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
         prepareTable(MessageData.class, false);
+        prepareTable(UserDeviceData.class, false);
 
         restoreFromStorage();
 
@@ -174,7 +175,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         }
 
         {
-            EntryStream.of(MockFactory.allDevicesByUser)
+            EntryStream.of(InMemoryDatastore.allDevicesByUser)
                     .flatMapValues(Collection::stream)
                     .values()
                 .forEach(device -> dynamoDBMapper.save(DataMapper.dataFromDevice(device)));
@@ -266,8 +267,8 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             for (UserDeviceData deviceData : result) {
                 System.out.println("- " + deviceData);
 
-                MockFactory.allDevicesByUser.putIfAbsent(deviceData.getUserId(), new ArrayList<>());
-                final List<Device> devices = MockFactory.allDevicesByUser
+                InMemoryDatastore.allDevicesByUser.putIfAbsent(deviceData.getUserId(), new ArrayList<>());
+                final List<Device> devices = InMemoryDatastore.allDevicesByUser
                     .get(deviceData.getUserId());
 
                 devices.add(DataMapper.deviceDataFromDatabase(deviceData));
@@ -392,6 +393,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public void addDevice(final Device device) {
         memory.addDevice(device);
-        flushToStorage();
+        markForFlush();
     }
 }

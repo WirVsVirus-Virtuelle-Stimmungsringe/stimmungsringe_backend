@@ -236,9 +236,9 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         Preconditions.checkNotNull(device.getDeviceIdentifier());
         Preconditions.checkNotNull(device.getFcmToken());
 
-        MockFactory.allDevicesByUser.putIfAbsent(device.getUserId(), new ArrayList<>());
+        InMemoryDatastore.allDevicesByUser.putIfAbsent(device.getUserId(), new ArrayList<>());
 
-        final List<Device> devices = MockFactory.allDevicesByUser.get(device.getUserId());
+        final List<Device> devices = InMemoryDatastore.allDevicesByUser.get(device.getUserId());
 
         final Optional<Device> existing = devices.stream()
                 .collect(MoreCollectors.onlyOne(
