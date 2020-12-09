@@ -29,3 +29,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# secrets
+src/main/resources/application-firebase-push-secrets.properties
+
