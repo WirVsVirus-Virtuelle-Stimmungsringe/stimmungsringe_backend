@@ -17,3 +17,4 @@ Spring Boot Profile-Konstellationen: dynamodb-localdev, dynamodb
 
 ### Sonstiges
 Port für Backend (localhost): 5000
+

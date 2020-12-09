@@ -116,7 +116,6 @@ public class OnboardingController {
                 .groupId(group.getGroupId())
                 .groupName(group.getGroupName())
                 .groupCode(group.getGroupCode())
-                .userName(user.getName())
                 .build();
     }
 

@@ -26,15 +26,14 @@ public class MessageService {
     public void sendMessage(final User sender, final User recipient, final String text) {
         Preconditions.checkArgument(StringUtils.isNotBlank(text));
         final Group group1 = onboardingRepository.findGroupByUser(sender.getUserId())
-                .orElseThrow(() -> new IllegalStateException());
+                .orElseThrow(() -> new IllegalStateException("User not in any group"));
         final Group group2 = onboardingRepository.findGroupByUser(recipient.getUserId())
-                .orElseThrow(() -> new IllegalStateException());
+                .orElseThrow(() -> new IllegalStateException("User not in any group"));
         Preconditions.checkState(group1.getGroupId().equals(group2.getGroupId()),
                 "Users must be in same group");
         Preconditions.checkState(
                 !recipient.getUserId().equals(sender.getUserId()),
                 "Cannot send message to himself");
-
 
         log.warn("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
 
@@ -44,9 +43,10 @@ public class MessageService {
     public List<MessageTemplateDto> calcAvailableMessages(final User currentUser, final User recipient) {
         final Set<String> usedMessageTexts = onboardingRepository.findMessagesByRecipientId(recipient.getUserId())
                 .stream()
+                .filter(message -> message.getSenderUserId().equals(currentUser.getUserId()))
                 .map(Message::getText)
                 .collect(Collectors.toSet());
-        return StreamEx.of("Ich denk' an dich!", "Kopf hoch!")
+        return StreamEx.of("Ich denk' an dich!", "Kopf hoch!", "Ich bin für dich da.", "Bleib' stark!")
                 .map(text -> {
                     boolean used = usedMessageTexts.contains(text);
                     return MessageTemplateDto.builder().used(used).text(text).build();
