@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class NotificationMessage {
 
-    private NotificationData data;
-    private String to;
+    Notification notification;
+    String priority;
+    NotificationData data;
+    String to;
 }
