@@ -187,14 +187,19 @@ public class OnboardingService {
     }
 
     public void updateSentimentStatus(final User user, final Sentiment sentiment) {
+        final Instant oldLastUpdated = onboardingRepository
+            .findLastStatusUpdateByUserId(user.getUserId());
         onboardingRepository.updateStatus(user.getUserId(), sentiment);
         onboardingRepository.touchLastStatusUpdate(user.getUserId());
         onboardingRepository.clearMessagesByRecipientId(user.getUserId());
 
-        onboardingRepository
-            .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
-                .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
-                .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
+        // debounce pushes
+        if (oldLastUpdated.isBefore(Instant.now().minusSeconds(10))) {
+            onboardingRepository
+                .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
+                    .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
+                    .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
+        }
     }
 
     private void sendPushMessageStatusChanged(User recipient, User currentUser) {
