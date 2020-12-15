@@ -50,13 +50,13 @@ public class InactivityCheckService {
 
   }
 
-  private void sendPushMessageInactiveUser(User inactiveuser,
+  private void sendPushMessageInactiveUser(User inactiveUser,
       Group group) {
-    onboardingRepository.findDevicesByUserId(inactiveuser.getUserId())
+    onboardingRepository.findDevicesByUserId(inactiveUser.getUserId())
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise",
-            inactiveuser.getName() != null
-                ? "Hallo " + inactiveuser.getName() + "! Du wirst vermisst in der Gruppe " + group.getGroupName() + "!"
+            inactiveUser.getName() != null
+                ? "Hallo " + inactiveUser.getName() + "! Du wirst vermisst in der Gruppe " + group.getGroupName() + "!"
                 : "Logge dich doch wieder mal ein!",
             Optional.empty(),
             Optional.empty())

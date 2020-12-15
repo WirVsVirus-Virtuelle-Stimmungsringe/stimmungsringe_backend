@@ -188,7 +188,7 @@ public class OnboardingService {
         onboardingRepository.touchLastStatusUpdate(user.getUserId());
         onboardingRepository.clearMessagesByRecipientId(user.getUserId());
 
-        // debounce pushes
+        // throttle pushes
         if (oldLastUpdated.isBefore(Instant.now().minusSeconds(10))) {
             onboardingRepository
                 .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
