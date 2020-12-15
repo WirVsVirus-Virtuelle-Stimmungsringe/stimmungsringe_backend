@@ -126,7 +126,10 @@ public class OnboardingService {
         } else {
             final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
             Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
-            onboardingRepository.joinGroup(lookup.get().getGroupId(), user.getUserId());
+            onboardingRepository.joinGroup(groupId, user.getUserId());
+
+            onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
+                .forEach(otherUser -> sendPushMessageUserJoined(otherUser, user, lookup.get()));
         }
 
     }
@@ -185,26 +188,28 @@ public class OnboardingService {
         onboardingRepository.clearMessagesByRecipientId(user.getUserId());
 
         onboardingRepository
-            .findGroupByUser(user.getUserId()).ifPresent(g -> {
-            onboardingRepository
+            .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
                 .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
-                .forEach(receipient -> sendPushMessage(receipient, user));
-        });
+                .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
     }
 
-    private void sendPushMessage(User recipient, User currentUser) {
+    private void sendPushMessageStatusChanged(User recipient, User currentUser) {
         onboardingRepository.findDevicesByUserId(recipient.getUserId())
-            .forEach(device -> {
-                try {
-                    pushNotificationService.sendMessage(
-                        device.getFcmToken(), "Familiarise",
-                        currentUser.getName() != null
-                            ? "Status von " + currentUser.getName() + " hat sich geändert!"
-                            : "Status einer Person hat sich geändert!");
-                } catch (PushMessageNotSendException e) {
-                    // ignore
-                }
-            });
+            .forEach(device -> pushNotificationService.sendMessage(
+                device.getFcmToken(), "Familiarise",
+                currentUser.getName() != null
+                    ? "Status von " + currentUser.getName() + " hat sich geändert!"
+                    : "Status einer Person hat sich geändert!"));
+    }
+
+    private void sendPushMessageUserJoined(User recipient, User newUser,
+        Group group) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> pushNotificationService.sendMessage(
+                    device.getFcmToken(), "Familiarise",
+                    newUser.getName() != null
+                        ? "Neues Mitglied in Gruppe " + group.getGroupName() + ": " + newUser.getName()
+                        : "Neues Mitglied!"));
     }
 
     public List<User> listOtherUsersForDashboard(final User user, final UUID groupId) {

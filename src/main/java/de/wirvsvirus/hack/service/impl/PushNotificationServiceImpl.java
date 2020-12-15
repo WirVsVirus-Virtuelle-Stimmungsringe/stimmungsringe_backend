@@ -61,7 +61,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     }
 
     @Override
-    public void sendMessage(String to, String title, String body) throws PushMessageNotSendException {
+    public void sendMessage(String to, String title, String body) {
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
@@ -74,7 +74,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             request, headers);
         final ResponseEntity<String> responseEntity = restTemplate.exchange(this.notificationServiceUrl, HttpMethod.POST, requestEntity, String.class);
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new PushMessageNotSendException(responseEntity.getBody());
+            // do nothing
         }
     }
 

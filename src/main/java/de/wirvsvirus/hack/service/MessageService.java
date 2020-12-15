@@ -42,22 +42,18 @@ public class MessageService {
         log.info("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
 
         onboardingRepository.sendMessage(sender, recipient, text);
-        sendPushMessage(recipient, sender);
+        sendPushMessageNewInboxMessage(recipient, sender);
     }
 
-    private void sendPushMessage(User recipient, User sender) {
-        onboardingRepository.findDevicesByUserId(recipient.getUserId())
-            .forEach(device -> {
-                try {
-                    pushNotificationService.sendMessage(
-                        device.getFcmToken(), "Familiarise",
-                        sender.getName() != null
-                        ? "Nachricht erhalten von " + sender.getName() + "!"
-                        : "Nachricht erhalten!");
-                } catch (PushMessageNotSendException e) {
-                    // ignore
-                }
-            });
+    private void sendPushMessageNewInboxMessage(User recipient, User sender) {
+      onboardingRepository.findDevicesByUserId(recipient.getUserId())
+          .forEach(device -> {
+            pushNotificationService.sendMessage(
+                device.getFcmToken(), "Familiarise",
+                sender.getName() != null
+                    ? "Nachricht erhalten von " + sender.getName() + "!"
+                    : "Nachricht erhalten!");
+          });
     }
 
     public List<MessageTemplateDto> calcAvailableMessages(final User currentUser, final User recipient) {
