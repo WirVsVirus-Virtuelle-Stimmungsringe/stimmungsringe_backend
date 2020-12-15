@@ -1,7 +1,7 @@
 package de.wirvsvirus.hack.service;
 
-import de.wirvsvirus.hack.exception.PushMessageNotSendException;
-
+import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PushNotificationService {
@@ -11,6 +11,6 @@ public interface PushNotificationService {
     // TODO do we need that?
     String getSenderId();
 
-    void sendMessage(String to, String title, String body);
+    void sendMessage(String to, String title, String body, Optional<String> collapseId, Optional<URI> imageUri);
 
 }

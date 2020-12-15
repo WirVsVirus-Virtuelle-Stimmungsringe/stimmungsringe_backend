@@ -1,19 +1,17 @@
 package de.wirvsvirus.hack.service;
 
-import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.spring.RestEndpointTimingsStatsFilter;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Service
 public class InactivityCheckService {
@@ -59,7 +57,10 @@ public class InactivityCheckService {
             device.getFcmToken(), "Familiarise",
             inactiveuser.getName() != null
                 ? "Hallo " + inactiveuser.getName() + "! Du wirst vermisst in der Gruppe " + group.getGroupName() + "!"
-                : "Logge dich doch wieder mal ein!"));
+                : "Logge dich doch wieder mal ein!",
+            Optional.empty(),
+            Optional.empty())
+        );
   }
 
 }

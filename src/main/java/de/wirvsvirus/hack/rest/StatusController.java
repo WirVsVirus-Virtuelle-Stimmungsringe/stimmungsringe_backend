@@ -2,16 +2,11 @@ package de.wirvsvirus.hack.rest;
 
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.exception.PushMessageNotSendException;
-import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.UpdateStatusRequest;
 import de.wirvsvirus.hack.service.OnboardingService;
-import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PutMapping;

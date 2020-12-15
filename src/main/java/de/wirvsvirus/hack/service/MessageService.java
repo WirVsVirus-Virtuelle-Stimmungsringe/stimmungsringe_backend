@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.exception.PushMessageNotSendException;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,7 +52,9 @@ public class MessageService {
                 device.getFcmToken(), "Familiarise",
                 sender.getName() != null
                     ? "Nachricht erhalten von " + sender.getName() + "!"
-                    : "Nachricht erhalten!");
+                    : "Nachricht erhalten!",
+                Optional.empty(),
+                Optional.empty());
           });
     }
 

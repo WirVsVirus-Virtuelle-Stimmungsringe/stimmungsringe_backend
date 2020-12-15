@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.exception.PushMessageNotSendException;
 import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -17,11 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -208,7 +203,10 @@ public class OnboardingService {
                 device.getFcmToken(), "Familiarise",
                 currentUser.getName() != null
                     ? "Status von " + currentUser.getName() + " hat sich geändert!"
-                    : "Status einer Person hat sich geändert!"));
+                    : "Status einer Person hat sich geändert!",
+                Optional.empty(),
+                Optional.empty()
+            ));
     }
 
     private void sendPushMessageUserJoined(User recipient, User newUser,
@@ -218,7 +216,10 @@ public class OnboardingService {
                     device.getFcmToken(), "Familiarise",
                     newUser.getName() != null
                         ? "Neues Mitglied in Gruppe " + group.getGroupName() + ": " + newUser.getName()
-                        : "Neues Mitglied!"));
+                        : "Neues Mitglied!",
+                    Optional.empty(),
+                    Optional.empty()
+            ));
     }
 
     private void sendPushMessageUserLeft(User recipient, User newUser,
@@ -228,7 +229,10 @@ public class OnboardingService {
                 device.getFcmToken(), "Familiarise",
                 newUser.getName() != null
                     ? "Nutzer " + newUser.getName() + " hat die Gruppe " + group.getGroupName() + " verlassen!"
-                    : "Ein Mitglied hat die Gruppe verlassen!"));
+                    : "Ein Mitglied hat die Gruppe verlassen!",
+                Optional.empty(),
+                Optional.empty()
+            ));
     }
 
     public List<User> listOtherUsersForDashboard(final User user, final UUID groupId) {
