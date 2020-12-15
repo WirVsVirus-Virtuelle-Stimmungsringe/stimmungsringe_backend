@@ -32,9 +32,6 @@ public class StatusController {
     @Autowired
     private OnboardingService onboardingService;
 
-    @Autowired
-    private PushNotificationService pushNotificationService;
-
     @PutMapping
     public void updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
@@ -43,29 +40,6 @@ public class StatusController {
         log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());
 
         onboardingService.updateSentimentStatus(currentUser, request.getSentiment());
-
-        onboardingRepository
-            .findGroupByUser(currentUser.getUserId()).ifPresent(g -> {
-            onboardingRepository
-                .findOtherUsersInGroup(g.getGroupId(), currentUser.getUserId())
-                .forEach(receipient -> sendPushMessage(receipient, currentUser));
-        });
-
-    }
-
-    private void sendPushMessage(User recipient, User currentUser) {
-        onboardingRepository.findDevicesByUserId(recipient.getUserId())
-            .forEach(device -> {
-                try {
-                    pushNotificationService.sendMessage(
-                        device.getFcmToken(), "Familiarise",
-                        currentUser.getName() != null
-                        ? "Status von " + currentUser.getName() + " hat sich geändert!"
-                        : "Status einer Person hat sich geändert!");
-                } catch (PushMessageNotSendException e) {
-                    // ignore
-                }
-            });
     }
 
 }

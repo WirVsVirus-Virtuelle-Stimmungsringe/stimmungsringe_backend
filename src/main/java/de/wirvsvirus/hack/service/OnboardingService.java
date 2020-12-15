@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.exception.PushMessageNotSendException;
 import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -29,6 +30,9 @@ public class OnboardingService {
 
     @Autowired
     private OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private PushNotificationService pushNotificationService;
 
     public UserSignedInDto signin(final String deviceIdentifier) {
 
@@ -179,6 +183,28 @@ public class OnboardingService {
         onboardingRepository.updateStatus(user.getUserId(), sentiment);
         onboardingRepository.touchLastStatusUpdate(user.getUserId());
         onboardingRepository.clearMessagesByRecipientId(user.getUserId());
+
+        onboardingRepository
+            .findGroupByUser(user.getUserId()).ifPresent(g -> {
+            onboardingRepository
+                .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
+                .forEach(receipient -> sendPushMessage(receipient, user));
+        });
+    }
+
+    private void sendPushMessage(User recipient, User currentUser) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> {
+                try {
+                    pushNotificationService.sendMessage(
+                        device.getFcmToken(), "Familiarise",
+                        currentUser.getName() != null
+                            ? "Status von " + currentUser.getName() + " hat sich geändert!"
+                            : "Status einer Person hat sich geändert!");
+                } catch (PushMessageNotSendException e) {
+                    // ignore
+                }
+            });
     }
 
     public List<User> listOtherUsersForDashboard(final User user, final UUID groupId) {
