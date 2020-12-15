@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public interface OnboardingRepository {
 //    static Optional<String> findGroupNameForUser(UUID userId) {
@@ -59,4 +60,6 @@ public interface OnboardingRepository {
     void addDevice(Device device);
 
     List<Device> findDevicesByUserId(UUID userId);
+
+    Stream<User> findAllUsers();
 }

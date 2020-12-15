@@ -23,6 +23,7 @@ import de.wirvsvirus.hack.repository.dynamodb.UserData;
 import de.wirvsvirus.hack.repository.dynamodb.UserDeviceData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
@@ -399,5 +400,10 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     @Override
     public List<Device> findDevicesByUserId(UUID userId) {
         return memory.findDevicesByUserId(userId);
+    }
+
+    @Override
+    public Stream<User> findAllUsers() {
+        return memory.findAllUsers();
     }
 }

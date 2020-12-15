@@ -9,6 +9,7 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
@@ -257,4 +258,8 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         return InMemoryDatastore.allDevicesByUser.getOrDefault(userId, new ArrayList<>());
     }
 
+    @Override
+    public Stream<User> findAllUsers() {
+        return InMemoryDatastore.allUsers.values().stream();
+    }
 }
