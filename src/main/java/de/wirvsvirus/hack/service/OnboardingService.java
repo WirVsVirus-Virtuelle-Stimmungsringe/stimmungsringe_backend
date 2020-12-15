@@ -143,6 +143,10 @@ public class OnboardingService {
                 final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
                 Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
                 onboardingRepository.leaveGroup(lookup.get().getGroupId(), user.getUserId());
+
+                onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
+                    .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
+
                 log.info("... remove user {} from group {} with groupId {}", user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
             } else {
                 log.info("User is member of another group");
@@ -210,6 +214,16 @@ public class OnboardingService {
                     newUser.getName() != null
                         ? "Neues Mitglied in Gruppe " + group.getGroupName() + ": " + newUser.getName()
                         : "Neues Mitglied!"));
+    }
+
+    private void sendPushMessageUserLeft(User recipient, User newUser,
+        Group group) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> pushNotificationService.sendMessage(
+                device.getFcmToken(), "Familiarise",
+                newUser.getName() != null
+                    ? "Nutzer " + newUser.getName() + " hat die Gruppe " + group.getGroupName() + " verlassen!"
+                    : "Ein Mitglied hat die Gruppe verlassen!"));
     }
 
     public List<User> listOtherUsersForDashboard(final User user, final UUID groupId) {
