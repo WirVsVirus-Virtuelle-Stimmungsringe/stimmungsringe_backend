@@ -57,4 +57,6 @@ public interface OnboardingRepository {
     void clearMessagesByRecipientId(UUID userId);
 
     void addDevice(Device device);
+
+    List<Device> findDevicesByUserId(UUID userId);
 }

@@ -1,7 +1,5 @@
 package de.wirvsvirus.hack.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.wirvsvirus.hack.exception.PushMessageNotSendException;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Notification;
@@ -12,6 +10,7 @@ import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.util.JacksonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class PushNotificationServiceImpl implements PushNotificationService {
 
+    @Autowired
     private OnboardingRepository onboardingRepository;
 
     @Value("${notification.service.url:}")
@@ -40,14 +40,6 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         log.info("Notification Service Url: " + this.notificationServiceUrl);
         log.info("Notification Sender Id: " + this.notificationSenderId);
         log.info("Nofitication Auth Key is set: " + StringUtils.abbreviate(this.notificationAuthKey, 10));
-
-        String receipient = "dXyK26H7S-uJcOxfAUwjGF:APA91bHx_koIJGTEEyHXfk0L_BnRoc7nMAFWb70zqRlXmdtPli8LZ6W8IhlytR1LxBCpv-RQ5w2_1ZnlM44nXEE4739ba7Cwr-N9fhw0LzEDCL8CWxUEICP4a8BGoq23QmbmbjFqmPmu";
-        try {
-            sendMessage(receipient, "from backend", "body text");
-            System.out.println("Sent sample push message");
-        } catch (PushMessageNotSendException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -69,17 +61,14 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     }
 
     @Override
-    public void sendMessage(String receiptId, String title, String body) throws PushMessageNotSendException {
+    public void sendMessage(String to, String title, String body) throws PushMessageNotSendException {
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders headers = new HttpHeaders();
-//        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         headers.add(HttpHeaders.AUTHORIZATION, "key=" + this.notificationAuthKey);
 
-        final NotificationMessage request = buildNotificationMessage(receiptId, title,
+        final NotificationMessage request = buildNotificationMessage(to, title,
             body);
-
-        System.out.println(JacksonUtil.prettyPrint(request));
 
         final HttpEntity<NotificationMessage> requestEntity = new HttpEntity<>(
             request, headers);
@@ -90,9 +79,9 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     }
 
     private NotificationMessage buildNotificationMessage(
-        final String receiptId, final String title, final String body) {
+        final String to, final String title, final String body) {
         return NotificationMessage.builder()
-            .to(receiptId)
+            .to(to)
             .notification(Notification.builder()
                 .title(title)
                 .body(body).build())

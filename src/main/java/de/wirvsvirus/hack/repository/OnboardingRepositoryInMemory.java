@@ -12,6 +12,7 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
+import one.util.streamex.StreamEx;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -251,5 +252,9 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         }
     }
 
+    @Override
+    public List<Device> findDevicesByUserId(final UUID userId) {
+        return InMemoryDatastore.allDevicesByUser.getOrDefault(userId, new ArrayList<>());
+    }
 
 }

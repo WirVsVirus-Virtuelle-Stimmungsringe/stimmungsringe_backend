@@ -14,6 +14,9 @@ Spring Boot Profile-Konstellationen: dynamodb-localdev, dynamodb
 
 `aws dynamodb list-tables --endpoint-url http://localhost:8000`
 
+### Spring Boot Profles
+local dev with push: dynamodb-localdev, dynamodb, firebase-push-secrets
+
 
 ### Sonstiges
 Port für Backend (localhost): 5000

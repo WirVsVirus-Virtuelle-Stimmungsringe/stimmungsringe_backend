@@ -395,4 +395,9 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         memory.addDevice(device);
         markForFlush();
     }
+
+    @Override
+    public List<Device> findDevicesByUserId(UUID userId) {
+        return memory.findDevicesByUserId(userId);
+    }
 }

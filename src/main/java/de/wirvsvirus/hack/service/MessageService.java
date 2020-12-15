@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.exception.PushMessageNotSendException;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.User;
@@ -21,6 +22,9 @@ import java.util.stream.Collectors;
 public class MessageService {
 
     @Autowired
+    private PushNotificationService pushNotificationService;
+
+    @Autowired
     private OnboardingRepository onboardingRepository;
 
     public void sendMessage(final User sender, final User recipient, final String text) {
@@ -35,9 +39,25 @@ public class MessageService {
                 !recipient.getUserId().equals(sender.getUserId()),
                 "Cannot send message to himself");
 
-        log.warn("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
+        log.info("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
 
         onboardingRepository.sendMessage(sender, recipient, text);
+        sendPushMessage(recipient, sender);
+    }
+
+    private void sendPushMessage(User recipient, User sender) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> {
+                try {
+                    pushNotificationService.sendMessage(
+                        device.getFcmToken(), "Familiarise",
+                        sender.getName() != null
+                        ? "Nachricht erhalten von " + sender.getName() + "!"
+                        : "Nachricht erhalten!");
+                } catch (PushMessageNotSendException e) {
+                    // ignore
+                }
+            });
     }
 
     public List<MessageTemplateDto> calcAvailableMessages(final User currentUser, final User recipient) {
