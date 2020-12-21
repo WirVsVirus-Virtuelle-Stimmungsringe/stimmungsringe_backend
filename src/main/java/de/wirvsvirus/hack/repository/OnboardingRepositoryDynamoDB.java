@@ -146,7 +146,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     private synchronized void writeDataToStorage() {
         log.debug("Flushing to storage ....");
         final StopWatch stopWatch = StopWatch.createStarted();
-        int countDevices = 0;
 
         {
             for (final User user : InMemoryDatastore.allUsers.values()) {
@@ -180,10 +179,11 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                 .forEach(device -> dynamoDBMapper.save(DataMapper.dataFromDevice(device)));
         }
 
-        log.debug("Flushed {} users and {} groups and {} messages to database in {}ms",
+        log.debug("Flushed {} users and {} groups and {} messages and {} devices to database in {}ms",
                 InMemoryDatastore.allUsers.size(),
                 InMemoryDatastore.allGroups.size(),
                 InMemoryDatastore.allGroupMessages.size(),
+                InMemoryDatastore.allDevicesByUser.size(),
                 stopWatch.getTime(TimeUnit.MILLISECONDS));
     }
 
