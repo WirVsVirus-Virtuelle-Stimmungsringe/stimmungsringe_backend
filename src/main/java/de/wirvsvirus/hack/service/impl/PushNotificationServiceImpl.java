@@ -37,7 +37,15 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     public void initialize() {
         log.info("Notification Service Url: " + this.notificationServiceUrl);
         log.info("Notification Sender Id: " + this.notificationSenderId);
-        log.info("Nofitication Auth Key is set: " + StringUtils.abbreviate(this.notificationAuthKey, 10));
+        log.info("Notification Auth Key is set: " + StringUtils.abbreviate(this.notificationAuthKey, 12));
+    }
+
+    @Override
+    public void forceReconfigure(String notificationAuthKey) {
+
+        this.notificationAuthKey = notificationAuthKey;
+
+        log.info("Notification Auth Key update: " + StringUtils.abbreviate(this.notificationAuthKey, 12));
     }
 
     @Override
