@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository.dynamodb;
 
+import com.google.common.base.MoreObjects;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -7,6 +8,8 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.GroupCodeUtil;
+import de.wirvsvirus.hack.service.dto.DeviceType;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -62,6 +65,7 @@ public final class DataMapper {
     }
 
     public static Message messageFromDatabase(final MessageData messageData) {
+        fixupMessage(messageData);
         final Message message = new Message();
         message.setGroupId(messageData.getGroupId());
         message.setMessageId(messageData.getMessageId());
@@ -83,6 +87,25 @@ public final class DataMapper {
         return messageData;
     }
 
+    public static UserDeviceData dataFromDevice(final Device device) {
+        final UserDeviceData deviceData = new UserDeviceData();
+        deviceData.setUserId(device.getUserId());
+        deviceData.setDeviceIdentifier(device.getDeviceIdentifier());
+        deviceData.setDeviceType(device.getDeviceType().name());
+        deviceData.setFcmToken(device.getFcmToken());
+        return deviceData;
+    }
+
+    public static Device deviceDataFromDatabase(final UserDeviceData deviceData) {
+        fixupDevice(deviceData);
+        final Device device = new Device();
+        device.setUserId(deviceData.getUserId());
+        device.setDeviceIdentifier(deviceData.getDeviceIdentifier());
+        device.setDeviceType(DeviceType.valueOf(deviceData.getDeviceType()));
+        device.setFcmToken(deviceData.getFcmToken());
+        return device;
+    }
+
     private static void fixupUser(final UserData userData) {
     }
 
@@ -98,27 +121,20 @@ public final class DataMapper {
         }
     }
 
+    private static void fixupMessage(final MessageData messageData) {
+    }
+
+    private static void fixupDevice(final UserDeviceData deviceData) {
+        if (deviceData.getDeviceType() == null) {
+            deviceData.setDeviceType(DeviceType.ANDROID.name());
+        }
+    }
+
     public static Instant lastStatusUpdateFromDatabase(final UserData userData) {
         if (userData.getLastStatusUpdate() == null) {
             return Instant.now();
         }
         return userData.getLastStatusUpdate().toInstant();
-    }
-
-    public static UserDeviceData dataFromDevice(final Device device) {
-        final UserDeviceData deviceData = new UserDeviceData();
-        deviceData.setUserId(device.getUserId());
-        deviceData.setDeviceIdentifier(device.getDeviceIdentifier());
-        deviceData.setFcmToken(device.getFcmToken());
-        return deviceData;
-    }
-
-    public static Device deviceDataFromDatabase(final UserDeviceData deviceData) {
-        final Device device = new Device();
-        device.setUserId(deviceData.getUserId());
-        device.setDeviceIdentifier(deviceData.getDeviceIdentifier());
-        device.setFcmToken(deviceData.getFcmToken());
-        return device;
     }
 
     private DataMapper() {

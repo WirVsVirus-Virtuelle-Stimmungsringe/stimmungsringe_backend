@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.PushNotificationService;
+import de.wirvsvirus.hack.service.dto.DeviceType;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
@@ -41,7 +42,8 @@ public class OnboardingController {
         final String userId = signinResult.getUserId().toString();
         if (request.getFcmToken() != null) {
             pushNotificationService.registerFcmTokenForUser(signinResult.getUserId(),
-                    request.getDeviceIdentifier(), request.getFcmToken());
+                request.getDeviceIdentifier(), DeviceType.ANDROID,
+                request.getFcmToken());
         }
 
         if (signinResult.getGroup().isPresent()) {

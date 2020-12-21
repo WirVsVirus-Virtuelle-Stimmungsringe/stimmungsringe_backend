@@ -16,6 +16,7 @@ public class UserDeviceData {
 
     private UUID userId;
     private String deviceIdentifier;
+    private String deviceType;
 
     private String fcmToken;
 
@@ -35,6 +36,15 @@ public class UserDeviceData {
 
     public void setDeviceIdentifier(final String deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
+    }
+
+    @DynamoDBAttribute
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
     }
 
     @DynamoDBAttribute

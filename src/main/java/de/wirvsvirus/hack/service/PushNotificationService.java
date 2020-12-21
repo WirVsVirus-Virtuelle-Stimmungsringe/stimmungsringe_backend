@@ -1,12 +1,14 @@
 package de.wirvsvirus.hack.service;
 
+import de.wirvsvirus.hack.service.dto.DeviceType;
 import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface PushNotificationService {
 
-    void registerFcmTokenForUser(UUID userId, String deviceIdentifier, String fcmToken);
+    void registerFcmTokenForUser(UUID userId, String deviceIdentifier, DeviceType android,
+        String fcmToken);
 
     // TODO do we need that?
     String getSenderId();

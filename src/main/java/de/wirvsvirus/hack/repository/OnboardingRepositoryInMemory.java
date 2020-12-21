@@ -236,6 +236,7 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
     public void addDevice(final Device device) {
         Preconditions.checkNotNull(device.getUserId());
         Preconditions.checkNotNull(device.getDeviceIdentifier());
+        Preconditions.checkNotNull(device.getDeviceType());
         Preconditions.checkNotNull(device.getFcmToken());
 
         InMemoryDatastore.allDevicesByUser.putIfAbsent(device.getUserId(), new ArrayList<>());

@@ -3,15 +3,14 @@ package de.wirvsvirus.hack.service;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 @Service
 public class InactivityCheckService {
@@ -34,7 +33,7 @@ public class InactivityCheckService {
     onboardingRepository.findAllUsers()
         .filter(user ->
             onboardingRepository.findLastStatusUpdateByUserId(user.getUserId())
-        .isBefore(cutoff))
+                .isBefore(cutoff))
         .forEach(inactiveUser -> {
           final Optional<Group> group = onboardingRepository
               .findGroupByUser(inactiveUser.getUserId());

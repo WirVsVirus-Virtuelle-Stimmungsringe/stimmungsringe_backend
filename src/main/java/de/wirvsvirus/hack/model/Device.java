@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.model;
 
+import de.wirvsvirus.hack.service.dto.DeviceType;
 import lombok.ToString;
 
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.UUID;
 public class Device {
 
     private UUID userId;
+    private DeviceType deviceType;
     private String deviceIdentifier;
     private String fcmToken;
 
@@ -17,6 +19,14 @@ public class Device {
 
     public void setUserId(final UUID userId) {
         this.userId = userId;
+    }
+
+    public DeviceType getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType = deviceType;
     }
 
     public String getDeviceIdentifier() {

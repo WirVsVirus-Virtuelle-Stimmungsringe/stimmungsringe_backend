@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.service.impl;
 import de.wirvsvirus.hack.model.*;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.PushNotificationService;
+import de.wirvsvirus.hack.service.dto.DeviceType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +41,16 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     }
 
     @Override
-    public void registerFcmTokenForUser(final UUID userId, final String deviceIdentifier, final String fcmToken) {
+    public void registerFcmTokenForUser(final UUID userId,
+        final String deviceIdentifier, final DeviceType deviceType,
+        final String fcmToken) {
         log.info("Register FCM Token for user {}: {}", userId,
                 StringUtils.abbreviate(fcmToken, 8));
 
         final Device device = new Device();
         device.setUserId(userId);
         device.setDeviceIdentifier(deviceIdentifier);
+        device.setDeviceType(deviceType);
         device.setFcmToken(fcmToken);
         onboardingRepository.addDevice(device);
 
