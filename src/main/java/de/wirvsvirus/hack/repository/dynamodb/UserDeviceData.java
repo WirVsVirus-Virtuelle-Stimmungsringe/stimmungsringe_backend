@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @DynamoDBTable(tableName = "UserDevice")
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"fcmToken"})
 public class UserDeviceData {
 
     private UUID userId;

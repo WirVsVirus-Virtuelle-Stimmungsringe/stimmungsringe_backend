@@ -42,7 +42,8 @@ public class OnboardingController {
         final String userId = signinResult.getUserId().toString();
         if (request.getFcmToken() != null) {
             pushNotificationService.registerFcmTokenForUser(signinResult.getUserId(),
-                request.getDeviceIdentifier(), DeviceType.ANDROID,
+                request.getDeviceIdentifier(),
+                DeviceType.valueOf(request.getDeviceType()),
                 request.getFcmToken());
         }
 

@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest.dto;
 
+import de.wirvsvirus.hack.service.dto.DeviceType;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,9 @@ public class SigninUserRequest {
      */
     @NotNull
     private String deviceIdentifier;
+
+    // compat w/ old app
+    private String deviceType = DeviceType.ANDROID.name();
 
     /**
      * firebase push token
