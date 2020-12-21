@@ -1,9 +1,9 @@
 package de.wirvsvirus.hack.service;
 
 import de.wirvsvirus.hack.exception.PushMessageNotSendException;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Optional;
 
 //@SpringBootTest
 public class PushNotificationServiceTest {
@@ -15,6 +15,6 @@ public class PushNotificationServiceTest {
 
     //@Test
     public void sendPushNotificationTest() throws PushMessageNotSendException {
-        this.pushNotificationService.sendMessage(RECEIPT_ID, "New Message", "Body");
+        this.pushNotificationService.sendMessage(RECEIPT_ID, "New Message", "Body", Optional.empty(), Optional.empty());
     }
 }

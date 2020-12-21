@@ -5,6 +5,8 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
+import de.wirvsvirus.hack.service.PushNotificationService;
+import de.wirvsvirus.hack.service.dto.DeviceType;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
@@ -30,11 +32,20 @@ public class OnboardingController {
     @Autowired
     private OnboardingRepository onboardingRepository;
 
+    @Autowired
+    private PushNotificationService pushNotificationService;
+
     @PutMapping("/signin")
     public SigninUserResponse signin(@RequestBody @Valid final SigninUserRequest request) {
 
         final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
         final String userId = signinResult.getUserId().toString();
+        if (request.getFcmToken() != null) {
+            pushNotificationService.registerFcmTokenForUser(signinResult.getUserId(),
+                request.getDeviceIdentifier(),
+                DeviceType.valueOf(request.getDeviceType()),
+                request.getFcmToken());
+        }
 
         if (signinResult.getGroup().isPresent()) {
             final Group group = signinResult.getGroup().get();

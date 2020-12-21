@@ -13,12 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class MessageService {
+
+    @Autowired
+    private PushNotificationService pushNotificationService;
 
     @Autowired
     private OnboardingRepository onboardingRepository;
@@ -35,9 +39,21 @@ public class MessageService {
                 !recipient.getUserId().equals(sender.getUserId()),
                 "Cannot send message to himself");
 
-        log.warn("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
+        log.info("Send Message from {} to {}: {}", sender.getUserId(), recipient.getUserId(), text);
 
         onboardingRepository.sendMessage(sender, recipient, text);
+        sendPushMessageNewInboxMessage(recipient, sender);
+    }
+
+    private void sendPushMessageNewInboxMessage(User recipient, User sender) {
+      onboardingRepository.findDevicesByUserId(recipient.getUserId())
+          .forEach(device -> {
+            pushNotificationService.sendMessage(
+                device.getFcmToken(), "Familiarise",
+                "❤ Neue Nachricht!",
+                Optional.empty(),
+                Optional.empty());
+          });
     }
 
     public List<MessageTemplateDto> calcAvailableMessages(final User currentUser, final User recipient) {

@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.InMemoryDatastore;
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -19,10 +20,13 @@ import de.wirvsvirus.hack.repository.dynamodb.DataMapper;
 import de.wirvsvirus.hack.repository.dynamodb.GroupData;
 import de.wirvsvirus.hack.repository.dynamodb.MessageData;
 import de.wirvsvirus.hack.repository.dynamodb.UserData;
+import de.wirvsvirus.hack.repository.dynamodb.UserDeviceData;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +37,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +74,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         prepareTable(UserData.class, false);
         prepareTable(GroupData.class, false);
         prepareTable(MessageData.class, false);
+        prepareTable(UserDeviceData.class, false);
 
         restoreFromStorage();
 
@@ -139,6 +146,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     private synchronized void writeDataToStorage() {
         log.debug("Flushing to storage ....");
         final StopWatch stopWatch = StopWatch.createStarted();
+        int countDevices = 0;
 
         {
             for (final User user : InMemoryDatastore.allUsers.values()) {
@@ -148,7 +156,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                         findLastStatusUpdateByUserId(user.getUserId())
                 ));
             }
-
         }
 
         {
@@ -156,7 +163,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                 // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
             }
-
         }
 
         {
@@ -165,6 +171,13 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                     dynamoDBMapper.save(DataMapper.dataFromMessage(message));
                 }
             }
+        }
+
+        {
+            EntryStream.of(InMemoryDatastore.allDevicesByUser)
+                    .flatMapValues(Collection::stream)
+                    .values()
+                .forEach(device -> dynamoDBMapper.save(DataMapper.dataFromDevice(device)));
         }
 
         log.debug("Flushed {} users and {} groups and {} messages to database in {}ms",
@@ -185,6 +198,7 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         int countUsers = 0;
         int countGroups = 0;
         int countMessages = 0;
+        int countDevices = 0;
 
         {
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
@@ -192,11 +206,15 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
             final PaginatedScanList<UserData> result = dynamoDBMapper.scan(UserData.class, scanAll);
             for (final UserData userData : result) {
                 System.out.println("- " + userData);
-                Preconditions.checkState(!InMemoryDatastore.allUsers.containsKey(userData.getUserId()));
+                Preconditions
+                    .checkState(!InMemoryDatastore.allUsers.containsKey(userData.getUserId()));
 
-                InMemoryDatastore.allUsers.put(userData.getUserId(), DataMapper.userFromDatabase(userData));
-                InMemoryDatastore.sentimentByUser.put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
-                InMemoryDatastore.lastStatusUpdateByUser.put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
+                InMemoryDatastore.allUsers
+                    .put(userData.getUserId(), DataMapper.userFromDatabase(userData));
+                InMemoryDatastore.sentimentByUser
+                    .put(userData.getUserId(), Sentiment.valueOf(userData.getSentiment()));
+                InMemoryDatastore.lastStatusUpdateByUser
+                    .put(userData.getUserId(), DataMapper.lastStatusUpdateFromDatabase(userData));
                 countUsers++;
             }
 
@@ -205,14 +223,17 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         {
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
 
-            final PaginatedScanList<GroupData> result = dynamoDBMapper.scan(GroupData.class, scanAll);
+            final PaginatedScanList<GroupData> result = dynamoDBMapper
+                .scan(GroupData.class, scanAll);
             for (final GroupData groupData : result) {
                 System.out.println("- " + groupData);
-                Preconditions.checkState(!InMemoryDatastore.allGroups.containsKey(groupData.getGroupId()));
+                Preconditions
+                    .checkState(!InMemoryDatastore.allGroups.containsKey(groupData.getGroupId()));
 
                 final Pair<Group, List<UUID>> pair = DataMapper.groupFromDatabase(groupData);
                 InMemoryDatastore.allGroups.put(groupData.getGroupId(), pair.getLeft());
-                pair.getRight().forEach(memberId -> InMemoryDatastore.groupByUserId.put(memberId, groupData.getGroupId()));
+                pair.getRight().forEach(memberId -> InMemoryDatastore.groupByUserId
+                    .put(memberId, groupData.getGroupId()));
                 InMemoryDatastore.allGroupMessages.put(groupData.getGroupId(), new ArrayList<>());
 
                 countGroups++;
@@ -222,18 +243,41 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
         {
             final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
 
-            final PaginatedScanList<MessageData> result = dynamoDBMapper.scan(MessageData.class, scanAll);
+            final PaginatedScanList<MessageData> result = dynamoDBMapper
+                .scan(MessageData.class, scanAll);
             for (final MessageData messageData : result) {
                 final Message message = DataMapper.messageFromDatabase(messageData);
-                InMemoryDatastore.allGroupMessages.putIfAbsent(message.getGroupId(), new ArrayList<>());
+                InMemoryDatastore.allGroupMessages
+                    .putIfAbsent(message.getGroupId(), new ArrayList<>());
                 InMemoryDatastore.allGroupMessages.get(message.getGroupId()).add(message);
 
                 countMessages++;
             }
         }
 
-        log.debug("Restored {} users and {} groups and {} messages to database",
-                countUsers, countGroups, countMessages);
+        {
+            final DynamoDBScanExpression scanAll = new DynamoDBScanExpression();
+
+            final PaginatedScanList<UserDeviceData> result = dynamoDBMapper
+                .scan(UserDeviceData.class, scanAll);
+
+            for (UserDeviceData deviceData : result) {
+                System.out.println("- " + deviceData);
+
+                InMemoryDatastore.allDevicesByUser.putIfAbsent(deviceData.getUserId(), new ArrayList<>());
+                final List<Device> devices = InMemoryDatastore.allDevicesByUser
+                    .get(deviceData.getUserId());
+
+                devices.add(DataMapper.deviceDataFromDatabase(deviceData));
+
+                countDevices++;
+            }
+
+        }
+
+        log.debug("Restored {} users and {} groups and {} messages and {} devices to database",
+            countUsers, countGroups, countMessages, countDevices);
+
     }
 
     @Override
@@ -341,5 +385,21 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
     public void clearMessagesByRecipientId(final UUID userId) {
         memory.clearMessagesByRecipientId(userId);
         markForFlush();
+    }
+
+    @Override
+    public void addDevice(final Device device) {
+        memory.addDevice(device);
+        markForFlush();
+    }
+
+    @Override
+    public List<Device> findDevicesByUserId(UUID userId) {
+        return memory.findDevicesByUserId(userId);
+    }
+
+    @Override
+    public Stream<User> findAllUsers() {
+        return memory.findAllUsers();
     }
 }

@@ -16,11 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +25,9 @@ public class OnboardingService {
 
     @Autowired
     private OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private PushNotificationService pushNotificationService;
 
     public UserSignedInDto signin(final String deviceIdentifier) {
 
@@ -122,7 +121,10 @@ public class OnboardingService {
         } else {
             final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
             Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
-            onboardingRepository.joinGroup(lookup.get().getGroupId(), user.getUserId());
+            onboardingRepository.joinGroup(groupId, user.getUserId());
+
+            onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
+                .forEach(otherUser -> sendPushMessageUserJoined(otherUser, user, lookup.get()));
         }
 
     }
@@ -136,6 +138,10 @@ public class OnboardingService {
                 final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
                 Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
                 onboardingRepository.leaveGroup(lookup.get().getGroupId(), user.getUserId());
+
+                onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
+                    .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
+
                 log.info("... remove user {} from group {} with groupId {}", user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
             } else {
                 log.info("User is member of another group");
@@ -176,9 +182,57 @@ public class OnboardingService {
     }
 
     public void updateSentimentStatus(final User user, final Sentiment sentiment) {
+        final Instant oldLastUpdated = onboardingRepository
+            .findLastStatusUpdateByUserId(user.getUserId());
         onboardingRepository.updateStatus(user.getUserId(), sentiment);
         onboardingRepository.touchLastStatusUpdate(user.getUserId());
         onboardingRepository.clearMessagesByRecipientId(user.getUserId());
+
+        // throttle pushes
+        if (oldLastUpdated.isBefore(Instant.now().minusSeconds(10))) {
+            onboardingRepository
+                .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
+                    .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
+                    .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
+        }
+    }
+
+    private void sendPushMessageStatusChanged(User recipient, User currentUser) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> pushNotificationService.sendMessage(
+                device.getFcmToken(), "Familiarise",
+                currentUser.getName() != null
+                    ? "Wetteränderung bei " + currentUser.getName() + "!"
+                    : "Das Wetter eines Mitglieds hat sich geändert!",
+                Optional.empty(),
+                Optional.empty()
+            ));
+    }
+
+    private void sendPushMessageUserJoined(User recipient, User newUser,
+        Group group) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> pushNotificationService.sendMessage(
+                    device.getFcmToken(), "Familiarise",
+                    newUser.getName() != null
+                        ? "Begrüße unser neues Mitglied: " + newUser.getName() + "!"
+                        : "Neues Mitglied!",
+                    Optional.empty(),
+                    Optional.empty()
+            ));
+    }
+
+    private void sendPushMessageUserLeft(User recipient, User newUser,
+        Group group) {
+        onboardingRepository.findDevicesByUserId(recipient.getUserId())
+            .forEach(device -> pushNotificationService.sendMessage(
+                device.getFcmToken(), "Familiarise",
+                newUser.getName() != null
+                    ? "Unser Mitglied " + newUser.getName() + " hat die Gruppe verlassen!"
+                    : "Ein Mitglied hat die Gruppe verlassen!",
+                Optional.empty(),
+                Optional.empty()
+            ));
     }
 
     public List<User> listOtherUsersForDashboard(final User user, final UUID groupId) {

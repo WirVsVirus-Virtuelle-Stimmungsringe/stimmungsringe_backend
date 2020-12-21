@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository;
 
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public interface OnboardingRepository {
 //    static Optional<String> findGroupNameForUser(UUID userId) {
@@ -54,4 +56,10 @@ public interface OnboardingRepository {
     List<Message> findMessagesByRecipientId(UUID userId);
 
     void clearMessagesByRecipientId(UUID userId);
+
+    void addDevice(Device device);
+
+    List<Device> findDevicesByUserId(UUID userId);
+
+    Stream<User> findAllUsers();
 }

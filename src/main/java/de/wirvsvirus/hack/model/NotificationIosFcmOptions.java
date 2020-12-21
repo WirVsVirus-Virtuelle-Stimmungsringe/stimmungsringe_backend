@@ -3,12 +3,10 @@ package de.wirvsvirus.hack.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.net.URI;
+
 @Data
 @Builder
-public class Notification {
-
-    String title;
-    String body;
-//    private String icon;
-
+public class NotificationIosFcmOptions {
+    URI image;
 }

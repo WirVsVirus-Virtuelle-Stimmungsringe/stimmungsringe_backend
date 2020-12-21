@@ -2,21 +2,28 @@ package de.wirvsvirus.hack.repository;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.mock.InMemoryDatastore;
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
+import one.util.streamex.StreamEx;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -225,5 +232,35 @@ public class OnboardingRepositoryInMemory implements OnboardingRepository {
         InMemoryDatastore.allGroupMessages.put(group.getGroupId(), messagesWithoutOwn);
     }
 
+    @Override
+    public void addDevice(final Device device) {
+        Preconditions.checkNotNull(device.getUserId());
+        Preconditions.checkNotNull(device.getDeviceIdentifier());
+        Preconditions.checkNotNull(device.getDeviceType());
+        Preconditions.checkNotNull(device.getFcmToken());
 
+        InMemoryDatastore.allDevicesByUser.putIfAbsent(device.getUserId(), new ArrayList<>());
+
+        final List<Device> devices = InMemoryDatastore.allDevicesByUser.get(device.getUserId());
+
+        final Optional<Device> existing = devices.stream()
+                .collect(MoreCollectors.onlyOne(
+                        de -> de.getUserId().equals(device.getUserId())
+                                && de.getDeviceIdentifier().equals(device.getDeviceIdentifier())));
+
+        if (!existing.isPresent()
+                || !existing.get().getFcmToken().equals(device.getFcmToken())) {
+            devices.add(device);
+        }
+    }
+
+    @Override
+    public List<Device> findDevicesByUserId(final UUID userId) {
+        return InMemoryDatastore.allDevicesByUser.getOrDefault(userId, new ArrayList<>());
+    }
+
+    @Override
+    public Stream<User> findAllUsers() {
+        return InMemoryDatastore.allUsers.values().stream();
+    }
 }
