@@ -76,6 +76,17 @@
 		</dependency>
 
 		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>storage.embedded</artifactId>
+			<version>04.01.00-MS-GA</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>storage.embedded.configuration</artifactId>
+			<version>04.01.00-MS-GA</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -87,6 +98,13 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>microstream-releases</id>
+			<url>https://repo.microstream.one/repository/maven-public/</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
