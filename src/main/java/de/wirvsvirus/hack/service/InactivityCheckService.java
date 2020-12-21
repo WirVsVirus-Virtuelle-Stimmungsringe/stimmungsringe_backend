@@ -53,7 +53,7 @@ public class InactivityCheckService {
       Group group) {
     onboardingRepository.findDevicesByUserId(inactiveUser.getUserId())
         .forEach(device -> pushNotificationService.sendMessage(
-            device.getFcmToken(), "Familiarise",
+            device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
             inactiveUser.getName() != null
                 ? "Wir vermissen dich, " + inactiveUser.getName() + "!"
                 : "Wir vermissen dich!",
