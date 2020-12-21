@@ -202,8 +202,8 @@ public class OnboardingService {
             .forEach(device -> pushNotificationService.sendMessage(
                 device.getFcmToken(), "Familiarise",
                 currentUser.getName() != null
-                    ? "Status von " + currentUser.getName() + " hat sich geändert!"
-                    : "Status einer Person hat sich geändert!",
+                    ? "Wetteränderung bei " + currentUser.getName() + "!"
+                    : "Das Wetter eines Mitglieds hat sich geändert!",
                 Optional.empty(),
                 Optional.empty()
             ));
@@ -215,7 +215,7 @@ public class OnboardingService {
             .forEach(device -> pushNotificationService.sendMessage(
                     device.getFcmToken(), "Familiarise",
                     newUser.getName() != null
-                        ? "Neues Mitglied in Gruppe " + group.getGroupName() + ": " + newUser.getName()
+                        ? "Begrüße unser neues Mitglied: " + newUser.getName() + "!"
                         : "Neues Mitglied!",
                     Optional.empty(),
                     Optional.empty()
@@ -228,7 +228,7 @@ public class OnboardingService {
             .forEach(device -> pushNotificationService.sendMessage(
                 device.getFcmToken(), "Familiarise",
                 newUser.getName() != null
-                    ? "Nutzer " + newUser.getName() + " hat die Gruppe " + group.getGroupName() + " verlassen!"
+                    ? "Unser Mitglied " + newUser.getName() + " hat die Gruppe verlassen!"
                     : "Ein Mitglied hat die Gruppe verlassen!",
                 Optional.empty(),
                 Optional.empty()

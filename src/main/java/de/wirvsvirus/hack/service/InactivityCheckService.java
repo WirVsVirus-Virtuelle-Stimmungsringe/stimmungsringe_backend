@@ -56,8 +56,8 @@ public class InactivityCheckService {
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise",
             inactiveUser.getName() != null
-                ? "Hallo " + inactiveUser.getName() + "! Du wirst vermisst in der Gruppe " + group.getGroupName() + "!"
-                : "Logge dich doch wieder mal ein!",
+                ? "Wir vermissen dich, " + inactiveUser.getName() + "!"
+                : "Wir vermissen dich!",
             Optional.empty(),
             Optional.empty())
         );
