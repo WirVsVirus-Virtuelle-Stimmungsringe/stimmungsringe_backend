@@ -156,7 +156,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                         findLastStatusUpdateByUserId(user.getUserId())
                 ));
             }
-
         }
 
         {
@@ -164,7 +163,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                 // TODO tune: reduce consistency
                 dynamoDBMapper.save(DataMapper.dataFromGroup(group, membersByGroup(group.getGroupId())));
             }
-
         }
 
         {
@@ -180,8 +178,6 @@ public class OnboardingRepositoryDynamoDB implements OnboardingRepository {
                     .flatMapValues(Collection::stream)
                     .values()
                 .forEach(device -> dynamoDBMapper.save(DataMapper.dataFromDevice(device)));
-
-             //   countDevices++; // TODO
         }
 
         log.debug("Flushed {} users and {} groups and {} messages to database in {}ms",
