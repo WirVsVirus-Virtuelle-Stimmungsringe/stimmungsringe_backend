@@ -15,5 +15,4 @@ public interface PushNotificationService {
 
     void sendMessage(String to, String title, String body, Optional<String> collapseId, Optional<URI> imageUri);
 
-    void forceReconfigure(String notificationAuthKey);
 }

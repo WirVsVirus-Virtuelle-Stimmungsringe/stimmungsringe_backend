@@ -4,9 +4,7 @@ import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.rest.dto.ConfigurationPushFirebaseRequest;
 import de.wirvsvirus.hack.service.LoggingService;
-import de.wirvsvirus.hack.service.PushNotificationService;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,9 +33,6 @@ public class DebugController {
 
     @Autowired
     private LoggingService loggingService;
-
-    @Autowired
-    private PushNotificationService pushNotificationService;
 
     @GetMapping("/users")
     public Collection<User> getAllUsers(
@@ -82,11 +75,6 @@ public class DebugController {
             writer.flush();
         };
         return new ResponseEntity<>(stream, HttpStatus.OK);
-    }
-
-    @PostMapping("/push-config")
-    public void configurePush(@RequestBody ConfigurationPushFirebaseRequest request) {
-        pushNotificationService.forceReconfigure(request.getNotificationAuthKey());
     }
 
     /**
