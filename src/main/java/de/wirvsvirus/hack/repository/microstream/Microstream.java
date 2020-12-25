@@ -26,6 +26,7 @@ public final class Microstream {
   }
 
   public static void writeDataToStorage() {
+   // note: maps/lists will not be stored along with their root as the collection instance was not changed
     STORAGE_MANAGER.storeRoot();
 
     STORAGE_MANAGER.store(dataRoot.getAllUsers());
