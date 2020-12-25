@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Profile("!dynamodb")
+@Profile("inmemory")
 public class OnboardingRepositoryInMemory implements OnboardingRepository {
 
     @PostConstruct

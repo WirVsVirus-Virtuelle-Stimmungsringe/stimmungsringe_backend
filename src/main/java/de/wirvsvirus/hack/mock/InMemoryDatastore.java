@@ -3,26 +3,28 @@ package de.wirvsvirus.hack.mock;
 import com.google.common.collect.Lists;
 import de.wirvsvirus.hack.model.*;
 
+import de.wirvsvirus.hack.repository.microstream.DataRoot;
+import de.wirvsvirus.hack.repository.microstream.Microstream;
 import java.time.Instant;
 import java.util.*;
 
 public class InMemoryDatastore {
 
-    public static final Map<UUID, User> allUsers = new HashMap<>();
-    public static final Map<UUID, Group> allGroups = new HashMap<>();
-    public static final Map<UUID, UUID> groupByUserId = new HashMap<>();
-    public static Map<UUID, Sentiment> sentimentByUser = new HashMap<>();
-    public static Map<UUID, Instant> lastStatusUpdateByUser = new HashMap<>();
+    public static final Map<UUID, User> allUsers = Microstream.dataRoot.getAllUsers();
+    public static final Map<UUID, Group> allGroups = Microstream.dataRoot.getAllGroups();
+    public static final Map<UUID, UUID> groupByUserId = Microstream.dataRoot.getGroupByUserId();
+    public static Map<UUID, Sentiment> sentimentByUser = Microstream.dataRoot.getSentimentByUser();
+    public static Map<UUID, Instant> lastStatusUpdateByUser = Microstream.dataRoot.getLastStatusUpdateByUser();
 
     /**
      * groupId -> list message
      */
-    public static Map<UUID, List<Message>> allGroupMessages = new HashMap<>();
+    public static Map<UUID, List<Message>> allGroupMessages = Microstream.dataRoot.getAllGroupMessages();
 
     /**
      * userId -> list devices
      */
-    public static Map<UUID, List<Device>> allDevicesByUser = new HashMap<>();
+    public static Map<UUID, List<Device>> allDevicesByUser = Microstream.dataRoot.getAllDevicesByUser();
 
     public static final User daniela;
     public static final User frida;
