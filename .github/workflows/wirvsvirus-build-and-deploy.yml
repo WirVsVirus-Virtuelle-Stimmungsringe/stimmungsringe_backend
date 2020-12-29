@@ -21,7 +21,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Copy sample file to sample server
-      env: 
+      env:
         SSH_USER: ${{ secrets.SSH_USER }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -31,5 +31,5 @@ jobs:
         echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_deploy
         chmod 600 ~/.ssh/id_rsa_deploy
-        sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
+        sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put wirvsvirus-backend.jar'
         rm ~/.ssh/id_rsa_deploy
