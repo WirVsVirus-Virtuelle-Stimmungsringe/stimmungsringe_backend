@@ -27,11 +27,7 @@ jobs:
         SSH_USER: ${{ secrets.SSH_USER }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          echo $SSH_PRIVATE_KEY > ~/.ssh/id_rsa_deploy
-          sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
-          rm ~/.ssh/id_rsa_deploy
+      run: |
+        echo $SSH_PRIVATE_KEY > ~/.ssh/id_rsa_deploy
+        sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
+        rm ~/.ssh/id_rsa_deploy
