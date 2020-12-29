@@ -22,3 +22,6 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Copy sample file to sample server
+      run: |
+        sftp -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
