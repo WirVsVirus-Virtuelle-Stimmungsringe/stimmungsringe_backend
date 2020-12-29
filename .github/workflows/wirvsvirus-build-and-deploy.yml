@@ -23,10 +23,15 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Copy sample file to sample server
-      uses: appleboy/ssh-action@v0.1.4
+      env:
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
+          echo $SSH_PRIVATE_KEY > ~/.ssh/id_rsa_deploy
           sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
+          rm ~/.ssh/id_rsa_deploy
