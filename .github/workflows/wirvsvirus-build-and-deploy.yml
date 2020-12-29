@@ -29,4 +29,4 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
       script: |
-	sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
+        sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<< $'put pom.xml'
