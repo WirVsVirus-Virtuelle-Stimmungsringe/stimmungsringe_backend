@@ -20,10 +20,6 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-
-  deploy:
-    runs-on: ubuntu-18.04
-    steps:
     - name: Copy sample file to sample server
       env:
         SSH_USER: ${{ secrets.SSH_USER }}
