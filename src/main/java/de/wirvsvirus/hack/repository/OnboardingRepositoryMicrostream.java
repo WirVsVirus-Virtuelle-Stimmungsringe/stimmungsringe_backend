@@ -1,16 +1,15 @@
 package de.wirvsvirus.hack.repository;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
-import de.wirvsvirus.hack.spring.MicrostreamConfiguration;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
+import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +17,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import one.microstream.storage.types.StorageEntity;
 import one.microstream.storage.types.StorageManager;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,12 +35,12 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   private StorageManager storageManager;
 
   @Autowired
-  private DataRoot dataRoot;
+  private Database database;
 
   @Override
   public Optional<Group> findGroupById(final UUID groupId) {
     Preconditions.checkNotNull(groupId);
-    return EntryStream.of(dataRoot.getAllGroups())
+    return EntryStream.of(database.reloadRoot().getAllGroups())
         .values()
         .findAny(group -> group.getGroupId().equals(groupId));
 
@@ -52,14 +50,14 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public void createNewUser(final User newUser, final Sentiment sentiment,
       final Instant lastUpdate) {
     Preconditions.checkNotNull(sentiment);
-    Preconditions.checkState(!dataRoot.getAllUsers().containsKey(newUser.getUserId()));
-    dataRoot.getAllUsers().put(newUser.getUserId(), newUser);
-    dataRoot.getSentimentByUser().put(newUser.getUserId(), sentiment);
-    dataRoot.getLastStatusUpdateByUser().put(newUser.getUserId(), lastUpdate);
+    Preconditions.checkState(!database.reloadRoot().getAllUsers().containsKey(newUser.getUserId()));
+    database.reloadRoot().getAllUsers().put(newUser.getUserId(), newUser);
+    database.reloadRoot().getSentimentByUser().put(newUser.getUserId(), sentiment);
+    database.reloadRoot().getLastStatusUpdateByUser().put(newUser.getUserId(), lastUpdate);
 
-    storageManager.store(dataRoot.getAllUsers());
-    storageManager.store(dataRoot.getSentimentByUser());
-    storageManager.store(dataRoot.getLastStatusUpdateByUser());
+    storageManager.store(database.reloadRoot().getAllUsers());
+    storageManager.store(database.reloadRoot().getSentimentByUser());
+    storageManager.store(database.reloadRoot().getLastStatusUpdateByUser());
   }
 
   @Override
@@ -67,7 +65,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     Preconditions.checkNotNull(userId);
 
     return
-        EntryStream.of(dataRoot.getAllUsers())
+        EntryStream.of(database.reloadRoot().getAllUsers())
             .values()
             .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
             .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
@@ -84,7 +82,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public void updateGroup(final UUID groupId, final GroupSettingsDto groupSettings) {
-    final Group group = InMemoryDatastore.allGroups.get(groupId);
+    final Group group = database.reloadRoot().getAllGroups().get(groupId);
     Preconditions.checkNotNull(group);
     group.setGroupName(groupSettings.getGroupName());
 
@@ -97,11 +95,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     newGroup.setGroupName(groupName);
     newGroup.setGroupCode(groupCode);
 
-    dataRoot.getAllGroups().put(newGroup.getGroupId(), newGroup);
-    dataRoot.getAllGroupMessages().putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
+    database.reloadRoot().getAllGroups().put(newGroup.getGroupId(), newGroup);
+    database.reloadRoot().getAllGroupMessages().putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
 
-    storageManager.store(dataRoot.getAllGroups());
-    storageManager.store(dataRoot.getAllGroupMessages());
+    storageManager.store(database.reloadRoot().getAllGroups());
+    storageManager.store(database.reloadRoot().getAllGroupMessages());
 
     return newGroup;
   }
@@ -109,33 +107,33 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public void joinGroup(final UUID groupId, final UUID userId) {
-    dataRoot.getGroupByUserId().put(userId, groupId);
+    database.reloadRoot().getGroupByUserId().put(userId, groupId);
 
-    storageManager.store(dataRoot.getGroupByUserId());
+    storageManager.store(database.reloadRoot().getGroupByUserId());
   }
 
   @Override
   public void leaveGroup(final UUID groupId, final UUID userId) {
-    dataRoot.getGroupByUserId().remove(userId);
+    database.reloadRoot().getGroupByUserId().remove(userId);
 
-    storageManager.store(dataRoot.getGroupByUserId());
+    storageManager.store(database.reloadRoot().getGroupByUserId());
   }
 
   @Override
   public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
     return
-        EntryStream.of(dataRoot.getGroupByUserId())
+        EntryStream.of(database.reloadRoot().getGroupByUserId())
             .filterValues(gid -> gid.equals(groupId))
-            .filterKeys(dataRoot.getAllDevicesByUser()::containsKey)
+            .filterKeys(database.reloadRoot().getAllDevicesByUser()::containsKey)
             .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
             .keys()
-            .map(dataRoot.getAllUsers()::get)
+            .map(database.reloadRoot().getAllUsers()::get)
             .collect(Collectors.toList());
   }
 
   @Override
   public Sentiment findSentimentByUserId(final UUID userId) {
-    final Sentiment sentiment = dataRoot.getSentimentByUser().get(userId);
+    final Sentiment sentiment = database.reloadRoot().getSentimentByUser().get(userId);
     Preconditions.checkNotNull(
         sentiment, "Lookup error on sentiment lookup for user %s", userId);
     return sentiment;
@@ -143,7 +141,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public Instant findLastStatusUpdateByUserId(final UUID userId) {
-    final Instant lastStatusUpdate = dataRoot.getLastStatusUpdateByUser().get(userId);
+    final Instant lastStatusUpdate = database.reloadRoot().getLastStatusUpdateByUser().get(userId);
     Preconditions.checkNotNull(
         lastStatusUpdate, "Lookup error on last status update timestamp lookup for user %s", userId);
     return lastStatusUpdate;
@@ -151,30 +149,30 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public void touchLastStatusUpdate(final UUID userId) {
-    dataRoot.getLastStatusUpdateByUser().put(userId, Instant.now());
+    database.reloadRoot().getLastStatusUpdateByUser().put(userId, Instant.now());
 
-    storageManager.store(dataRoot.getLastStatusUpdateByUser());
+    storageManager.store(database.reloadRoot().getLastStatusUpdateByUser());
   }
 
   @Override
   public void updateStatus(final UUID userId, final Sentiment sentiment) {
     lookupUserById(userId);
-    dataRoot.getSentimentByUser().put(userId, sentiment);
+    database.reloadRoot().getSentimentByUser().put(userId, sentiment);
 
-    storageManager.store(dataRoot.getSentimentByUser());
+    storageManager.store(database.reloadRoot().getSentimentByUser());
   }
 
   @Override
   public Optional<Group> findGroupByUser(final UUID userId) {
     return Optional.ofNullable(
-        dataRoot.getGroupByUserId().get(userId))
-        .map(dataRoot.getAllGroups()::get);
+        database.reloadRoot().getGroupByUserId().get(userId))
+        .map(database.reloadRoot().getAllGroups()::get);
   }
 
   @Override
   public Optional<Group> findGroupByCode(final String groupCode) {
 
-    final List<Group> matches = EntryStream.of(dataRoot.getAllGroups())
+    final List<Group> matches = EntryStream.of(database.reloadRoot().getAllGroups())
         .filterValues(group -> group.getGroupCode().equals(groupCode))
         .values()
         .toList();
@@ -187,7 +185,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   @Override
   public Optional<User> findByDeviceIdentifier(final String deviceIdentifier) {
     return
-        EntryStream.of(dataRoot.getAllUsers()).values()
+        EntryStream.of(database.reloadRoot().getAllUsers()).values()
             .findAny(user ->
                 user.getDeviceIdentifier()
                     .equals(deviceIdentifier));
@@ -204,17 +202,17 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     message.setSenderUserId(sender.getUserId());
     message.setRecipientUserId(recipient.getUserId());
     message.setText(text);
-    dataRoot.getAllGroupMessages().get(group1.getGroupId()).add(message);
+    database.reloadRoot().getAllGroupMessages().get(group1.getGroupId()).add(message);
 
-    storageManager.store(dataRoot.getAllGroupMessages().get(group1.getGroupId()));
+    storageManager.store(database.reloadRoot().getAllGroupMessages().get(group1.getGroupId()));
     // TODO try this instead
-//    storageManager.store(dataRoot.getAllGroupMessages());
+//    storageManager.store(database.reloadRoot().getAllGroupMessages());
   }
 
   @Override
   public List<Message> findMessagesByRecipientId(final UUID userId) {
     final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
-    final List<Message> messageList = dataRoot.getAllGroupMessages().get(group.getGroupId());
+    final List<Message> messageList = database.reloadRoot().getAllGroupMessages().get(group.getGroupId());
     Preconditions.checkNotNull(messageList);
     return messageList.stream()
         .filter(message -> message.getRecipientUserId().equals(userId))
@@ -224,16 +222,16 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   @Override
   public void clearMessagesByRecipientId(final UUID userId) {
     final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
-    final List<Message> messageList = dataRoot.getAllGroupMessages().get(group.getGroupId());
+    final List<Message> messageList = database.reloadRoot().getAllGroupMessages().get(group.getGroupId());
     Preconditions.checkNotNull(messageList);
 
     final List<Message> messagesWithoutOwn = messageList.stream()
         .filter(message -> !message.getRecipientUserId().equals(userId))
         .collect(Collectors.toList());
 
-    dataRoot.getAllGroupMessages().put(group.getGroupId(), messagesWithoutOwn);
+    database.reloadRoot().getAllGroupMessages().put(group.getGroupId(), messagesWithoutOwn);
 
-    storageManager.store(dataRoot.getAllGroupMessages());
+    storageManager.store(database.reloadRoot().getAllGroupMessages());
   }
 
   @Override
@@ -243,11 +241,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     Preconditions.checkNotNull(device.getDeviceType());
     Preconditions.checkNotNull(device.getFcmToken());
 
-    dataRoot.getAllDevicesByUser().putIfAbsent(device.getUserId(), new ArrayList<>());
+    database.reloadRoot().getAllDevicesByUser().putIfAbsent(device.getUserId(), new ArrayList<>());
 
-    storageManager.store(dataRoot.getAllDevicesByUser());
+    storageManager.store(database.reloadRoot().getAllDevicesByUser());
 
-    final List<Device> devices = dataRoot.getAllDevicesByUser().get(device.getUserId());
+    final List<Device> devices = database.reloadRoot().getAllDevicesByUser().get(device.getUserId());
 
     final Optional<Device> existing = devices.stream()
         .collect(MoreCollectors.onlyOne(
@@ -264,11 +262,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public List<Device> findDevicesByUserId(UUID userId) {
-    return dataRoot.getAllDevicesByUser().getOrDefault(userId, new ArrayList<>());
+    return database.reloadRoot().getAllDevicesByUser().getOrDefault(userId, new ArrayList<>());
   }
 
   @Override
   public Stream<User> findAllUsers() {
-    return dataRoot.getAllUsers().values().stream();
+    return database.reloadRoot().getAllUsers().values().stream();
   }
 }

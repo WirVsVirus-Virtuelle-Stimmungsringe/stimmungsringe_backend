@@ -1,23 +1,12 @@
 package de.wirvsvirus.hack.microstream;
 
-import com.google.common.collect.Lists;
-import de.wirvsvirus.hack.mock.InMemoryDatastore;
-import de.wirvsvirus.hack.model.Sentiment;
-import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import lombok.Builder;
-import lombok.Singular;
 import lombok.Value;
 import lombok.With;
-import lombok.experimental.Wither;
 import one.microstream.storage.types  .EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import org.apache.commons.lang3.StringUtils;
 
 public class HelloMicro {
 
@@ -43,7 +32,7 @@ public class HelloMicro {
     );
 
     if (storageManager.root() == null) {
-      storageManager.setRoot(new Root());
+//      storageManager.setRoot(new Root());
     }
 
     Root root = (Root) storageManager.root();
@@ -52,7 +41,7 @@ public class HelloMicro {
     System.out.println("tags=" + root.getTags());
     System.out.println("name=" + root.getSub().getName());
 
-    root.withTags()
+//    root.withTags()
 
 
     storageManager.shutdown();

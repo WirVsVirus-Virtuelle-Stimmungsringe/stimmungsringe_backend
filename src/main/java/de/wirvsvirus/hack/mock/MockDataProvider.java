@@ -1,37 +1,25 @@
 package de.wirvsvirus.hack.mock;
 
 import com.google.common.collect.Lists;
-import de.wirvsvirus.hack.model.*;
-
-import de.wirvsvirus.hack.repository.microstream.DataRoot;
-import de.wirvsvirus.hack.repository.microstream.Microstream;
+import de.wirvsvirus.hack.model.Role;
+import de.wirvsvirus.hack.model.Sentiment;
+import de.wirvsvirus.hack.model.StockAvatar;
+import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.repository.OnboardingRepositoryMicrostream;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class InMemoryDatastore {
+public class MockDataProvider {
 
-    public static final Map<UUID, User> allUsers = Microstream.dataRoot.getAllUsers();
-    public static final Map<UUID, Group> allGroups = Microstream.dataRoot.getAllGroups();
-    public static final Map<UUID, UUID> groupByUserId = Microstream.dataRoot.getGroupByUserId();
-    public static Map<UUID, Sentiment> sentimentByUser = Microstream.dataRoot.getSentimentByUser();
-    public static Map<UUID, Instant> lastStatusUpdateByUser = Microstream.dataRoot.getLastStatusUpdateByUser();
+    private static List<User> mockUsers() {
+        final User daniela;
+        final User frida;
+        final User otto;
+        final User stefan;
 
-    /**
-     * groupId -> list message
-     */
-    public static Map<UUID, List<Message>> allGroupMessages = Microstream.dataRoot.getAllGroupMessages();
-
-    /**
-     * userId -> list devices
-     */
-    public static Map<UUID, List<Device>> allDevicesByUser = Microstream.dataRoot.getAllDevicesByUser();
-
-    public static final User daniela;
-    public static final User frida;
-    public static final User otto;
-    public static final User stefan;
-
-    static {
         final List<User> users = new ArrayList<>();
 
         {
@@ -69,11 +57,7 @@ public class InMemoryDatastore {
             stefan = user;
         }
 
-        users.forEach(user -> {
-            allUsers.put(user.getUserId(), user);
-            sentimentByUser.put(user.getUserId(), dummySentimentByUser(user.getUserId()));
-        });
-
+        return users;
     }
 
     private static User createUser(final String userId) {
@@ -92,6 +76,14 @@ public class InMemoryDatastore {
         }
 
         return Sentiment.cloudy;
+    }
+
+    public static void persistTo(OnboardingRepository repository) {
+
+        for (User user : mockUsers()) {
+            repository.createNewUser(user, dummySentimentByUser(user.getUserId()), Instant.now());
+        }
+
     }
 
 }

@@ -19,6 +19,12 @@ public class DataRoot {
   private Map<UUID, Sentiment> sentimentByUser;
   private Map<UUID, Instant> lastStatusUpdateByUser;
 
+  private MigrationMetadata migrationMetadata;
+
+  public DataRoot() {
+    throw new IllegalStateException("never called");
+  }
+
   /**
    * groupId -> list message
    */
@@ -88,5 +94,23 @@ public class DataRoot {
   public void setAllDevicesByUser(
       Map<UUID, List<Device>> allDevicesByUser) {
     this.allDevicesByUser = allDevicesByUser;
+  }
+
+  public MigrationMetadata getMigrationMetadata() {
+    return migrationMetadata;
+  }
+
+  public void setMigrationMetadata(
+      MigrationMetadata migrationMetadata) {
+    this.migrationMetadata = migrationMetadata;
+  }
+
+  public void dumpToSysout() {
+    System.out.println("-- Inspecting database:");
+
+    System.out.println("   Users");
+    for (User user : allUsers.values()) {
+      System.out.println("   - M " + user.getName() + " " + user.getUserId());
+    }
   }
 }

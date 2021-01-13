@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
@@ -240,7 +239,7 @@ public class OnboardingService {
 
         return otherUsers.stream()
             .sorted(Comparator.comparing((User otherUser) ->
-                InMemoryDatastore.lastStatusUpdateByUser.get(otherUser.getUserId()))
+                onboardingRepository.findLastStatusUpdateByUserId(otherUser.getUserId()))
                     .reversed()
                     .thenComparing(User::getUserId)) // fallback in case the timestamp match
                 .collect(Collectors.toList());

@@ -1,10 +1,11 @@
 package de.wirvsvirus.hack.rest;
 
 import com.google.common.hash.Hashing;
-import de.wirvsvirus.hack.mock.InMemoryDatastore;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.service.LoggingService;
+import de.wirvsvirus.hack.spring.Database;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
@@ -34,18 +35,21 @@ public class DebugController {
     @Autowired
     private LoggingService loggingService;
 
+    @Autowired
+    private Database database;
+
     @GetMapping("/users")
     public Collection<User> getAllUsers(
             @RequestHeader("X-FAM-Debug") String debugCode
     ) {
         checkDebugCode(debugCode);
-        return InMemoryDatastore.allUsers.values();
+        return database.reloadRoot().getAllUsers().values();
     }
 
     @GetMapping("/groups")
     public Collection<Group> getAllGroups(@RequestHeader("X-FAM-Debug") String debugCode) {
         checkDebugCode(debugCode);
-        return InMemoryDatastore.allGroups.values();
+        return database.reloadRoot().getAllGroups().values();
     }
 
     @GetMapping (value = "/logfiles", produces = MediaType.TEXT_PLAIN_VALUE)
