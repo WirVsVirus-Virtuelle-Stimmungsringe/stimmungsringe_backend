@@ -5,8 +5,10 @@ import de.wirvsvirus.hack.model.User;
 import java.nio.file.Paths;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import org.springframework.context.annotation.Configuration;
 
-public final class Microstream {
+@Configuration
+public class Microstream {
 
   private static final EmbeddedStorageManager STORAGE_MANAGER;
 
