@@ -1,9 +1,13 @@
 package de.wirvsvirus.hack.microstream;
 
+import de.wirvsvirus.hack.spring.MicrostreamConfiguration;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
@@ -13,6 +17,8 @@ import one.microstream.storage.types  .EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class HelloMicro {
+
+  public static final Path STORAGE_PATH = Paths.get("/tmp/familiarise-micro-hello5");
 
   @Data
   static class Sub {
@@ -24,13 +30,14 @@ public class HelloMicro {
     String name;
     List<String> tags;
     Sub sub;
+    Map<String, List<Sub>> subMap;
     Instant timestamp;
   }
 
   public static void main(String[] args) {
     // Initialize a storage manager ("the database") with purely defaults.
-    final EmbeddedStorageManager storageManager = EmbeddedStorage.start(
-        Paths.get("/tmp/familiarise-micro-hello2")
+    final EmbeddedStorageManager storageManager = MicrostreamConfiguration.createStorageManager(
+        STORAGE_PATH
     );
 
     if (storageManager.root() == null) {
@@ -48,12 +55,41 @@ public class HelloMicro {
     System.out.println("root=" + root.getName());
     System.out.println("tags=" + root.getTags());
     System.out.println("timestamp=" + root.getTimestamp());
-//    System.out.println("name=" + root.getSub().getName());
 
-//    root.withTags()
+    if (root.getSubMap() == null) {
+      root.setSubMap(new HashMap<>());
+      storageManager.store(root.getSubMap());
+    }
+    if (!root.getSubMap().containsKey("foo")) {
+      root.getSubMap().put("foo", new ArrayList<>());
+      storageManager.store(root.getSubMap());
+    }
+
+    final Sub time = new Sub();
+    time.setName("xx " + Instant.now().toString());
+    root.getSubMap().get("foo").add(time);
+    storageManager.store(root.getSubMap());
+    storageManager.storeAll(root.getSubMap().values());
 
 
-    storageManager.shutdown();
+    storageManager.close();
+
+    {
+      System.out.println("restart");
+      final EmbeddedStorageManager storageManagerReload = MicrostreamConfiguration.createStorageManager(
+          STORAGE_PATH
+      );
+
+      final Root reloaded = (Root) storageManagerReload.root();
+      reloaded.getSubMap().keySet().forEach(k -> System.out.println("k " + k));
+      reloaded.getSubMap().get("foo").forEach(z -> {
+        System.out.println("- " + z.getName());
+      });
+
+      storageManagerReload.close();
+    }
+
+
   }
 
 }

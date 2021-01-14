@@ -6,7 +6,7 @@ import lombok.ToString;
 import java.util.UUID;
 
 @ToString
-public class Device {
+public class Device implements AggregateRoot {
 
     private UUID userId;
     private DeviceType deviceType;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @ToString
-public class User {
+public class User implements AggregateRoot {
 
     private final UUID userId;
     private final String deviceIdentifier;

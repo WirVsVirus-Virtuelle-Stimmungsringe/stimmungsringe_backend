@@ -30,9 +30,6 @@ import org.springframework.stereotype.Service;
 public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Autowired
-  private StorageManager storageManager;
-
-  @Autowired
   private Database database;
 
   @Override
@@ -53,9 +50,9 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     database.dataRoot().getSentimentByUser().put(newUser.getUserId(), sentiment);
     database.dataRoot().getLastStatusUpdateByUser().put(newUser.getUserId(), lastUpdate);
 
-    storageManager.store(database.dataRoot().getAllUsers());
-    storageManager.store(database.dataRoot().getSentimentByUser());
-    storageManager.store(database.dataRoot().getLastStatusUpdateByUser());
+    database.persist(database.dataRoot().getAllUsers());
+    database.persist(database.dataRoot().getSentimentByUser());
+    database.persist(database.dataRoot().getLastStatusUpdateByUser());
   }
 
   @Override
@@ -75,7 +72,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     user.setName(userSettings.getName());
     user.setStockAvatar(userSettings.getStockAvatar());
 
-    storageManager.store(user);
+    database.persist(user);
   }
 
   @Override
@@ -84,7 +81,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     Preconditions.checkNotNull(group);
     group.setGroupName(groupSettings.getGroupName());
 
-    storageManager.store(group);
+    database.persist(group);
   }
 
   @Override
@@ -96,8 +93,8 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     database.dataRoot().getAllGroups().put(newGroup.getGroupId(), newGroup);
     database.dataRoot().getAllGroupMessages().putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
 
-    storageManager.store(database.dataRoot().getAllGroups());
-    storageManager.store(database.dataRoot().getAllGroupMessages());
+    database.persist(database.dataRoot().getAllGroups());
+    database.persist(database.dataRoot().getAllGroupMessages());
 
     return newGroup;
   }
@@ -107,14 +104,14 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public void joinGroup(final UUID groupId, final UUID userId) {
     database.dataRoot().getGroupByUserId().put(userId, groupId);
 
-    storageManager.store(database.dataRoot().getGroupByUserId());
+    database.persist(database.dataRoot().getGroupByUserId());
   }
 
   @Override
   public void leaveGroup(final UUID groupId, final UUID userId) {
     database.dataRoot().getGroupByUserId().remove(userId);
 
-    storageManager.store(database.dataRoot().getGroupByUserId());
+    database.persist(database.dataRoot().getGroupByUserId());
   }
 
   @Override
@@ -149,7 +146,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public void touchLastStatusUpdate(final UUID userId) {
     database.dataRoot().getLastStatusUpdateByUser().put(userId, Instant.now());
 
-    storageManager.store(database.dataRoot().getLastStatusUpdateByUser());
+    database.persist(database.dataRoot().getLastStatusUpdateByUser());
   }
 
   @Override
@@ -157,7 +154,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     lookupUserById(userId);
     database.dataRoot().getSentimentByUser().put(userId, sentiment);
 
-    storageManager.store(database.dataRoot().getSentimentByUser());
+    database.persist(database.dataRoot().getSentimentByUser());
   }
 
   @Override
@@ -202,9 +199,9 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     message.setText(text);
     database.dataRoot().getAllGroupMessages().get(group1.getGroupId()).add(message);
 
-    storageManager.store(database.dataRoot().getAllGroupMessages().get(group1.getGroupId()));
+    database.persist(database.dataRoot().getAllGroupMessages());
     // TODO try this instead
-//    storageManager.store(database.reloadRoot().getAllGroupMessages());
+//    database.persist(database.reloadRoot().getAllGroupMessages());
   }
 
   @Override
@@ -229,7 +226,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllGroupMessages().put(group.getGroupId(), messagesWithoutOwn);
 
-    storageManager.store(database.dataRoot().getAllGroupMessages());
+    database.persist(database.dataRoot().getAllGroupMessages());
   }
 
   @Override
@@ -241,7 +238,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllDevicesByUser().putIfAbsent(device.getUserId(), new ArrayList<>());
 
-    storageManager.store(database.dataRoot().getAllDevicesByUser());
+    database.persist(database.dataRoot().getAllDevicesByUser());
 
     final List<Device> devices = database.dataRoot().getAllDevicesByUser().get(device.getUserId());
 
@@ -255,7 +252,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
       devices.add(device);
     }
 
-    storageManager.store(existing);
+    database.persist(devices);
   }
 
   @Override

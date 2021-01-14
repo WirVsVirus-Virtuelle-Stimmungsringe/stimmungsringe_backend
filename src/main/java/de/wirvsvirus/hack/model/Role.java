@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Deprecated
 public enum Role {
     ARBEITNEHMER("Arbeitnehmer"),
     ELTERNTEIL("Elternteil"),

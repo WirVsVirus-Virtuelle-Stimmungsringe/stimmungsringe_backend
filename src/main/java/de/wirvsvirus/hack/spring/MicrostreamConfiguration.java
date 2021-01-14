@@ -1,11 +1,14 @@
 package de.wirvsvirus.hack.spring;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.model.AggregateRoot;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
@@ -28,16 +31,20 @@ public class MicrostreamConfiguration {
   @Bean
   public EmbeddedStorageManager storageManager() {
 
+    final EmbeddedStorageManager storageManager = createStorageManager(STORAGE_PATH);
+    return storageManager;
+  }
+
+  public static EmbeddedStorageManager createStorageManager(Path storagePath) {
     // from https://github.com/microstream-one/bookstore-demo/blob/master/src/main/java/one/microstream/demo/bookstore/BookStoreDemo.java
     final one.microstream.storage.configuration.Configuration configuration = one.microstream.storage.configuration.Configuration.Default();
-    configuration.setBaseDirectory(STORAGE_PATH.toString());
+    configuration.setBaseDirectory(storagePath.toString());
     // https://github.com/microstream-one/bookstore-demo/issues/1
 //    configuration.setChannelCount(Integer.highestOneBit(Runtime.getRuntime().availableProcessors() - 1));
 
     final EmbeddedStorageFoundation<?> foundation = configuration.createEmbeddedStorageFoundation();
     foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
     final EmbeddedStorageManager storageManager = foundation.createEmbeddedStorageManager().start();
-
     return storageManager;
   }
 
@@ -65,7 +72,24 @@ public class MicrostreamConfiguration {
       }
 
       @Override
-      public void persist(Object... objects) {
+      public void persist(AggregateRoot aggregateRoots) {
+        storageManager.store(aggregateRoots);
+      }
+
+      @Override
+      public void persist(Collection<? extends AggregateRoot> aggregateRoots) {
+        storageManager.storeAll(aggregateRoots);
+      }
+
+      @Override
+      public void persist(Map<?, ?> map) {
+        Preconditions.checkNotNull(map);
+        storageManager.store(map);
+        storageManager.storeAll(map.values());
+      }
+
+      @Override
+      public void persistAny(Object... objects) {
         storageManager.storeAll(objects);
       }
     };

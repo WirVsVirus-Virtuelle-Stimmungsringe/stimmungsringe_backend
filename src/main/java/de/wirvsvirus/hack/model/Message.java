@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @ToString
-public class Message {
+public class Message implements AggregateRoot {
 
     private UUID groupId;
     private UUID messageId;
