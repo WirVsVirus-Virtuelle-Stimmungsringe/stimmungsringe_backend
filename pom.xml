@@ -20,6 +20,7 @@
 		<inputEncoding>UTF-8</inputEncoding>
 		<outputEncoding>UTF-8</outputEncoding>
 		<argLine>-Dfile.encoding=utf8</argLine>
+		<microstream.version>04.01.00-MS-GA</microstream.version>
 		<lombok.version>1.18.12</lombok.version>
 	</properties>
 
@@ -78,12 +79,17 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.embedded</artifactId>
-			<version>04.01.00-MS-GA</version>
+			<version>${microstream.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.embedded.configuration</artifactId>
-			<version>04.01.00-MS-GA</version>
+			<version>${microstream.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>persistence.binary.jdk8</artifactId>
+			<version>${microstream.version}</version>
 		</dependency>
 
 		<dependency>

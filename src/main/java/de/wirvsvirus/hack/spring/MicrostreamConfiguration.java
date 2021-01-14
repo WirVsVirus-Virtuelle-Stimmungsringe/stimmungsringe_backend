@@ -1,13 +1,14 @@
 package de.wirvsvirus.hack.spring;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
 import one.microstream.storage.types.EmbeddedStorage;
+import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
 import org.slf4j.Logger;
@@ -22,13 +23,21 @@ public class MicrostreamConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamConfiguration.class);
   public static final Path STORAGE_PATH = Paths.get(
-      "/Users/stefanostermayr/Documents/wirvsvirus_hackathon/microstream-familiarise-db/stefan");
+      "/Users/stefanostermayr/Documents/wirvsvirus_hackathon/microstream-familiarise-db/stefan/familiarise-v2");
 
   @Bean
   public EmbeddedStorageManager storageManager() {
-    final EmbeddedStorageManager storageManager = EmbeddedStorage.start(
-        STORAGE_PATH
-    );
+
+    // from https://github.com/microstream-one/bookstore-demo/blob/master/src/main/java/one/microstream/demo/bookstore/BookStoreDemo.java
+    final one.microstream.storage.configuration.Configuration configuration = one.microstream.storage.configuration.Configuration.Default();
+    configuration.setBaseDirectory(STORAGE_PATH.toString());
+    // https://github.com/microstream-one/bookstore-demo/issues/1
+//    configuration.setChannelCount(Integer.highestOneBit(Runtime.getRuntime().availableProcessors() - 1));
+
+    final EmbeddedStorageFoundation<?> foundation = configuration.createEmbeddedStorageFoundation();
+    foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
+    final EmbeddedStorageManager storageManager = foundation.createEmbeddedStorageManager().start();
+
     return storageManager;
   }
 
@@ -52,6 +61,9 @@ public class MicrostreamConfiguration {
     return new Database() {
       @Override
       public DataRoot reloadRoot() {
+        Preconditions.checkState(
+            storageManager.root() == storageManager.root()
+        );
         return (DataRoot) storageManager.root();
       }
 
