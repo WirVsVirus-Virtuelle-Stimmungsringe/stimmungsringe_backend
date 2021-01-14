@@ -1,16 +1,11 @@
 package de.wirvsvirus.hack.spring;
 
-import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.model.AggregateRoot;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
-import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
@@ -65,34 +60,7 @@ public class MicrostreamConfiguration {
 
     dataRoot.dumpToSysout();
 
-    return new Database() {
-      @Override
-      public DataRoot dataRoot() {
-        return (DataRoot) storageManager.root();
-      }
-
-      @Override
-      public void persist(AggregateRoot aggregateRoots) {
-        storageManager.store(aggregateRoots);
-      }
-
-      @Override
-      public void persist(Collection<? extends AggregateRoot> aggregateRoots) {
-        storageManager.storeAll(aggregateRoots);
-      }
-
-      @Override
-      public void persist(Map<?, ?> map) {
-        Preconditions.checkNotNull(map);
-        storageManager.store(map);
-        storageManager.storeAll(map.values());
-      }
-
-      @Override
-      public void persistAny(Object... objects) {
-        storageManager.storeAll(objects);
-      }
-    };
+    return new DatabaseAccessImpl(storageManager);
   }
 
   private void bootstrapDataRoot(final StorageManager storageManager) {

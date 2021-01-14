@@ -52,7 +52,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.persist(database.dataRoot().getAllUsers());
     database.persist(database.dataRoot().getSentimentByUser());
-    database.persist(database.dataRoot().getLastStatusUpdateByUser());
+    database.persistAnyMap(database.dataRoot().getLastStatusUpdateByUser());
   }
 
   @Override
@@ -94,7 +94,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     database.dataRoot().getAllGroupMessages().putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
 
     database.persist(database.dataRoot().getAllGroups());
-    database.persist(database.dataRoot().getAllGroupMessages());
+    database.persistAnyMap(database.dataRoot().getAllGroupMessages());
 
     return newGroup;
   }
@@ -104,14 +104,14 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public void joinGroup(final UUID groupId, final UUID userId) {
     database.dataRoot().getGroupByUserId().put(userId, groupId);
 
-    database.persist(database.dataRoot().getGroupByUserId());
+    database.persistAnyMap(database.dataRoot().getGroupByUserId());
   }
 
   @Override
   public void leaveGroup(final UUID groupId, final UUID userId) {
     database.dataRoot().getGroupByUserId().remove(userId);
 
-    database.persist(database.dataRoot().getGroupByUserId());
+    database.persistAnyMap(database.dataRoot().getGroupByUserId());
   }
 
   @Override
@@ -146,7 +146,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public void touchLastStatusUpdate(final UUID userId) {
     database.dataRoot().getLastStatusUpdateByUser().put(userId, Instant.now());
 
-    database.persist(database.dataRoot().getLastStatusUpdateByUser());
+    database.persistAnyMap(database.dataRoot().getLastStatusUpdateByUser());
   }
 
   @Override
@@ -199,7 +199,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     message.setText(text);
     database.dataRoot().getAllGroupMessages().get(group1.getGroupId()).add(message);
 
-    database.persist(database.dataRoot().getAllGroupMessages());
+    database.persistAnyMap(database.dataRoot().getAllGroupMessages());
     // TODO try this instead
 //    database.persist(database.reloadRoot().getAllGroupMessages());
   }
@@ -226,7 +226,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllGroupMessages().put(group.getGroupId(), messagesWithoutOwn);
 
-    database.persist(database.dataRoot().getAllGroupMessages());
+    database.persistAnyMap(database.dataRoot().getAllGroupMessages());
   }
 
   @Override
@@ -238,7 +238,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllDevicesByUser().putIfAbsent(device.getUserId(), new ArrayList<>());
 
-    database.persist(database.dataRoot().getAllDevicesByUser());
+    database.persistAnyMap(database.dataRoot().getAllDevicesByUser());
 
     final List<Device> devices = database.dataRoot().getAllDevicesByUser().get(device.getUserId());
 

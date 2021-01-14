@@ -1,5 +1,7 @@
 package de.wirvsvirus.hack.microstream;
 
+import de.wirvsvirus.hack.model.AggregateRoot;
+import de.wirvsvirus.hack.spring.DatabaseAccessImpl;
 import de.wirvsvirus.hack.spring.MicrostreamConfiguration;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +23,7 @@ public class HelloMicro {
   public static final Path STORAGE_PATH = Paths.get("/tmp/familiarise-micro-hello5");
 
   @Data
-  static class Sub {
+  static class Sub implements AggregateRoot {
     String name;
   }
 
@@ -47,6 +49,8 @@ public class HelloMicro {
       storageManager.storeRoot();
     }
 
+    final DatabaseAccessImpl database = new DatabaseAccessImpl(storageManager);
+
     Root root = (Root) storageManager.root();
 
 //    root.setTimestamp(Instant.now());
@@ -58,18 +62,26 @@ public class HelloMicro {
 
     if (root.getSubMap() == null) {
       root.setSubMap(new HashMap<>());
-      storageManager.store(root.getSubMap());
+//      storageManager.store(root.getSubMap());
     }
     if (!root.getSubMap().containsKey("foo")) {
       root.getSubMap().put("foo", new ArrayList<>());
-      storageManager.store(root.getSubMap());
+//      storageManager.store(root.getSubMap());
     }
 
     final Sub time = new Sub();
     time.setName("xx " + Instant.now().toString());
     root.getSubMap().get("foo").add(time);
-    storageManager.store(root.getSubMap());
-    storageManager.storeAll(root.getSubMap().values());
+
+    root.getSubMap().get("foo").forEach(e -> {
+      e.setName(e.getName() + "*");
+      database.persist(e);
+    });
+
+//    storageManager.store(root.getSubMap());
+//    storageManager.storeAll(root.getSubMap().values());
+
+    database.persistAnyMap(root.getSubMap());
 
 
     storageManager.close();
