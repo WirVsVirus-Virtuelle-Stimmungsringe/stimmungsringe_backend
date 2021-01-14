@@ -6,8 +6,10 @@ public interface Database {
 
   /**
    * CAUTION: do not reuse the reference returned
+   *
+   * subsequent calls typically return the same instance
    */
-  DataRoot reloadRoot();
+  DataRoot dataRoot();
 
   void persist(Object... objects);
 

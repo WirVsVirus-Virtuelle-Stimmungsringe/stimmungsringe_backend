@@ -2,10 +2,8 @@ package de.wirvsvirus.hack.spring;
 
 import de.wirvsvirus.hack.mock.MockDataProvider;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import javax.annotation.PostConstruct;
-import one.microstream.storage.types.StorageManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,7 @@ public class DatabaseMigration {
 
   @PostConstruct
   public void runMigrations() {
-    final MigrationMetadata migrationMetadata = database.reloadRoot().getMigrationMetadata();
+    final MigrationMetadata migrationMetadata = database.dataRoot().getMigrationMetadata();
     if (!migrationMetadata.isMockDataCreated()) {
 
       LOGGER.info("Persisting mock data...");

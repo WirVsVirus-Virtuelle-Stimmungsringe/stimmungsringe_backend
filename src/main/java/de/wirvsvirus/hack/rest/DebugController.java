@@ -3,7 +3,6 @@ package de.wirvsvirus.hack.rest;
 import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.service.LoggingService;
 import de.wirvsvirus.hack.spring.Database;
 import lombok.extern.slf4j.Slf4j;
@@ -43,13 +42,13 @@ public class DebugController {
             @RequestHeader("X-FAM-Debug") String debugCode
     ) {
         checkDebugCode(debugCode);
-        return database.reloadRoot().getAllUsers().values();
+        return database.dataRoot().getAllUsers().values();
     }
 
     @GetMapping("/groups")
     public Collection<Group> getAllGroups(@RequestHeader("X-FAM-Debug") String debugCode) {
         checkDebugCode(debugCode);
-        return database.reloadRoot().getAllGroups().values();
+        return database.dataRoot().getAllGroups().values();
     }
 
     @GetMapping (value = "/logfiles", produces = MediaType.TEXT_PLAIN_VALUE)

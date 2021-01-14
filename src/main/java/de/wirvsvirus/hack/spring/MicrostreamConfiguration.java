@@ -60,10 +60,7 @@ public class MicrostreamConfiguration {
 
     return new Database() {
       @Override
-      public DataRoot reloadRoot() {
-        Preconditions.checkState(
-            storageManager.root() == storageManager.root()
-        );
+      public DataRoot dataRoot() {
         return (DataRoot) storageManager.root();
       }
 
