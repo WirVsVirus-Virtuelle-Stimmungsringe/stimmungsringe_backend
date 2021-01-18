@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.spring;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.model.AggregateRoot;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import java.util.Collection;
 import java.util.Map;
@@ -21,32 +20,18 @@ public class DatabaseAccessImpl implements Database {
   }
 
   @Override
-  public void persist(AggregateRoot aggregateRoots) {
-    storageManager.store(aggregateRoots);
+  public void persist(Object instance) {
+    storageManager.store(instance);
   }
 
   @Override
-  public void persist(Collection<? extends AggregateRoot> aggregateRoots) {
-    storageManager.storeAll(aggregateRoots);
+  public void persist(Iterable<?> instances) {
+    storageManager.storeAll(instances);
   }
 
   @Override
-  public void persist(Map<?, ? extends AggregateRoot> map) {
-    Preconditions.checkNotNull(map);
-    storageManager.store(map);
-    storageManager.storeAll(map.values());
+  public void persist(Object... instances) {
+    storageManager.storeAll(instances);
   }
 
-  @Override
-  public void persistAny(Object... objects) {
-    storageManager.storeAll(objects);
-  }
-
-  // TODO remove
-  @Override
-  public void persistAnyMap(Map<?, ?> anyMap) {
-    Preconditions.checkNotNull(anyMap);
-    storageManager.store(anyMap);
-    storageManager.store(anyMap.values()); // note: may fail if elements are collections/maps/etc.
-  }
 }

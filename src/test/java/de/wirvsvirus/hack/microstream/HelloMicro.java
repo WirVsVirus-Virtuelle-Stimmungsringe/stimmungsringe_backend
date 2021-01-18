@@ -1,6 +1,5 @@
 package de.wirvsvirus.hack.microstream;
 
-import de.wirvsvirus.hack.model.AggregateRoot;
 import de.wirvsvirus.hack.spring.DatabaseAccessImpl;
 import de.wirvsvirus.hack.spring.MicrostreamConfiguration;
 import java.nio.file.Path;
@@ -10,12 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.Builder;
 import lombok.Data;
-import lombok.Value;
-import lombok.With;
-import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
-import one.microstream.storage.types  .EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class HelloMicro {
@@ -23,7 +17,7 @@ public class HelloMicro {
   public static final Path STORAGE_PATH = Paths.get("/tmp/familiarise-micro-hello5");
 
   @Data
-  static class Sub implements AggregateRoot {
+  static class Sub {
     String name;
   }
 
@@ -81,7 +75,7 @@ public class HelloMicro {
 //    storageManager.store(root.getSubMap());
 //    storageManager.storeAll(root.getSubMap().values());
 
-    database.persistAnyMap(root.getSubMap());
+    database.persist(root.getSubMap());
 
 
     storageManager.close();

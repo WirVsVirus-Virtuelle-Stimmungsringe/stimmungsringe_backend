@@ -6,7 +6,7 @@ import lombok.ToString;
 import java.util.UUID;
 
 @ToString
-public class Group implements AggregateRoot {
+public class Group {
 
     private final UUID groupId;
     private String groupName;
