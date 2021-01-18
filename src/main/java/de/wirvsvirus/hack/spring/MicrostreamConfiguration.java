@@ -11,6 +11,7 @@ import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -20,13 +21,14 @@ import org.springframework.context.annotation.Profile;
 public class MicrostreamConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamConfiguration.class);
-  public static final Path STORAGE_PATH = Paths.get(
-      "/Users/stefanostermayr/Documents/wirvsvirus_hackathon/microstream-familiarise-db/stefan/familiarise-v2");
+
+  @Value("${backend.microstream.storage-path}")
+  private Path storagePath;
 
   @Bean
   public EmbeddedStorageManager storageManager() {
 
-    final EmbeddedStorageManager storageManager = createStorageManager(STORAGE_PATH);
+    final EmbeddedStorageManager storageManager = createStorageManager(storagePath);
     return storageManager;
   }
 

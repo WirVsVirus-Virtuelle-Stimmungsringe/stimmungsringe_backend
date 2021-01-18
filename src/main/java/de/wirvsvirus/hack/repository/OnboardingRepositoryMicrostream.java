@@ -119,7 +119,6 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     return
         EntryStream.of(database.dataRoot().getGroupByUserId())
             .filterValues(gid -> gid.equals(groupId))
-            .filterKeys(database.dataRoot().getAllDevicesByUser()::containsKey)
             .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
             .keys()
             .map(database.dataRoot().getAllUsers()::get)
