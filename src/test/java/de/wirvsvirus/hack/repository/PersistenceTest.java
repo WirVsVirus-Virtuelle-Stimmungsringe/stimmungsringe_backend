@@ -4,7 +4,6 @@ import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.service.dto.DeviceType;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
@@ -12,19 +11,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import jdk.nashorn.internal.ir.ObjectNode;
-import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.AssertionErrors;
 
 @SpringBootTest(properties = {"backend.microstream.storage-path=test-micro/"})
 @ActiveProfiles("microstream")
 public class PersistenceTest {
-
 
   @Autowired
   private OnboardingRepository onboardingRepository;
@@ -36,7 +31,7 @@ public class PersistenceTest {
   private String groupCode = "groupCode-" + new Random().nextLong();
 
   @Test
-  void name() {
+  void addUsersJoinGroup() {
     final User newUser1;
     {
       newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
@@ -69,17 +64,63 @@ public class PersistenceTest {
     final List<User> others = onboardingRepository
         .findOtherUsersInGroup(group.getGroupId(), newUser1.getUserId());
 
-    final DataRoot dataRoot = database.dataRoot();
-
-    System.out.println("data");
-    AssertionErrors.assertEquals("must be in group", 1, others.size());
-    AssertionErrors.assertEquals("must be in group", "Flack", others.get(0).getName());
-
-    System.out.println("others: ");
-    others.forEach(ou -> {
-      System.out.println("- " + ou);
-    });
-
+    Assertions.assertEquals(1, others.size());
+    Assertions.assertEquals("Flack", others.get(0).getName());
 
   }
+
+  @Test
+  void updateStatus() throws Exception {
+    final User newUser1;
+    {
+      newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
+      newUser1.setRoles(Collections.emptyList());
+      newUser1.setName("Flick");
+      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds, Instant.now());
+    }
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+
+    onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
+
+    final Instant update1 = onboardingRepository
+        .findLastStatusUpdateByUserId(newUser1.getUserId());
+
+    Thread.sleep(1);
+
+    onboardingRepository.updateStatus(newUser1.getUserId(), Sentiment.cloudy);
+    onboardingRepository.touchLastStatusUpdate(newUser1.getUserId());
+
+    final Instant update2 = onboardingRepository
+        .findLastStatusUpdateByUserId(newUser1.getUserId());
+
+    Assertions.assertEquals(Sentiment.cloudy,
+        onboardingRepository.findSentimentByUserId(newUser1.getUserId()));
+
+    Assertions.assertTrue(update2.isAfter(update1));
+  }
+
+  @Test
+  void addDevice() {
+    final User newUser1;
+    {
+      newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
+      newUser1.setRoles(Collections.emptyList());
+      newUser1.setName("Flick");
+      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds, Instant.now());
+    }
+
+    final Device device = new Device();
+    device.setUserId(newUser1.getUserId());
+    device.setDeviceIdentifier(deviceIdentifier);
+    device.setDeviceType(DeviceType.ANDROID);
+    device.setFcmToken("fcm1212121212");
+    onboardingRepository.addDevice(device);
+
+    Assertions.assertEquals(1, onboardingRepository
+        .findDevicesByUserId(newUser1.getUserId()).size());
+    Assertions.assertEquals(true, onboardingRepository
+        .findByDeviceIdentifier(deviceIdentifier).isPresent());
+
+  }
+
 }
