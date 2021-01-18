@@ -13,8 +13,14 @@ Spring Boot Profile-Konstellationen: dynamodb-localdev, dynamodb
 
 `aws dynamodb list-tables --endpoint-url http://localhost:8000`
 
+### Microstream
+Der Storage-Pfad muss extern als Property gesetzt werden:
+
+`java .... backend.jar --backend.microstream.storage-path=/tmp/microstream-database/`
+
 ### Spring Boot Profiles
-local dev with push: dynamodb-localdev, dynamodb, firebase-push-secrets
+local dev with dynamidb push: dynamodb-localdev, dynamodb, firebase-push-secrets
+local dev with microstream and push: microstream, firebase-push-secrets
 
 
 ### Sonstiges
