@@ -21,10 +21,6 @@ public class DataRoot {
 
   private MigrationMetadata migrationMetadata;
 
-  public DataRoot() {
-    throw new IllegalStateException("never called");
-  }
-
   /**
    * groupId -> list message
    */
