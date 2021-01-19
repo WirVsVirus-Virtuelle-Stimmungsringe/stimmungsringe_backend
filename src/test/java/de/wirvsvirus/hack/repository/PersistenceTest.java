@@ -1,5 +1,8 @@
 package de.wirvsvirus.hack.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
@@ -58,14 +61,24 @@ public class PersistenceTest {
 
     final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
 
+
+    assertEquals("Testgrp", onboardingRepository.findGroupByCode(groupCode)
+        .get().getGroupName());
+    assertFalse(onboardingRepository.findGroupByCode("NoGroup")
+        .isPresent());
+
     onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
     onboardingRepository.joinGroup(group.getGroupId(), newUser2.getUserId());
 
     final List<User> others = onboardingRepository
         .findOtherUsersInGroup(group.getGroupId(), newUser1.getUserId());
 
-    Assertions.assertEquals(1, others.size());
-    Assertions.assertEquals("Flack", others.get(0).getName());
+    assertEquals(1, others.size());
+    assertEquals("Flack", others.get(0).getName());
+
+    onboardingRepository.leaveGroup(group.getGroupId(), newUser2.getUserId());
+
+    assertFalse(onboardingRepository.findGroupByUser(newUser2.getUserId()).isPresent());
 
   }
 
@@ -93,7 +106,7 @@ public class PersistenceTest {
     final Instant update2 = onboardingRepository
         .findLastStatusUpdateByUserId(newUser1.getUserId());
 
-    Assertions.assertEquals(Sentiment.cloudy,
+    assertEquals(Sentiment.cloudy,
         onboardingRepository.findSentimentByUserId(newUser1.getUserId()));
 
     Assertions.assertTrue(update2.isAfter(update1));
@@ -117,9 +130,9 @@ public class PersistenceTest {
       device1.setFcmToken("fcm1212121212");
       onboardingRepository.addDevice(device1);
 
-      Assertions.assertEquals(1, onboardingRepository
+      assertEquals(1, onboardingRepository
           .findDevicesByUserId(newUser1.getUserId()).size());
-      Assertions.assertEquals(true, onboardingRepository
+      assertEquals(true, onboardingRepository
           .findByDeviceIdentifier(deviceIdentifier).isPresent());
     }
 
@@ -133,9 +146,9 @@ public class PersistenceTest {
       onboardingRepository.addDevice(device2);
 
       // THEN should be ignored
-      Assertions.assertEquals(1, onboardingRepository
+      assertEquals(1, onboardingRepository
           .findDevicesByUserId(newUser1.getUserId()).size());
-      Assertions.assertEquals(true, onboardingRepository
+      assertEquals(true, onboardingRepository
           .findByDeviceIdentifier(deviceIdentifier).isPresent());
     }
 
@@ -149,11 +162,48 @@ public class PersistenceTest {
       onboardingRepository.addDevice(device2);
 
       // THEN should be ignored
-      Assertions.assertEquals(2, onboardingRepository
+      assertEquals(2, onboardingRepository
           .findDevicesByUserId(newUser1.getUserId()).size());
-      Assertions.assertEquals(true, onboardingRepository
+      assertEquals(true, onboardingRepository
           .findByDeviceIdentifier(deviceIdentifier).isPresent());
     }
+  }
+
+  @Test
+  void sendMessages() {
+    final User alice;
+    {
+      alice = new User(UUID.randomUUID(), deviceIdentifier);
+      alice.setRoles(Collections.emptyList());
+      alice.setName("Alice");
+      onboardingRepository.createNewUser(alice, Sentiment.sunnyWithClouds, Instant.now());
+    }
+    final User bob;
+    {
+      bob = new User(UUID.randomUUID(), deviceIdentifier);
+      bob.setRoles(Collections.emptyList());
+      bob.setName("Bob");
+      onboardingRepository.createNewUser(bob, Sentiment.sunnyWithClouds, Instant.now());
+    }
+
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+
+    onboardingRepository.joinGroup(group.getGroupId(), alice.getUserId());
+    onboardingRepository.joinGroup(group.getGroupId(), bob.getUserId());
+
+    // WHEN
+    onboardingRepository.sendMessage(alice, bob, "Hi Bob");
+    onboardingRepository.sendMessage(alice, bob, "Hi Bob, again");
+
+    // THEN
+    assertEquals(2, onboardingRepository.findMessagesByRecipientId(bob.getUserId()).size());
+
+    // WHEN
+    onboardingRepository.clearMessagesByRecipientId(bob.getUserId());
+
+    // THEN
+    assertEquals(0, onboardingRepository.findMessagesByRecipientId(bob.getUserId()).size());
+
   }
 
 }
