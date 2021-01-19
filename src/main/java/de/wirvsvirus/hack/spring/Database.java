@@ -15,8 +15,10 @@ public interface Database {
 
   void persist(Object instance);
 
-  void persist(Iterable<?> instances);
+  // atm no usecase for convenience methods from https://manual.docs.microstream.one/data-store/storing-data/convenience-methods-and-explicit-storing-transactions
 
-  void persist(Object... instances);
+//  void persist(Iterable<?> instances);
+
+//  void persist(Object... instances);
 
 }
