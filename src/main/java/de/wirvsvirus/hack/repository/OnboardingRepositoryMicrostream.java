@@ -243,16 +243,15 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     final List<Device> devices = database.dataRoot().getAllDevicesByUser().get(device.getUserId());
 
-    final Optional<Device> existing = devices.stream()
-        .collect(MoreCollectors.onlyOne(
-            de -> de.getUserId().equals(device.getUserId())
-                && de.getDeviceIdentifier().equals(device.getDeviceIdentifier())));
-
-    if (!existing.isPresent()
-        || !existing.get().getFcmToken().equals(device.getFcmToken())) {
-      devices.add(device);
+    if (devices.stream().anyMatch(
+        d2 -> d2.getDeviceIdentifier().equals(device.getDeviceIdentifier())
+        && d2.getFcmToken().equals(device.getFcmToken())
+    )) {
+      // duplicate
+      return;
     }
 
+    devices.add(device);
     database.persist(database.dataRoot().getAllDevicesByUser());
     database.persist(devices);
   }

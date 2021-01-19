@@ -109,18 +109,51 @@ public class PersistenceTest {
       onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds, Instant.now());
     }
 
-    final Device device = new Device();
-    device.setUserId(newUser1.getUserId());
-    device.setDeviceIdentifier(deviceIdentifier);
-    device.setDeviceType(DeviceType.ANDROID);
-    device.setFcmToken("fcm1212121212");
-    onboardingRepository.addDevice(device);
+    {
+      final Device device1 = new Device();
+      device1.setUserId(newUser1.getUserId());
+      device1.setDeviceIdentifier(deviceIdentifier);
+      device1.setDeviceType(DeviceType.ANDROID);
+      device1.setFcmToken("fcm1212121212");
+      onboardingRepository.addDevice(device1);
 
-    Assertions.assertEquals(1, onboardingRepository
-        .findDevicesByUserId(newUser1.getUserId()).size());
-    Assertions.assertEquals(true, onboardingRepository
-        .findByDeviceIdentifier(deviceIdentifier).isPresent());
+      Assertions.assertEquals(1, onboardingRepository
+          .findDevicesByUserId(newUser1.getUserId()).size());
+      Assertions.assertEquals(true, onboardingRepository
+          .findByDeviceIdentifier(deviceIdentifier).isPresent());
+    }
 
+    {
+      // WHEN adding same device with same FCM token -> skip
+      final Device device2 = new Device();
+      device2.setUserId(newUser1.getUserId());
+      device2.setDeviceIdentifier(deviceIdentifier);
+      device2.setDeviceType(DeviceType.ANDROID);
+      device2.setFcmToken("fcm1212121212");
+      onboardingRepository.addDevice(device2);
+
+      // THEN should be ignored
+      Assertions.assertEquals(1, onboardingRepository
+          .findDevicesByUserId(newUser1.getUserId()).size());
+      Assertions.assertEquals(true, onboardingRepository
+          .findByDeviceIdentifier(deviceIdentifier).isPresent());
+    }
+
+    {
+      // WHEN adding same device with different FCM token -> add
+      final Device device2 = new Device();
+      device2.setUserId(newUser1.getUserId());
+      device2.setDeviceIdentifier(deviceIdentifier);
+      device2.setDeviceType(DeviceType.ANDROID);
+      device2.setFcmToken("fcm3333333");
+      onboardingRepository.addDevice(device2);
+
+      // THEN should be ignored
+      Assertions.assertEquals(2, onboardingRepository
+          .findDevicesByUserId(newUser1.getUserId()).size());
+      Assertions.assertEquals(true, onboardingRepository
+          .findByDeviceIdentifier(deviceIdentifier).isPresent());
+    }
   }
 
 }
