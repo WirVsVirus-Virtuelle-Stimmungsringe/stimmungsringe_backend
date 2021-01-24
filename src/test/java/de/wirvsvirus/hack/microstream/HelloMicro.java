@@ -10,91 +10,65 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
+import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
+import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
+import one.microstream.storage.types.EmbeddedStorage;
+import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class HelloMicro {
 
-  public static final Path STORAGE_PATH = Paths.get("/tmp/familiarise-micro-hello5");
-
-  @Data
-  static class Sub {
-    String name;
-  }
+  public static final Path STORAGE_PATH = Paths.get("/tmp/familiarise-micro-hello7");
 
   @Data
   static class Root {
-    String name;
-    List<String> tags;
-    Sub sub;
-    Map<String, List<Sub>> subMap;
-    Instant timestamp;
+    String blabla;
+    String name2;
   }
 
   public static void main(String[] args) {
     // Initialize a storage manager ("the database") with purely defaults.
-    final EmbeddedStorageManager storageManager = MicrostreamConfiguration.createStorageManager(
-        STORAGE_PATH
-    );
+    final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation(STORAGE_PATH);
+    foundation.getConnectionFoundation().setLegacyTypeMappingResultor(
+        PrintingLegacyTypeMappingResultor.New(
+            InquiringLegacyTypeMappingResultor.New(
+                PersistenceLegacyTypeMappingResultor.New(),
+                0.2f
+            )
+        )
+        );
+    final EmbeddedStorageManager storageManager = foundation.createEmbeddedStorageManager().start();
 
     if (storageManager.root() == null) {
       final Root root = new Root();
-      root.setTags(new ArrayList<>());
       storageManager.setRoot(root);
       storageManager.storeRoot();
     }
 
-    final DatabaseAccessImpl database = new DatabaseAccessImpl(storageManager);
+    // https://manual.docs.microstream.one/data-store/legacy-type-mapping
 
-    Root root = (Root) storageManager.root();
+    final Root dataRoot = (Root) storageManager.root();
 
-//    root.setTimestamp(Instant.now());
+    System.out.println("current value1: " + dataRoot.getBlabla());
+    System.out.println("current value2: " + dataRoot.getName2());
+
+//    dataRoot.setName1("hello world");
 //    storageManager.storeRoot();
-
-    System.out.println("root=" + root.getName());
-    System.out.println("tags=" + root.getTags());
-    System.out.println("timestamp=" + root.getTimestamp());
-
-    if (root.getSubMap() == null) {
-      root.setSubMap(new HashMap<>());
-//      storageManager.store(root.getSubMap());
-    }
-    if (!root.getSubMap().containsKey("foo")) {
-      root.getSubMap().put("foo", new ArrayList<>());
-//      storageManager.store(root.getSubMap());
-    }
-
-    final Sub time = new Sub();
-    time.setName("xx " + Instant.now().toString());
-    root.getSubMap().get("foo").add(time);
-
-    root.getSubMap().get("foo").forEach(e -> {
-      e.setName(e.getName() + "*");
-      database.persist(e);
-    });
-
-//    storageManager.store(root.getSubMap());
-//    storageManager.storeAll(root.getSubMap().values());
-
-    database.persist(root.getSubMap());
 
 
     storageManager.close();
 
-    {
-      System.out.println("restart");
-      final EmbeddedStorageManager storageManagerReload = MicrostreamConfiguration.createStorageManager(
-          STORAGE_PATH
-      );
-
-      final Root reloaded = (Root) storageManagerReload.root();
-      reloaded.getSubMap().keySet().forEach(k -> System.out.println("k " + k));
-      reloaded.getSubMap().get("foo").forEach(z -> {
-        System.out.println("- " + z.getName());
-      });
-
-      storageManagerReload.close();
-    }
-
+//    {
+//      System.out.println("restart");
+//      final EmbeddedStorageManager storageManagerReload = MicrostreamConfiguration.createStorageManager(
+//          STORAGE_PATH
+//      );
+//
+//      final Root reloaded = (Root) storageManagerReload.root();
+//
+//      storageManagerReload.close();
+//    }
 
   }
 
