@@ -7,4 +7,6 @@ public class MigrationMetadata {
 
   boolean mockDataCreated;
 
+  boolean userStatusMapInitialized;
+
 }

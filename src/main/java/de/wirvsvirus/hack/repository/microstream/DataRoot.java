@@ -5,6 +5,7 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.model.UserStatus;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ public class DataRoot {
   private Map<UUID, UUID> groupByUserId;
   private Map<UUID, Sentiment> sentimentByUser;
   private Map<UUID, Instant> lastStatusUpdateByUser;
+  private Map<UUID, UserStatus> statusByUser;
 
   private MigrationMetadata migrationMetadata;
 
@@ -56,22 +58,13 @@ public class DataRoot {
     this.groupByUserId = groupByUserId;
   }
 
-  public Map<UUID, Sentiment> getSentimentByUser() {
-    return sentimentByUser;
+  public Map<UUID, UserStatus> getStatusByUser() {
+    return statusByUser;
   }
 
-  public void setSentimentByUser(
-      Map<UUID, Sentiment> sentimentByUser) {
-    this.sentimentByUser = sentimentByUser;
-  }
-
-  public Map<UUID, Instant> getLastStatusUpdateByUser() {
-    return lastStatusUpdateByUser;
-  }
-
-  public void setLastStatusUpdateByUser(
-      Map<UUID, Instant> lastStatusUpdateByUser) {
-    this.lastStatusUpdateByUser = lastStatusUpdateByUser;
+  public void setStatusByUser(
+      Map<UUID, UserStatus> statusByUser) {
+    this.statusByUser = statusByUser;
   }
 
   public Map<UUID, List<Message>> getAllGroupMessages() {

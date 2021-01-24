@@ -73,8 +73,7 @@ public class MicrostreamConfiguration {
     newDataRoot.setAllUsers(new HashMap<>());
     newDataRoot.setAllGroups(new HashMap<>());
     newDataRoot.setGroupByUserId(new HashMap<>());
-    newDataRoot.setSentimentByUser(new HashMap<>());
-    newDataRoot.setLastStatusUpdateByUser(new HashMap<>());
+    newDataRoot.setStatusByUser(new HashMap<>());
     newDataRoot.setAllDevicesByUser(new HashMap<>());
     newDataRoot.setAllGroupMessages(new HashMap<>());
 

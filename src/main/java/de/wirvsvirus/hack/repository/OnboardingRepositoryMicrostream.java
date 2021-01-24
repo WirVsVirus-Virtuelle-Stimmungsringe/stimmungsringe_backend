@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.spring.Database;
@@ -47,12 +48,13 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     Preconditions.checkNotNull(sentiment);
     Preconditions.checkState(!database.dataRoot().getAllUsers().containsKey(newUser.getUserId()));
     database.dataRoot().getAllUsers().put(newUser.getUserId(), newUser);
-    database.dataRoot().getSentimentByUser().put(newUser.getUserId(), sentiment);
-    database.dataRoot().getLastStatusUpdateByUser().put(newUser.getUserId(), lastUpdate);
+    final UserStatus userStatus = new UserStatus();
+    userStatus.setSentiment(sentiment);
+    userStatus.setLastStatusUpdate(lastUpdate);
+
+    database.dataRoot().getStatusByUser().put(newUser.getUserId(), userStatus);
 
     database.persist(database.dataRoot().getAllUsers());
-    database.persist(database.dataRoot().getSentimentByUser());
-    database.persist(database.dataRoot().getLastStatusUpdateByUser());
   }
 
   @Override
@@ -127,7 +129,8 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public Sentiment findSentimentByUserId(final UUID userId) {
-    final Sentiment sentiment = database.dataRoot().getSentimentByUser().get(userId);
+    final Sentiment sentiment = database.dataRoot().getStatusByUser()
+        .get(userId).getSentiment();
     Preconditions.checkNotNull(
         sentiment, "Lookup error on sentiment lookup for user %s", userId);
     return sentiment;
@@ -135,25 +138,30 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public Instant findLastStatusUpdateByUserId(final UUID userId) {
-    final Instant lastStatusUpdate = database.dataRoot().getLastStatusUpdateByUser().get(userId);
+    final Instant lastStatusUpdate = database.dataRoot().getStatusByUser()
+        .get(userId).getLastStatusUpdate();
     Preconditions.checkNotNull(
-        lastStatusUpdate, "Lookup error on last status update timestamp lookup for user %s", userId);
+        lastStatusUpdate,
+        "Lookup error on last status update timestamp lookup for user %s", userId);
     return lastStatusUpdate;
   }
 
   @Override
   public void touchLastStatusUpdate(final UUID userId) {
-    database.dataRoot().getLastStatusUpdateByUser().put(userId, Instant.now());
+    final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
+    userStatus.setLastStatusUpdate(Instant.now());
 
-    database.persist(database.dataRoot().getLastStatusUpdateByUser());
+    database.persist(userStatus);
   }
 
   @Override
   public void updateStatus(final UUID userId, final Sentiment sentiment) {
     lookupUserById(userId);
-    database.dataRoot().getSentimentByUser().put(userId, sentiment);
 
-    database.persist(database.dataRoot().getSentimentByUser());
+    final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
+    userStatus.setSentiment(sentiment);
+
+    database.persist(userStatus);
   }
 
   @Override
