@@ -39,7 +39,7 @@ jobs:
         echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_deploy
         chmod 600 ~/.ssh/id_rsa_deploy
-        touch target/wirvsvirus-backend.trigger
+        date > target/wirvsvirus-backend.trigger
         sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<END
         put target/wirvsvirus-backend.jar
         put target/wirvsvirus-backend.trigger
