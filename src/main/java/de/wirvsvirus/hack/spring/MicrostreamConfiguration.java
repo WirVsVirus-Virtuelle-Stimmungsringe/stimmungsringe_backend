@@ -1,7 +1,9 @@
 package de.wirvsvirus.hack.spring;
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -22,13 +24,34 @@ public class MicrostreamConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamConfiguration.class);
 
+  private static final Path STORAGE_ROOT_MARKER_FILE = Paths.get(".microstream-root");
+
+  /**
+   * point to storage root directory
+   * must contain marker file ".microstream-root"
+   *
+   * structure below: wirvsvirus-vNNN
+   */
   @Value("${backend.microstream.storage-path}")
   private Path storagePath;
+
+  @Value("${backend.microstream.storage-version}")
+  private int storageCurrentVersion;
 
   @Bean
   public EmbeddedStorageManager storageManager() {
 
-    final EmbeddedStorageManager storageManager = createStorageManager(storagePath);
+    Preconditions.checkState(
+        Files.isRegularFile(storagePath.resolve(STORAGE_ROOT_MARKER_FILE)),
+        "Microstream storage path <%s> must contain marker file <%s>",
+        storagePath, STORAGE_ROOT_MARKER_FILE);
+
+    final Path fullPath = storagePath.resolve(Paths.get(
+        "wirvsvirus-v" + storageCurrentVersion));
+
+    LOGGER.info("Using storage path {}", fullPath);
+
+    final EmbeddedStorageManager storageManager = createStorageManager(fullPath);
     return storageManager;
   }
 
