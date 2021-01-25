@@ -6,9 +6,9 @@ name: Build Backend and deploy to Prod Server
 on:
   workflow_dispatch:
   push:
-    branches: [ ci/release-new ]
+    branches: [ ci/release ]
   pull_request:
-    branches: [ ci/release-new ]
+    branches: [ ci/release ]
 
 jobs:
   build:
