@@ -7,8 +7,6 @@ on:
   workflow_dispatch:
   push:
     branches: [ ci/release ]
-  pull_request:
-    branches: [ ci/release ]
 
 jobs:
   build:
@@ -37,11 +35,11 @@ jobs:
       run: |
         mkdir ~/.ssh && chmod 700 ~/.ssh
         echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_deploy
-        chmod 600 ~/.ssh/id_rsa_deploy
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ecdsa_deploy
+        chmod 600 ~/.ssh/id_ecdsa_deploy
         date > target/wirvsvirus-backend.trigger
-        sftp -i ~/.ssh/id_rsa_deploy $SSH_USER@$SSH_HOST: <<END
+        sftp -i ~/.ssh/id_ecdsa_deploy $SSH_USER@$SSH_HOST: <<END
         put target/wirvsvirus-backend.jar
         put target/wirvsvirus-backend.trigger
         END
-        rm ~/.ssh/id_rsa_deploy
+        rm ~/.ssh/id_ecdsa_deploy
