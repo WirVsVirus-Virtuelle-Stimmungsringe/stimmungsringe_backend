@@ -94,7 +94,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-                    			<finalName>wirvsvirus-backend</finalName>
+                    			<finalName>familiarise-backend</finalName>
                 		</configuration>
 			</plugin>
 			<plugin>
