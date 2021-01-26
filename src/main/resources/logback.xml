@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+
+    <property name="LOG_FILE" value="${java.io.tmpdir}/stimmungsringe-backend.log"/>
+
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <logger name="org.springframework.web" level="WARN" />
 
     <logger name="de.wirvsvirus.hack" level="DEBUG" />
+    <logger name="de.wirvsvirus.hack.spring.UserInterceptor" level="WARN" />
+    <logger name="de.wirvsvirus.hack.spring.RestEndpointTimingsStatsFilter" level="WARN" />
 
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>

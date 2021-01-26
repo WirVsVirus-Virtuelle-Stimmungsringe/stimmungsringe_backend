@@ -1,25 +1,34 @@
 package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
 
+@ToString
 public class User {
 
-    final private UUID id;
-
+    private final UUID userId;
+    private final String deviceIdentifier;
     private String name;
-
     private List<Role> roles;
+    private StockAvatar stockAvatar;
 
-    public User(UUID userId) {
+    public User(UUID userId, String deviceIdentifier) {
         Preconditions.checkNotNull(userId);
-        this.id = userId;
+        Preconditions.checkNotNull(deviceIdentifier);
+        this.userId = userId;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     public String getName() {
@@ -30,6 +39,11 @@ public class User {
         this.name = name;
     }
 
+    public boolean hasName() {
+        return !Strings.isNullOrEmpty(name);
+    }
+
+    @Deprecated
     public List<Role> getRoles() {
         return roles;
     }
@@ -37,4 +51,16 @@ public class User {
     public void setRoles(final List<Role> roles) {
         this.roles = roles;
     }
+
+    /**
+     * nullable
+     */
+    public StockAvatar getStockAvatar() {
+        return stockAvatar;
+    }
+
+    public void setStockAvatar(StockAvatar stockAvatar) {
+        this.stockAvatar = stockAvatar;
+    }
+
 }

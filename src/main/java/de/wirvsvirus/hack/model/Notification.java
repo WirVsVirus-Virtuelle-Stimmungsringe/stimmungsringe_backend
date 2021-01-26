@@ -7,8 +7,8 @@ import lombok.Data;
 @Builder
 public class Notification {
 
-    private String title;
-    private String body;
-    private String icon;
+    String title;
+    String body;
+//    private String icon;
 
 }

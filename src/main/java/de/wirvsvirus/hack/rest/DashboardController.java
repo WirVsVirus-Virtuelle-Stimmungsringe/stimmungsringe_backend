@@ -1,11 +1,15 @@
 package de.wirvsvirus.hack.rest;
 
-import com.google.common.collect.Lists;
-import de.wirvsvirus.hack.model.SentimentVO;
+import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.model.UserRepository;
-import de.wirvsvirus.hack.rest.dto.*;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.rest.dto.DashboardResponse;
+import de.wirvsvirus.hack.rest.dto.GroupDataResponse;
+import de.wirvsvirus.hack.rest.dto.MyTileResponse;
+import de.wirvsvirus.hack.rest.dto.OtherTileResponse;
+import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
+import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +17,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -22,47 +29,74 @@ import java.util.List;
 public class DashboardController {
 
     @Autowired
-    private UserRepository userRepository;
+    private OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private OnboardingService onboardingService;
+
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
 
     @GetMapping
     public DashboardResponse dashboardView() {
-        final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        DashboardResponse response = new DashboardResponse();
+        final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
 
-        {
-            final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
+        return DashboardResponse.builder()
+                .myTile(buildMyTileResponse(currentUser))
+                .otherTiles(buildOtherTileResponseList(currentUser, group))
+                .groupData(buildGroupData(group))
+                .build();
+    }
 
-            final SentimentStatusResponse sentiment = new SentimentStatusResponse();
-            sentiment.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(currentUser.getId())));
+    private MyTileResponse buildMyTileResponse(final User currentUser) {
+        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
 
-            MyTileResponse myTileResponse = new MyTileResponse();
-            myTileResponse.setUser(me);
-            myTileResponse.setSentimentStatus(sentiment);
+        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+        final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(currentUser.getUserId());
 
-            response.setMyTile(myTileResponse);
+        return MyTileResponse.builder()
+                .user(me)
+                .sentiment(sentiment)
+                .lastStatusUpdate(lastStatusUpdate)
+                .build();
+    }
+
+    private List<OtherTileResponse> buildOtherTileResponseList(final User currentUser, final Optional<Group> group) {
+        final List<User> otherUsersInGroup;
+        if (group.isPresent()) {
+            otherUsersInGroup = onboardingService.listOtherUsersForDashboard(currentUser, group.get().getGroupId());
+        } else {
+            otherUsersInGroup = Collections.emptyList();
         }
-
-        final List<User> otherUsersInGroup = userRepository.findOtherUsersInGroup(currentUser.getId());
 
         final List<OtherTileResponse> otherTiles = new ArrayList<>();
         for (final User otherUser : otherUsersInGroup) {
-            final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser);
+            final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser, avatarUrlResolver::getUserAvatarUrl);
 
-            final SentimentStatusResponse sentiment = new SentimentStatusResponse();
+            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
+            final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(otherUser.getUserId());
 
-            sentiment.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(otherUser.getId())));
-
-            OtherTileResponse tileResponse = new OtherTileResponse();
-            tileResponse.setUser(other);
-            tileResponse.setSentimentStatus(sentiment);
-
-            otherTiles.add(tileResponse);
+            otherTiles.add(
+                    OtherTileResponse.builder()
+                            .user(other)
+                            .sentiment(sentiment)
+                            .lastStatusUpdate(lastStatusUpdate)
+                            .build()
+            );
         }
+        return otherTiles;
+    }
 
-        response.setOtherTiles(otherTiles);
-
-        return response;
+    private GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
+        return groupOptional.map(group ->
+                GroupDataResponse.builder()
+                        .groupId(group.getGroupId())
+                        .groupName(group.getGroupName())
+                        .groupCode(group.getGroupCode())
+                        .build()
+        ).orElse(null);
     }
 
 

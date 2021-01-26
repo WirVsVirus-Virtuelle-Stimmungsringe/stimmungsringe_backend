@@ -39,7 +39,7 @@ public class RoleInfoImporterServiceImpl implements RoleBasedTextSuggestionsServ
 
     @PostConstruct
     private void initialize() throws IOException {
-        log.info("Relsole Role data from CSV...");
+        log.info("Resolve Role data from CSV...");
         final List<RoleSuggestionTextsRow> roleData = importData(RoleBasedTextSuggestionsService.class.getResourceAsStream(DATA_FILE));
         this.roleRoleDataMap = roleData.parallelStream().collect(groupingBy(RoleSuggestionTextsRow::getRole));
     }

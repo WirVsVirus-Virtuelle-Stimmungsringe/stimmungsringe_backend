@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4e1a1e86-6b08-4eed-a8cd-db2215d2cd17",
+		"_postman_id": "5376f01a-92b2-4040-b0c0-a743e3d205df",
 		"name": "wirvsvirus",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -328,7 +328,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://wvsvhackvirtuellestimmungsringe-env.eba-eug7bzt6.eu-central-1.elasticbeanstalk.com/stimmungsring/sample",
+					"raw": "http://wvsvhackvirtuellestimmungsringe-env.eba-eug7bzt6.eu-central-1.elasticbeanstalk.com/stimmungsring/dashboard",
 					"protocol": "http",
 					"host": [
 						"wvsvhackvirtuellestimmungsringe-env",
@@ -339,11 +339,267 @@
 					],
 					"path": [
 						"stimmungsring",
-						"sample"
+						"dashboard"
 					]
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "signin",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-User-ID",
+						"value": "cafecafe-b855-46ba-b907-321d2d38beef",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"deviceIdentifier\": \"9999\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/stimmungsring/onboarding/signin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"stimmungsring",
+						"onboarding",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "join group",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-User-ID",
+						"type": "text",
+						"value": "cafecafe-b855-46ba-b907-321d2d38beef"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"groupId\": \"Fam1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/stimmungsring/onboarding/group/join",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"stimmungsring",
+						"onboarding",
+						"group",
+						"join"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "leave group",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-User-ID",
+						"type": "text",
+						"value": "12340000-b855-46ba-b907-321d2d38feeb"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"groupId\": \"fd0fe752-342d-46f2-905d-e6948bf12134\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/stimmungsring/onboarding/group/leave",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"stimmungsring",
+						"onboarding",
+						"group",
+						"leave"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get group settings",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-ID",
+						"type": "text",
+						"value": "cafecafe-b855-46ba-b907-321d2d38beef"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"groupId\": \"Fam1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/stimmungsring/onboarding/group/settings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"stimmungsring",
+						"onboarding",
+						"group",
+						"settings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update user props",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-User-ID",
+						"type": "text",
+						"value": "cafecafe-b855-46ba-b907-321d2d38beef"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"uzzz bar\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/stimmungsring/onboarding/user/properties",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"stimmungsring",
+						"onboarding",
+						"user",
+						"properties"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "start new group",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-ID",
+						"type": "text",
+						"value": "12340000-b855-46ba-b907-321d2d38feeb"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"groupName\": \"Fam1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/stimmungsring/onboarding/group/start",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"stimmungsring",
+						"onboarding",
+						"group",
+						"start"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "10b06b9a-9154-4672-a2a1-482cf0c0f1d4",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "07472a3b-bd82-4d89-9241-10915b07a454",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "e6e0082f-b0d2-4eb6-983e-12d1f7712ab6",
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"disabled": true
 		}
 	],
 	"protocolProfileBehavior": {}

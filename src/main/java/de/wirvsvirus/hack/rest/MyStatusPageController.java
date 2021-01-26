@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.rest;
 
 import de.wirvsvirus.hack.model.*;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.RoleBasedTextSuggestionsService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
@@ -22,19 +23,21 @@ public class MyStatusPageController {
     private RoleBasedTextSuggestionsService suggestionsService;
 
     @Autowired
-    private UserRepository userRepository;
+    private OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private AvatarUrlResolver avatarUrlResolver;
 
     @GetMapping
     public MyStatusPageResponse viewMyStatusPage() {
 
-        final User currentUser = userRepository.findByUserId(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
         MyStatusPageResponse response = new MyStatusPageResponse();
 
-        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser);
+        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
 
-        final SentimentStatusResponse sentimentStatusResponse = new SentimentStatusResponse();
-        sentimentStatusResponse.setSentiment(new SentimentVO(userRepository.findSentimentByUserId(currentUser.getId())));
+        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
         final List<SuggestionResponse> suggestions = new ArrayList<>();
 
         currentUser.getRoles().stream()
@@ -46,7 +49,7 @@ public class MyStatusPageController {
             }).forEach(suggestions::add);
 
         response.setUser(me);
-        response.setSentimentStatus(sentimentStatusResponse);
+        response.setSentiment(sentiment);
         response.setSuggestions(suggestions);
 
         return response;
