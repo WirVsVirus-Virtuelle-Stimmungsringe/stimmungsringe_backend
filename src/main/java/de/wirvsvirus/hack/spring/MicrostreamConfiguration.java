@@ -47,7 +47,7 @@ public class MicrostreamConfiguration {
         storagePath, STORAGE_ROOT_MARKER_FILE);
 
     final Path fullPath = storagePath.resolve(Paths.get(
-        "wirvsvirus-v" + storageCurrentVersion));
+        "familiarise-v" + storageCurrentVersion));
 
     LOGGER.info("Using storage path {}", fullPath);
 
