@@ -12,6 +12,7 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -216,8 +217,13 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public List<Message> findMessagesByRecipientId(final UUID userId) {
-    final Group group = findGroupByUser(userId).orElseThrow(() -> new IllegalStateException("User not member of any group"));
-    final List<Message> messageList = database.dataRoot().getAllGroupMessages().get(group.getGroupId());
+    final Optional<Group> group = findGroupByUser(userId);
+    if (!group.isPresent()) {
+      // rare (racy) edge-case
+      return Collections.emptyList();
+    }
+
+    final List<Message> messageList = database.dataRoot().getAllGroupMessages().get(group.get().getGroupId());
     Preconditions.checkNotNull(messageList);
     return messageList.stream()
         .filter(message -> message.getRecipientUserId().equals(userId))
