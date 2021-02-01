@@ -9,7 +9,7 @@
 ### Microstream
 Der Storage-Pfad muss extern als Property gesetzt werden:
 
-`java .... backend.jar --backend.microstream.storage-path=/tmp/microstream-database/`
+`java .... backend.jar --backend.microstream.storage-path=/tmp/microstream-database/ --backend.microstream.backup-path=/tmp/microstream-database-backups/`
 
 ### Spring Boot Profiles
 local dev with microstream and push: microstream, firebase-push-secrets
