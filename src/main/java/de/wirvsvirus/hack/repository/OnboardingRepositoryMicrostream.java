@@ -64,7 +64,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
         EntryStream.of(database.dataRoot().getAllUsers())
             .values()
             .collect(MoreCollectors.onlyOne(user -> user.getUserId().equals(userId)))
-            .orElseThrow(() -> new IllegalStateException("User not found by id " + userId));
+            .orElseThrow(() -> new IllegalStateException("Unique user not found by id " + userId));
   }
 
   @Override
@@ -210,8 +210,6 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     messages.add(message);
 
     database.persist(messages);
-    // TODO try this instead
-//    database.persist(database.reloadRoot().getAllGroupMessages());
   }
 
   @Override
