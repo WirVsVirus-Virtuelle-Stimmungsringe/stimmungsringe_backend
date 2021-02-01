@@ -9,4 +9,6 @@ public class MigrationMetadata {
 
   boolean userStatusMapInitialized;
 
+  boolean userStatusMapPopulatedFromExistingUsers;
+
 }

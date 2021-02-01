@@ -13,6 +13,7 @@ import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -52,6 +53,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     userStatus.setLastStatusUpdate(lastUpdate);
 
     database.dataRoot().getStatusByUser().put(newUser.getUserId(), userStatus);
+    database.persist(database.dataRoot().getStatusByUser());
 
     database.persist(database.dataRoot().getAllUsers());
   }
