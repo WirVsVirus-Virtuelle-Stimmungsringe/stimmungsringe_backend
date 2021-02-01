@@ -8,6 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
+import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
+import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
+import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
@@ -63,7 +68,12 @@ public class MicrostreamConfiguration {
 //    configuration.setChannelCount(Integer.highestOneBit(Runtime.getRuntime().availableProcessors() - 1));
 
     final EmbeddedStorageFoundation<?> foundation = configuration.createEmbeddedStorageFoundation();
-    foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
+    foundation.onConnectionFoundation(
+        f -> {
+          BinaryHandlersJDK8.registerJDK8TypeHandlers(f);
+//          f.setLegacyTypeMappingResultor(
+//              PrintingLegacyTypeMappingResultor.New(PersistenceLegacyTypeMappingResultor.New()));
+        });
     final EmbeddedStorageManager storageManager = foundation.createEmbeddedStorageManager().start();
     return storageManager;
   }
