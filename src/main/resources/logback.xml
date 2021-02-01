@@ -5,6 +5,9 @@
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
+    <logger name="org.springframework.data" level="INFO" />
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG" />
+
     <logger name="org.springframework.web" level="WARN" />
 
     <logger name="de.wirvsvirus.hack" level="DEBUG" />
