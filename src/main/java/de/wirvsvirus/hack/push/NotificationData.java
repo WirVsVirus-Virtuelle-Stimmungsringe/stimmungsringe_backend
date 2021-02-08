@@ -1,4 +1,4 @@
-package de.wirvsvirus.hack.model;
+package de.wirvsvirus.hack.push;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

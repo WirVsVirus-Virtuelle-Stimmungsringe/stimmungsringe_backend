@@ -6,16 +6,13 @@
 **master** - Branch für Entwicklung  
 **ci/release** - Branch für Buildpipeline (automatisches deployment auf AWS)
 
-### DynamoDB
-Die DynamoDB kann lokal gestartet werden - [siehe Anleitung](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html)
-`java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb`
+### Microstream
+Der Storage-Pfad muss extern als Property gesetzt werden:
 
-Spring Boot Profile-Konstellationen: dynamodb-localdev, dynamodb
-
-`aws dynamodb list-tables --endpoint-url http://localhost:8000`
+`java .... backend.jar --backend.microstream.storage-path=/tmp/microstream-database/ --backend.microstream.backup-path=/tmp/microstream-database-backups/`
 
 ### Spring Boot Profiles
-local dev with push: dynamodb-localdev, dynamodb, firebase-push-secrets
+local dev with microstream and push: microstream, firebase-push-secrets
 
 
 ### Sonstiges

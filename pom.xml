@@ -20,6 +20,7 @@
 		<inputEncoding>UTF-8</inputEncoding>
 		<outputEncoding>UTF-8</outputEncoding>
 		<argLine>-Dfile.encoding=utf8</argLine>
+		<microstream.version>04.01.00-MS-GA</microstream.version>
 		<lombok.version>1.18.12</lombok.version>
 	</properties>
 
@@ -43,6 +44,11 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -69,10 +75,21 @@
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-dynamodb</artifactId>
-			<version>1.11.847</version>
+			<groupId>one.microstream</groupId>
+			<artifactId>storage.embedded</artifactId>
+			<version>${microstream.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>storage.embedded.configuration</artifactId>
+			<version>${microstream.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>persistence.binary.jdk8</artifactId>
+			<version>${microstream.version}</version>
 		</dependency>
 
 		<dependency>
@@ -87,6 +104,13 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>microstream-releases</id>
+			<url>https://repo.microstream.one/repository/maven-public/</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>

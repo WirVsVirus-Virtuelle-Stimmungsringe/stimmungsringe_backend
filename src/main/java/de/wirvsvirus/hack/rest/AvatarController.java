@@ -1,11 +1,11 @@
 package de.wirvsvirus.hack.rest;
 
-import com.amazonaws.util.IOUtils;
 import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.rest.dto.AvailableAvatarsResponse;
 import de.wirvsvirus.hack.service.AvatarService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
