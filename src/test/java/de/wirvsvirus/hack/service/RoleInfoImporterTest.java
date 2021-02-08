@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import de.wirvsvirus.hack.model.Role;
+import de.wirvsvirus.hack.service.impl.RoleInfoImporterServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,10 +12,8 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@SpringBootTest
+@SpringBootTest(classes = {RoleInfoImporterServiceImpl.class})
 public class RoleInfoImporterTest {
-
-    private static final String TESTFILE = "/data/role_text.csv";
 
     @Autowired
     private RoleBasedTextSuggestionsService roleDataImporter;
