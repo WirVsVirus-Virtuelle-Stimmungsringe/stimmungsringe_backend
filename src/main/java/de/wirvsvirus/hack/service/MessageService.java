@@ -50,7 +50,9 @@ public class MessageService {
           .forEach(device -> {
             pushNotificationService.sendMessage(
                 device.getFcmToken(), "Familiarise",
-                "❤ Neue Nachricht!",
+                sender.getName() != null
+                    ? "❤ Neue Nachricht!"
+                    : "❤ Neue Nachricht von " + sender.getName() + "!",
                 Optional.empty(),
                 Optional.empty());
           });
