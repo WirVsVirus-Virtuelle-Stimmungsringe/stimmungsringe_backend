@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import one.microstream.storage.types.StorageManager;
+import one.util.streamex.EntryStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,19 @@ public class DatabaseMigration {
         }
       }
       database.persist(statusByUser);
+    }
+
+    if (!migrationMetadata.isLastSigninInitialized()) {
+      migrationMetadata.setLastSigninInitialized(true);
+      database.persist(migrationMetadata);
+
+      EntryStream.of(database.dataRoot().getStatusByUser())
+          .values()
+          .filter(userStatus -> userStatus.getLastSignin() == null)
+          .forEach(userStatus -> {
+            userStatus.setLastSignin(Instant.parse("2019-01-01T10:15:30.00Z"));
+            database.persist(userStatus);
+          });
     }
 
   }

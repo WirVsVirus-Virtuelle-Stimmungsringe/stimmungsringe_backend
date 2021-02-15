@@ -149,9 +149,27 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
+  public Instant findLastSigninByUserId(UUID userId) {
+    final Instant lastStatusUpdate = database.dataRoot().getStatusByUser()
+        .get(userId).getLastSignin();
+    Preconditions.checkNotNull(
+        lastStatusUpdate,
+        "Lookup error on last signin timestamp lookup for user %s", userId);
+    return lastStatusUpdate;
+  }
+
+  @Override
   public void touchLastStatusUpdate(final UUID userId) {
     final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
     userStatus.setLastStatusUpdate(Instant.now());
+
+    database.persist(userStatus);
+  }
+
+  @Override
+  public void touchLastSigninUpdate(final UUID userId) {
+    final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
+    userStatus.setLastSignin(Instant.now());
 
     database.persist(userStatus);
   }
