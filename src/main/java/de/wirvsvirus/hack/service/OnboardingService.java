@@ -57,19 +57,21 @@ public class OnboardingService {
                     .group(Optional.empty())
                     .build();
         } else {
-            final Optional<Group> group = onboardingRepository.findGroupByUser(
-                    userLookup.get().getUserId());
+            final UUID userId = userLookup.get().getUserId();
+            final Optional<Group> group = onboardingRepository.findGroupByUser(userId);
 
             log.info("User {} signed in - group is {}", userLookup.get(), group);
 
+            onboardingRepository.touchLastSignin(userId);
+
             if (group.isPresent()) {
                 return UserSignedInDto.builder()
-                        .userId(userLookup.get().getUserId())
+                        .userId(userId)
                         .group(group)
                         .build();
             } else {
                 return UserSignedInDto.builder()
-                        .userId(userLookup.get().getUserId())
+                        .userId(userId)
                         .group(group)
                         .build();
             }

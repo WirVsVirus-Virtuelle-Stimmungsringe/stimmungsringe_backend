@@ -33,6 +33,8 @@ public interface OnboardingRepository {
 
     Instant findLastStatusUpdateByUserId(UUID userId);
 
+    Instant findLastSigninByUserId(UUID userId);
+
     void updateStatus(UUID userId, Sentiment sentiment);
 
     Optional<Group> findGroupByUser(UUID userId);
@@ -51,6 +53,8 @@ public interface OnboardingRepository {
 
     void touchLastStatusUpdate(UUID userId);
 
+    void touchLastSignin(UUID userId);
+
     void sendMessage(User sender, User recipient, String text);
 
     List<Message> findMessagesByRecipientId(UUID userId);
@@ -62,4 +66,5 @@ public interface OnboardingRepository {
     List<Device> findDevicesByUserId(UUID userId);
 
     Stream<User> findAllUsers();
+
 }

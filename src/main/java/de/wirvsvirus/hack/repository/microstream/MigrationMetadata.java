@@ -11,4 +11,6 @@ public class MigrationMetadata {
 
   boolean userStatusMapPopulatedFromExistingUsers;
 
+  boolean lastSigninInitialized;
+
 }

@@ -32,7 +32,7 @@ public class InactivityCheckService {
 
     onboardingRepository.findAllUsers()
         .filter(user ->
-            onboardingRepository.findLastStatusUpdateByUserId(user.getUserId())
+            onboardingRepository.findLastSigninByUserId(user.getUserId())
                 .isBefore(cutoff))
         .forEach(inactiveUser -> {
           final Optional<Group> group = onboardingRepository
@@ -55,8 +55,8 @@ public class InactivityCheckService {
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
             inactiveUser.getName() != null
-                ? "Wir vermissen dich, " + inactiveUser.getName() + "!"
-                : "Wir vermissen dich!",
+                ? "Schau doch mal wieder rein in deine Fam-Group, " + inactiveUser.getName() + "!"
+                : "Schau doch mal wieder rein in deine Fam-Group!",
             Optional.empty(),
             Optional.empty())
         );
