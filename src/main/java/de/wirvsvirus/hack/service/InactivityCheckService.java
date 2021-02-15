@@ -55,8 +55,8 @@ public class InactivityCheckService {
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
             inactiveUser.getName() != null
-                ? "Schau doch mal wieder rein in deine Fam-Gruppe, " + inactiveUser.getName() + "!"
-                : "Schau doch mal wieder rein in deine Fam-Gruppe!",
+                ? "Schau doch mal wieder rein in deine Fam-Group, " + inactiveUser.getName() + "!"
+                : "Schau doch mal wieder rein in deine Fam-Group!",
             Optional.empty(),
             Optional.empty())
         );
