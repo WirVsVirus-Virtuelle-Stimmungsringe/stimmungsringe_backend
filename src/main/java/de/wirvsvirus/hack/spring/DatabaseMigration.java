@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.spring;
 
+import com.google.common.base.MoreObjects;
 import de.wirvsvirus.hack.mock.MockDataProvider;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.UserStatus;
@@ -80,7 +81,10 @@ public class DatabaseMigration {
           .values()
           .filter(userStatus -> userStatus.getLastSignin() == null)
           .forEach(userStatus -> {
-            userStatus.setLastSignin(Instant.parse("2019-01-01T10:15:30.00Z"));
+            userStatus.setLastSignin(
+                userStatus.getLastStatusUpdate() != null
+                    ? userStatus.getLastStatusUpdate()
+                    : Instant.parse("2019-01-01T10:15:30.00Z"));
             database.persist(userStatus);
           });
     }

@@ -53,7 +53,7 @@ public interface OnboardingRepository {
 
     void touchLastStatusUpdate(UUID userId);
 
-    void touchLastSigninUpdate(UUID userId);
+    void touchLastSignin(UUID userId);
 
     void sendMessage(User sender, User recipient, String text);
 

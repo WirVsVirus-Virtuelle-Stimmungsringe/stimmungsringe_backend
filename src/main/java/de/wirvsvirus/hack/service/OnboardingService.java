@@ -62,7 +62,7 @@ public class OnboardingService {
 
             log.info("User {} signed in - group is {}", userLookup.get(), group);
 
-            onboardingRepository.touchLastSigninUpdate(userId);
+            onboardingRepository.touchLastSignin(userId);
 
             if (group.isPresent()) {
                 return UserSignedInDto.builder()
