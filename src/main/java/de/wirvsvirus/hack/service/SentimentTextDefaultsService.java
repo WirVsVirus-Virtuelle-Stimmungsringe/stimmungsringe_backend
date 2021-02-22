@@ -9,23 +9,23 @@ public class SentimentTextDefaultsService {
   public String getDefaultTextForSentiment(final Sentiment sentiment) {
     final String defaultText;
     switch (sentiment) {
-      case thundery:
-        defaultText = "stürmisch";
-        break;
-      case cloudyNight:
-        defaultText = "finster";
-        break;
-      case windy:
-        defaultText = "trüb";
-        break;
-      case cloudy:
-        defaultText = "lau";
+      case sunny:
+        defaultText = "ich bin gut drauf";
         break;
       case sunnyWithClouds:
-        defaultText = "heiter";
+        defaultText = "ich bin heiter";
         break;
-      case sunny:
-        defaultText = "heiss";
+      case cloudy:
+        defaultText = "nichts besonderes";
+        break;
+      case windy:
+        defaultText = "ich halte durch";
+        break;
+      case cloudyNight:
+        defaultText = "ich bin müde";
+        break;
+      case thundery:
+        defaultText = "frag nicht...";
         break;
       default:
         throw new IllegalStateException();
