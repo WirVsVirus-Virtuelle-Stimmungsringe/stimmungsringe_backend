@@ -9,21 +9,15 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.DeviceType;
 import de.wirvsvirus.hack.spring.Database;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -48,14 +42,16 @@ public class PersistenceTest {
       newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
       newUser1.setRoles(Collections.emptyList());
       newUser1.setName("Flick");
-      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds, Instant.now());
+      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds,
+          "Wolken! Welche Wolken?", Instant.now());
     }
     final User newUser2;
     {
       newUser2 = new User(UUID.randomUUID(), deviceIdentifier);
       newUser2.setRoles(Collections.emptyList());
       newUser2.setName("Flack");
-      onboardingRepository.createNewUser(newUser2, Sentiment.sunnyWithClouds, Instant.now());
+      onboardingRepository.createNewUser(newUser2, Sentiment.sunnyWithClouds,
+          "Wolken! Welche Wolken?", Instant.now());
     }
 
     final Device device = new Device();
@@ -97,7 +93,8 @@ public class PersistenceTest {
       newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
       newUser1.setRoles(Collections.emptyList());
       newUser1.setName("Flick");
-      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds, Instant.now());
+      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds,
+          "Wolken! Welche Wolken?", Instant.now());
     }
     final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
 
@@ -108,7 +105,8 @@ public class PersistenceTest {
 
     Thread.sleep(1);
 
-    onboardingRepository.updateStatus(newUser1.getUserId(), Sentiment.cloudy);
+    onboardingRepository.updateStatus(newUser1.getUserId(), Sentiment.cloudy,
+        "No money!");
     onboardingRepository.touchLastStatusUpdate(newUser1.getUserId());
 
     final Instant update2 = onboardingRepository
@@ -127,7 +125,8 @@ public class PersistenceTest {
       newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
       newUser1.setRoles(Collections.emptyList());
       newUser1.setName("Flick");
-      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds, Instant.now());
+      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds,
+          "Wolken! Welche Wolken?", Instant.now());
     }
 
     {
@@ -184,14 +183,16 @@ public class PersistenceTest {
       alice = new User(UUID.randomUUID(), deviceIdentifier);
       alice.setRoles(Collections.emptyList());
       alice.setName("Alice");
-      onboardingRepository.createNewUser(alice, Sentiment.sunnyWithClouds, Instant.now());
+      onboardingRepository.createNewUser(alice, Sentiment.sunnyWithClouds, "Wolken! Welche Wolken?",
+          Instant.now());
     }
     final User bob;
     {
       bob = new User(UUID.randomUUID(), deviceIdentifier);
       bob.setRoles(Collections.emptyList());
       bob.setName("Bob");
-      onboardingRepository.createNewUser(bob, Sentiment.sunnyWithClouds, Instant.now());
+      onboardingRepository.createNewUser(bob, Sentiment.sunnyWithClouds, "Wolken! Welche Wolken?",
+          Instant.now());
     }
 
     final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);

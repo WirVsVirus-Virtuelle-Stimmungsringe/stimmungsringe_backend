@@ -13,4 +13,6 @@ public class MigrationMetadata {
 
   boolean lastSigninInitialized;
 
+  boolean sentimentTextInitialized;
+
 }

@@ -28,13 +28,17 @@ public class OnboardingService {
     @Autowired
     private PushNotificationService pushNotificationService;
 
+    @Autowired
+    private SentimentTextDefaultsService sentimentTextDefaultsService;
+
     public UserSignedInDto signin(final String deviceIdentifier) {
 
         if ("0000".equals(deviceIdentifier)) {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setName("onboarding-fake");
             newUser.setRoles(Collections.emptyList());
-            onboardingRepository.createNewUser(newUser, Sentiment.cloudyNight, Instant.now());
+            onboardingRepository.createNewUser(newUser, Sentiment.cloudyNight,
+                "Wolken! Welche Wolken?", Instant.now());
             log.warn("Fake onboarding user {}", newUser.getUserId());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
@@ -51,7 +55,9 @@ public class OnboardingService {
             Preconditions.checkState(deviceIdentifier.length() >= 3);
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setRoles(Collections.emptyList());
-            onboardingRepository.createNewUser(newUser, Sentiment.sunnyWithClouds, Instant.now());
+            onboardingRepository.createNewUser(newUser,
+                Sentiment.sunnyWithClouds, "Wolken! Welche Wolken?",
+                Instant.now());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
                     .group(Optional.empty())
@@ -182,19 +188,33 @@ public class OnboardingService {
         return group;
     }
 
-    public void updateSentimentStatus(final User user, final Sentiment sentiment) {
-        final Instant oldLastUpdated = onboardingRepository
-            .findLastStatusUpdateByUserId(user.getUserId());
-        onboardingRepository.updateStatus(user.getUserId(), sentiment);
-        onboardingRepository.touchLastStatusUpdate(user.getUserId());
-        onboardingRepository.clearMessagesByRecipientId(user.getUserId());
+    /**
+     * Set the (new) status.
+     * Note: status might not have changed
+     */
+    public void updateStatus(final User user, final Sentiment sentiment,
+        final String sentimentText) {
+        final boolean sentimentChanged = onboardingRepository
+            .findSentimentByUserId(user.getUserId()) != sentiment;
 
-        // throttle pushes
-        if (oldLastUpdated.isBefore(Instant.now().minusSeconds(10))) {
-            onboardingRepository
-                .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
-                    .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
-                    .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
+        onboardingRepository.updateStatus(user.getUserId(), sentiment,
+            StringUtils.isNotBlank(sentimentText)
+                ? sentimentText
+                : sentimentTextDefaultsService.getDefaultTextForSentiment(sentiment));
+        onboardingRepository.touchLastStatusUpdate(user.getUserId());
+
+        if (sentimentChanged) {
+            final Instant oldLastUpdated = onboardingRepository
+                .findLastStatusUpdateByUserId(user.getUserId());
+            onboardingRepository.clearMessagesByRecipientId(user.getUserId());
+
+            // throttle pushes
+            if (oldLastUpdated.isBefore(Instant.now().minusSeconds(10))) {
+                onboardingRepository
+                    .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
+                        .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
+                        .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
+            }
         }
     }
 

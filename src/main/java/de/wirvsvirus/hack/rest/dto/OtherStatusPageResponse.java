@@ -13,6 +13,8 @@ public class OtherStatusPageResponse {
 
     private Sentiment sentiment;
 
+    private String sentimentText;
+
     private List<SuggestionResponse> suggestions;
 
 }

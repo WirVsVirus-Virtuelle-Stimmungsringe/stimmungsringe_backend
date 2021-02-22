@@ -31,11 +31,13 @@ public interface OnboardingRepository {
 
     Sentiment findSentimentByUserId(UUID userId);
 
+    String findSentimentTextByUserId(UUID userId);
+
     Instant findLastStatusUpdateByUserId(UUID userId);
 
     Instant findLastSigninByUserId(UUID userId);
 
-    void updateStatus(UUID userId, Sentiment sentiment);
+    void updateStatus(UUID userId, Sentiment sentiment, String sentimentText);
 
     Optional<Group> findGroupByUser(UUID userId);
 
@@ -43,7 +45,8 @@ public interface OnboardingRepository {
 
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 
-    void createNewUser(User newUser, Sentiment sentiment, final Instant lastUpdate);
+    void createNewUser(User newUser, Sentiment sentiment, String sentimentText,
+        final Instant lastUpdate);
 
     Optional<Group> findGroupById(UUID groupId);
 
