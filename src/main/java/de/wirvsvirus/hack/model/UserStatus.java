@@ -9,6 +9,9 @@ public class UserStatus {
   private Instant lastStatusUpdate;
   private Sentiment sentiment;
   private Instant lastSignin;
+  /**
+   * never null, might be blank, <=20 chars
+   */
   private String sentimentText;
 
   public Instant getLastStatusUpdate() {

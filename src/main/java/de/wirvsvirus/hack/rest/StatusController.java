@@ -30,14 +30,17 @@ public class StatusController {
     @PutMapping
     public void updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
         final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+
+        final String sentimentText = request.getSentimentText() != null ? request.getSentimentText() : "";
+
         Preconditions.checkNotNull(request.getSentiment(), "sentiment must not be null");
-        Preconditions.checkState(request.getSentimentText().length() <= 20,
+        Preconditions.checkState(sentimentText.length() <= 20,
             "sentiment text must not exceed 20 chars");
 
         log.info("Updating status for user {} to {}", currentUser.getUserId(), request.getSentiment());
         onboardingService.updateStatus(currentUser,
             request.getSentiment(),
-            request.getSentimentText());
+            sentimentText);
     }
 
 }
