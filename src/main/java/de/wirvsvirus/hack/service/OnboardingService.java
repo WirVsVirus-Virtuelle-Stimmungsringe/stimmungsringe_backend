@@ -56,7 +56,8 @@ public class OnboardingService {
             final User newUser = new User(UUID.randomUUID(), deviceIdentifier);
             newUser.setRoles(Collections.emptyList());
             onboardingRepository.createNewUser(newUser,
-                Sentiment.sunnyWithClouds, "Wolken! Welche Wolken?",
+                Sentiment.sunnyWithClouds,
+                sentimentTextDefaultsService.getDefaultTextForSentiment(Sentiment.sunnyWithClouds),
                 Instant.now());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
