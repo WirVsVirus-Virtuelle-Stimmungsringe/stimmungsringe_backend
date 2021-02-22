@@ -13,6 +13,7 @@ public class UpdateStatusRequest {
     @NotNull
     private Sentiment sentiment;
 
+    @NotNull
     private String sentimentText;
 
 }

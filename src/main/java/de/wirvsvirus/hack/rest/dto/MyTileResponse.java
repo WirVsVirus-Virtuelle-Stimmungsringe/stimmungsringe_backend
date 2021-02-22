@@ -15,7 +15,8 @@ public class MyTileResponse {
 
     private Sentiment sentiment;
 
-    @Nonnegative
+    private String sentimentText;
+
     private Instant lastStatusUpdate;
 
 }
