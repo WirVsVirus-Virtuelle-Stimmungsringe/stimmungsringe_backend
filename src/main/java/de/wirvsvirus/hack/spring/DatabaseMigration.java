@@ -89,6 +89,19 @@ public class DatabaseMigration {
           });
     }
 
+    if (!migrationMetadata.isSentimentTextInitialized2()) {
+      migrationMetadata.setSentimentTextInitialized2(true);
+      database.persist(migrationMetadata);
+
+      EntryStream.of(database.dataRoot().getStatusByUser())
+          .values()
+          .filter(userStatus -> userStatus.getSentimentText() == null)
+          .forEach(userStatus ->  {
+            userStatus.setSentimentText("");
+            database.persist(userStatus);
+          });
+    }
+
   }
 
 }

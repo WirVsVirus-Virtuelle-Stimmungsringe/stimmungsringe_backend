@@ -16,4 +16,6 @@ public class MigrationMetadata {
   @Deprecated
   boolean sentimentTextInitialized;
 
+  boolean sentimentTextInitialized2;
+
 }
