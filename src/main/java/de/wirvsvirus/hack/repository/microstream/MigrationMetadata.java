@@ -13,6 +13,7 @@ public class MigrationMetadata {
 
   boolean lastSigninInitialized;
 
+  @Deprecated
   boolean sentimentTextInitialized;
 
 }

@@ -6,7 +6,6 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
-import de.wirvsvirus.hack.service.SentimentTextDefaultsService;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +32,6 @@ public class DatabaseMigration {
 
   @Autowired
   private StorageManager storageManager;
-
-  @Autowired
-  private SentimentTextDefaultsService sentimentTextDefaultsService;
 
   @PostConstruct
   public void runMigrations() {
@@ -89,20 +85,6 @@ public class DatabaseMigration {
                 userStatus.getLastStatusUpdate() != null
                     ? userStatus.getLastStatusUpdate()
                     : Instant.parse("2019-01-01T10:15:30.00Z"));
-            database.persist(userStatus);
-          });
-    }
-
-    if (!migrationMetadata.isSentimentTextInitialized()) {
-      migrationMetadata.setSentimentTextInitialized(true);
-      database.persist(migrationMetadata);
-
-      EntryStream.of(database.dataRoot().getStatusByUser())
-          .values()
-          .filter(userStatus -> userStatus.getSentimentText() == null)
-          .forEach(userStatus ->  {
-            userStatus.setSentimentText(
-                sentimentTextDefaultsService.getDefaultTextForSentiment(userStatus.getSentiment()));
             database.persist(userStatus);
           });
     }

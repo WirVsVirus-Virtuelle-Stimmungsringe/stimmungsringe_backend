@@ -28,9 +28,6 @@ public class OnboardingService {
     @Autowired
     private PushNotificationService pushNotificationService;
 
-    @Autowired
-    private SentimentTextDefaultsService sentimentTextDefaultsService;
-
     public UserSignedInDto signin(final String deviceIdentifier) {
 
         if ("0000".equals(deviceIdentifier)) {
@@ -57,7 +54,7 @@ public class OnboardingService {
             newUser.setRoles(Collections.emptyList());
             onboardingRepository.createNewUser(newUser,
                 Sentiment.sunnyWithClouds,
-                sentimentTextDefaultsService.getDefaultTextForSentiment(Sentiment.sunnyWithClouds),
+                "",
                 Instant.now());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
@@ -199,9 +196,7 @@ public class OnboardingService {
             .findSentimentByUserId(user.getUserId()) != sentiment;
 
         onboardingRepository.updateStatus(user.getUserId(), sentiment,
-            StringUtils.isNotBlank(sentimentText)
-                ? sentimentText
-                : sentimentTextDefaultsService.getDefaultTextForSentiment(sentiment));
+            sentimentText);
         onboardingRepository.touchLastStatusUpdate(user.getUserId());
 
         if (sentimentChanged) {
