@@ -9,6 +9,10 @@ public class UserStatus {
   private Instant lastStatusUpdate;
   private Sentiment sentiment;
   private Instant lastSignin;
+  /**
+   * never null, might be blank, <=20 chars
+   */
+  private String sentimentText;
 
   public Instant getLastStatusUpdate() {
     return lastStatusUpdate;
@@ -32,5 +36,13 @@ public class UserStatus {
 
   public void setLastSignin(Instant lastSignin) {
     this.lastSignin = lastSignin;
+  }
+
+  public String getSentimentText() {
+    return sentimentText;
+  }
+
+  public void setSentimentText(String sentimentText) {
+    this.sentimentText = sentimentText;
   }
 }

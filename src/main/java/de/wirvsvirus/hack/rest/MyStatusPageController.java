@@ -38,6 +38,7 @@ public class MyStatusPageController {
         final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
 
         final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+        final String sentimentText = onboardingRepository.findSentimentTextByUserId(currentUser.getUserId());
         final List<SuggestionResponse> suggestions = new ArrayList<>();
 
         currentUser.getRoles().stream()
@@ -51,6 +52,7 @@ public class MyStatusPageController {
         response.setUser(me);
         response.setSentiment(sentiment);
         response.setSuggestions(suggestions);
+        response.setSentimentText(sentimentText);
 
         return response;
     }

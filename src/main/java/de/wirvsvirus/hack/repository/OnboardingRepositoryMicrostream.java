@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,12 +44,13 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public void createNewUser(final User newUser, final Sentiment sentiment,
-      final Instant lastUpdate) {
+      final String sentimentText, final Instant lastUpdate) {
     Preconditions.checkNotNull(sentiment);
     Preconditions.checkState(!database.dataRoot().getAllUsers().containsKey(newUser.getUserId()));
     database.dataRoot().getAllUsers().put(newUser.getUserId(), newUser);
     final UserStatus userStatus = new UserStatus();
     userStatus.setSentiment(sentiment);
+    userStatus.setSentimentText(sentimentText);
     userStatus.setLastStatusUpdate(lastUpdate);
 
     database.dataRoot().getStatusByUser().put(newUser.getUserId(), userStatus);
@@ -139,6 +139,15 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
+  public String findSentimentTextByUserId(UUID userId) {
+    final String sentimentText = database.dataRoot().getStatusByUser()
+        .get(userId).getSentimentText();
+    Preconditions.checkNotNull(
+        sentimentText, "Lookup error on sentiment text lookup for user %s", userId);
+    return sentimentText;
+  }
+
+  @Override
   public Instant findLastStatusUpdateByUserId(final UUID userId) {
     final Instant lastStatusUpdate = database.dataRoot().getStatusByUser()
         .get(userId).getLastStatusUpdate();
@@ -175,11 +184,14 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
-  public void updateStatus(final UUID userId, final Sentiment sentiment) {
+  public void updateStatus(final UUID userId,
+      final Sentiment sentiment,
+      final String sentimentText) {
     lookupUserById(userId);
 
     final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
     userStatus.setSentiment(sentiment);
+    userStatus.setSentimentText(sentimentText);
 
     database.persist(userStatus);
   }

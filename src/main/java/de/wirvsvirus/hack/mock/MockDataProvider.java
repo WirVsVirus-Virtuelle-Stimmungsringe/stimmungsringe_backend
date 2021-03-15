@@ -6,7 +6,6 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.repository.OnboardingRepositoryMicrostream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,8 @@ public class MockDataProvider {
     public static void persistTo(OnboardingRepository repository) {
 
         for (User user : mockUsers()) {
-            repository.createNewUser(user, dummySentimentByUser(user.getUserId()), Instant.now());
+            repository.createNewUser(user, dummySentimentByUser(user.getUserId()),
+                "Wolken! Welche Wolken?", Instant.now());
         }
 
     }

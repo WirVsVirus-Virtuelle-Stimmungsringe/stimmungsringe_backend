@@ -15,4 +15,6 @@ public class MyStatusPageResponse {
 
     private List<SuggestionResponse> suggestions;
 
+    private String sentimentText;
+
 }

@@ -54,11 +54,13 @@ public class DashboardController {
         final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
 
         final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+        final String sentimentText = onboardingRepository.findSentimentTextByUserId(currentUser.getUserId());
         final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(currentUser.getUserId());
 
         return MyTileResponse.builder()
                 .user(me)
                 .sentiment(sentiment)
+                .sentimentText(sentimentText)
                 .lastStatusUpdate(lastStatusUpdate)
                 .build();
     }
@@ -76,12 +78,14 @@ public class DashboardController {
             final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser, avatarUrlResolver::getUserAvatarUrl);
 
             final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
+            final String sentimentText = onboardingRepository.findSentimentTextByUserId(otherUser.getUserId());
             final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(otherUser.getUserId());
 
             otherTiles.add(
                     OtherTileResponse.builder()
                             .user(other)
                             .sentiment(sentiment)
+                            .sentimentText(sentimentText)
                             .lastStatusUpdate(lastStatusUpdate)
                             .build()
             );
