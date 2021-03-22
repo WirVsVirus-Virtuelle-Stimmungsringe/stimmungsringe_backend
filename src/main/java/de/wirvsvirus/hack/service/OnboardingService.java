@@ -282,6 +282,8 @@ public class OnboardingService {
      * @return true, if this was the last vote to kick user
      */
     public boolean kickFlagUser(User currentUser, UUID userToBeKickedId) {
+        Preconditions.checkState(!currentUser.getUserId().equals(userToBeKickedId),
+            "User cannot vote for himself");
         final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
             .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
         checkUserInSameGroup(currentUser, userToBeKickedId);
