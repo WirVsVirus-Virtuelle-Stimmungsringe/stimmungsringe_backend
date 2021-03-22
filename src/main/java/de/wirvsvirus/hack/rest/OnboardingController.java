@@ -69,9 +69,9 @@ public class OnboardingController {
 
     @PutMapping("/user/settings")
     public void updateUserSettings(@RequestBody @Valid final UpdateUserSettingsRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.updateUser(user,
+        onboardingService.updateUser(currentUser,
                 UserSettingsDto.builder()
                         .name(request.getName())
                         .stockAvatar(request.getStockAvatar())
@@ -82,8 +82,9 @@ public class OnboardingController {
     @PutMapping("/group/{groupId}/settings")
     public void updateGroupSettings(@RequestBody @Valid final UpdateGroupSettingsRequest request,
                                     @NotNull @PathVariable("groupId") final UUID groupId) {
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
+        final Group group = onboardingService.lookupGroupCheckPermissions(currentUser, groupId);
 
         onboardingService.updateGroup(group,
                 GroupSettingsDto.builder()
@@ -97,12 +98,11 @@ public class OnboardingController {
      */
     @GetMapping("/user/settings")
     public UserSettingsResponse getUserSettings() {
-
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         return UserSettingsResponse.builder()
-                .userName(user.getName())
-                .hasName(user.hasName())
-                .stockAvatar(user.getStockAvatar())
+                .userName(currentUser.getName())
+                .hasName(currentUser.hasName())
+                .stockAvatar(currentUser.getStockAvatar())
                 .build();
     }
 
@@ -111,9 +111,8 @@ public class OnboardingController {
      */
     @GetMapping("/group/{groupId}/settings")
     public GroupSettingsResponse getGroupSettings(@NotNull @PathVariable("groupId") final UUID groupId) {
-
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
-        final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final Group group = onboardingService.lookupGroupCheckPermissions(currentUser, groupId);
 
         return GroupSettingsResponse.builder()
                 .groupId(group.getGroupId())
@@ -124,23 +123,23 @@ public class OnboardingController {
 
     @PutMapping("/group/join")
     public void joinGroup(@RequestBody @Valid final JoinGroupRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.joinGroup(request.getGroupId(), user);
+        onboardingService.joinGroup(request.getGroupId(), currentUser);
     }
 
     @PutMapping("/group/leave")
     public void leaveGroup(@RequestBody @Valid final LeaveGroupRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.leaveGroup(request.getGroupId(), user);
+        onboardingService.leaveGroup(request.getGroupId(), currentUser);
     }
 
     @PostMapping("/group/start")
     public ResponseEntity<GroupDataResponse> startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
+        final Group newGroup = onboardingService.startNewGroup(currentUser, request.getGroupName());
         return ResponseEntity.ok(
             GroupDataResponse.builder()
                         .groupId(newGroup.getGroupId())

@@ -147,6 +147,8 @@ public class OnboardingService {
                 onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
                     .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
 
+                onboardingRepository.deleteUser(user);
+
                 log.info("... remove user {} from group {} with groupId {}", user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
             } else {
                 log.info("User is member of another group");
@@ -174,8 +176,8 @@ public class OnboardingService {
     /**
      * make sure group exists and user is member of group
      */
-    public Group lookupGroupCheckPermissions(final UUID groupId) {
-        final Group currentGroup = onboardingRepository.findGroupByUser(UserInterceptor.getCurrentUserId())
+    public Group lookupGroupCheckPermissions(final User currentUser, final UUID groupId) {
+        final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not in a group"));
 
         final Group group = onboardingRepository.findGroupById(groupId)
@@ -184,6 +186,16 @@ public class OnboardingService {
         Preconditions.checkState(group.getGroupId().equals(currentGroup.getGroupId()),
                 "Requested group must have current user as a member");
         return group;
+    }
+
+    public void checkUserInSameGroup(final User currentUser, final UUID otherUserId) {
+        final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
+            .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
+        final Group group = onboardingRepository.findGroupByUser(otherUserId)
+            .orElseThrow(() -> new IllegalStateException("Group not found"));
+
+        Preconditions.checkState(group.getGroupId().equals(currentGroup.getGroupId()),
+            "User to vote must be in same group");
     }
 
     /**
@@ -261,6 +273,17 @@ public class OnboardingService {
                     .reversed()
                     .thenComparing(User::getUserId)) // fallback in case the timestamp match
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * @param userToBeKicked victim
+     * @return true, if this was the last vote to kick user
+     */
+    public boolean kickFlagUser(UUID userToBeKicked) {
+//        checkUserInSameGroup(userToBeKicked);
+//
+//        onboardingRepository.findGroupByUser(voter).orElseThrow(() -> )
+//        onboardingRepository.(userToBeKicked);
     }
 
 }

@@ -72,11 +72,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
-    final User user = lookupUserById(userId);
-    user.setName(userSettings.getName());
-    user.setStockAvatar(userSettings.getStockAvatar());
+    final User currentUser = lookupUserById(userId);
+    currentUser.setName(userSettings.getName());
+    currentUser.setStockAvatar(userSettings.getStockAvatar());
 
-    database.persist(user);
+    database.persist(currentUser);
   }
 
   @Override
@@ -308,4 +308,15 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public Stream<User> findAllUsers() {
     return database.dataRoot().getAllUsers().values().stream();
   }
+
+  @Override
+  public void deleteUser(User user) {
+    Preconditions.checkNotNull(user);
+    Preconditions.checkState(database.dataRoot().getAllUsers().containsKey(user.getUserId()));
+    database.dataRoot().getAllUsers().remove(user.getUserId());
+    database.dataRoot().getStatusByUser().remove(user.getUserId());
+    database.persist(database.dataRoot().getStatusByUser());
+    database.persist(database.dataRoot().getAllUsers());
+  }
+
 }

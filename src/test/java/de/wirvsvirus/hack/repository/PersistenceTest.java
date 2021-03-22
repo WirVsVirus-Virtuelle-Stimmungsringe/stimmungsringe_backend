@@ -2,11 +2,13 @@ package de.wirvsvirus.hack.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
@@ -25,6 +27,9 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(properties = {"backend.microstream.storage-path=test-micro/"})
 @ActiveProfiles("microstream")
 public class PersistenceTest {
+
+  @Autowired
+  private OnboardingService onboardingService;
 
   @Autowired
   private OnboardingRepository onboardingRepository;
@@ -54,17 +59,7 @@ public class PersistenceTest {
           "Wolken! Welche Wolken?", Instant.now());
     }
 
-    final Device device = new Device();
-    device.setUserId(newUser1.getUserId());
-    device.setDeviceIdentifier(deviceIdentifier);
-    device.setDeviceType(DeviceType.ANDROID);
-    device.setFcmToken("fcm1212121212");
-    onboardingRepository.addDevice(device);
-    final List<Device> devLookup = onboardingRepository
-        .findDevicesByUserId(newUser1.getUserId());
-
     final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
-
 
     assertEquals("Testgrp", onboardingRepository.findGroupByCode(groupCode)
         .get().getGroupName());
@@ -80,9 +75,47 @@ public class PersistenceTest {
     assertEquals(1, others.size());
     assertEquals("Flack", others.get(0).getName());
 
-    onboardingRepository.leaveGroup(group.getGroupId(), newUser2.getUserId());
+    onboardingService.leaveGroup(group.getGroupId(), newUser2);
 
     assertFalse(onboardingRepository.findGroupByUser(newUser2.getUserId()).isPresent());
+    assertThrows(IllegalStateException.class, () -> onboardingRepository.lookupUserById(newUser2.getUserId()));
+
+  }
+
+  @Test
+  void kickUser() {
+    final User newUser1;
+    {
+      newUser1 = new User(UUID.randomUUID(), deviceIdentifier);
+      newUser1.setRoles(Collections.emptyList());
+      newUser1.setName("Dimi");
+      onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds,
+          "Zzzz", Instant.now());
+    }
+    final User newUser2;
+    {
+      newUser2 = new User(UUID.randomUUID(), deviceIdentifier);
+      newUser2.setRoles(Collections.emptyList());
+      newUser2.setName("Dani");
+      onboardingRepository.createNewUser(newUser2, Sentiment.sunnyWithClouds,
+          "Kekse!", Instant.now());
+    }
+    final User newUser3;
+    {
+      newUser3 = new User(UUID.randomUUID(), deviceIdentifier);
+      newUser3.setRoles(Collections.emptyList());
+      newUser3.setName("Stefan");
+      onboardingRepository.createNewUser(newUser3, Sentiment.sunnyWithClouds,
+          "Mobbing", Instant.now());
+    }
+
+    final Group group = onboardingRepository.startNewGroup("Kickers", groupCode);
+
+    onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
+    onboardingRepository.joinGroup(group.getGroupId(), newUser2.getUserId());
+    onboardingRepository.joinGroup(group.getGroupId(), newUser3.getUserId());
+
+//    onboardingRepository.kickFlagUser(newUser1.getUserId(), newUser3.getUserId());
 
   }
 
