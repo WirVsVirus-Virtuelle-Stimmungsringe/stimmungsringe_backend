@@ -9,6 +9,8 @@ import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,8 +178,8 @@ public class OnboardingService {
     /**
      * make sure group exists and user is member of group
      */
-    public Group lookupGroupCheckPermissions(final User currentUser, final UUID groupId) {
-        final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
+    public Group lookupGroupCheckPermissions(final User user, final UUID groupId) {
+        final Group currentGroup = onboardingRepository.findGroupByUser(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not in a group"));
 
         final Group group = onboardingRepository.findGroupById(groupId)
@@ -276,14 +278,38 @@ public class OnboardingService {
     }
 
     /**
-     * @param userToBeKicked victim
+     * @param userToBeKickedId victim
      * @return true, if this was the last vote to kick user
      */
-    public boolean kickFlagUser(UUID userToBeKicked) {
-//        checkUserInSameGroup(userToBeKicked);
-//
-//        onboardingRepository.findGroupByUser(voter).orElseThrow(() -> )
-//        onboardingRepository.(userToBeKicked);
+    public boolean kickFlagUser(User currentUser, UUID userToBeKickedId) {
+        final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
+            .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
+        checkUserInSameGroup(currentUser, userToBeKickedId);
+        final List<User> usersInGroup = onboardingRepository
+            .findAllUsersInGroup(currentGroup.getGroupId());
+        final Set<UUID> userIdsInGroup = usersInGroup.stream()
+            .map(User::getUserId)
+            .collect(Collectors.toSet());
+
+        onboardingRepository.flagKickVote(userToBeKickedId, true, currentUser.getUserId());
+
+        final long votes =
+            onboardingRepository.findKickVotes(userToBeKickedId).stream()
+            .filter(userIdsInGroup::contains)
+            .count();
+
+        final boolean quorum = votes > userIdsInGroup.size() / 2;
+
+        if (quorum) {
+            final User userToBeKicked = onboardingRepository.lookupUserById(userToBeKickedId);
+            leaveGroup(currentGroup.getGroupId(), userToBeKicked);
+            // TODO rmove
+            System.out.println("User has been kicked");
+        } else {
+            System.out.println("User not yet kicked got votes: " + votes);
+        }
+
+        return quorum;
     }
 
 }

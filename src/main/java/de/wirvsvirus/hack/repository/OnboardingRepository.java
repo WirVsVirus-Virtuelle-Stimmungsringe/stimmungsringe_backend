@@ -11,6 +11,7 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -28,6 +29,8 @@ public interface OnboardingRepository {
     void joinGroup(UUID groupId, UUID userId);
 
     List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId);
+
+    List<User> findAllUsersInGroup(UUID groupId);
 
     Sentiment findSentimentByUserId(UUID userId);
 
@@ -54,6 +57,8 @@ public interface OnboardingRepository {
 
     void updateGroup(UUID groupId, GroupSettingsDto groupSettings);
 
+    Set<UUID> findKickVotes(UUID userId);
+
     void touchLastStatusUpdate(UUID userId);
 
     void touchLastSignin(UUID userId);
@@ -72,4 +77,5 @@ public interface OnboardingRepository {
 
     void deleteUser(User user);
 
+    void flagKickVote(UUID userToBeKicked, boolean flag, UUID userIdVoter);
 }

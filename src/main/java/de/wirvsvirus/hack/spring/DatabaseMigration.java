@@ -8,6 +8,7 @@ import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -100,6 +101,19 @@ public class DatabaseMigration {
           .filter(userStatus -> userStatus.getSentimentText() == null)
           .forEach(userStatus ->  {
             userStatus.setSentimentText("");
+            database.persist(userStatus);
+          });
+    }
+
+    if (!migrationMetadata.isKickVotesInitialized()) {
+      migrationMetadata.setKickVotesInitialized(true);
+      database.persist(migrationMetadata);
+
+      EntryStream.of(database.dataRoot().getStatusByUser())
+          .values()
+          .filter(userStatus -> userStatus.getKickVotes() == null)
+          .forEach(userStatus ->  {
+            userStatus.setKickVotes(new HashSet<>());
             database.persist(userStatus);
           });
     }

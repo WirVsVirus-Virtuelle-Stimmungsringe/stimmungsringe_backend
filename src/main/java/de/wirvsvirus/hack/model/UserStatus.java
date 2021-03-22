@@ -1,6 +1,8 @@
 package de.wirvsvirus.hack.model;
 
 import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
 import lombok.ToString;
 
 @ToString
@@ -13,6 +15,10 @@ public class UserStatus {
    * never null, might be blank, <=20 chars
    */
   private String sentimentText;
+  /**
+   * map of userIds
+   */
+  private Set<UUID> kickVotes;
 
   public Instant getLastStatusUpdate() {
     return lastStatusUpdate;
@@ -44,5 +50,13 @@ public class UserStatus {
 
   public void setSentimentText(String sentimentText) {
     this.sentimentText = sentimentText;
+  }
+
+  public Set<UUID> getKickVotes() {
+    return kickVotes;
+  }
+
+  public void setKickVotes(Set<UUID> kickVotes) {
+    this.kickVotes = kickVotes;
   }
 }

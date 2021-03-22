@@ -12,9 +12,12 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,6 +55,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     userStatus.setSentiment(sentiment);
     userStatus.setSentimentText(sentimentText);
     userStatus.setLastStatusUpdate(lastUpdate);
+    userStatus.setKickVotes(new HashSet<>());
 
     database.dataRoot().getStatusByUser().put(newUser.getUserId(), userStatus);
     database.persist(database.dataRoot().getStatusByUser());
@@ -120,10 +124,16 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId) {
+    return findAllUsersInGroup(groupId).stream()
+      .filter(otherUser -> !otherUser.getUserId().equals(currentUserId))
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<User> findAllUsersInGroup(UUID groupId) {
     return
         EntryStream.of(database.dataRoot().getGroupByUserId())
             .filterValues(gid -> gid.equals(groupId))
-            .filterKeys(otherUserId -> !otherUserId.equals(currentUserId))
             .keys()
             .map(database.dataRoot().getAllUsers()::get)
             .collect(Collectors.toList());
@@ -165,6 +175,16 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
         lastSignin,
         "Lookup error on last signin timestamp lookup for user %s", userId);
     return lastSignin;
+  }
+
+  @Override
+  public Set<UUID> findKickVotes(UUID userId) {
+    final Set<UUID> kickVotes = database.dataRoot().getStatusByUser()
+        .get(userId).getKickVotes();
+    Preconditions.checkNotNull(
+        kickVotes,
+        "Lookup error on kickvotes lookup for user %s", userId);
+    return Collections.unmodifiableSet(kickVotes);
   }
 
   @Override
@@ -319,4 +339,14 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     database.persist(database.dataRoot().getAllUsers());
   }
 
+  @Override
+  public void flagKickVote(UUID userToBeKicked, boolean flag, UUID userIdVoter) {
+    final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userToBeKicked);
+    if (flag) {
+      userStatus.getKickVotes().add(userIdVoter);
+    } else {
+      userStatus.getKickVotes().remove(userIdVoter);
+    }
+    database.persist(userStatus);
+  }
 }
