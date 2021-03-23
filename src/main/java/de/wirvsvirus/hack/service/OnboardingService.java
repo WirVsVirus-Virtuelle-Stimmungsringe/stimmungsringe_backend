@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
+import de.wirvsvirus.hack.service.dto.KickVoteInfoDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
@@ -278,12 +279,45 @@ public class OnboardingService {
     }
 
     /**
+     * vote for user to be kicked; if criteria is satisfied,
+     * the user will be removed from group
+     *
      * @param userToBeKickedId victim
      * @return true, if this was the last vote to kick user
      */
-    public boolean kickFlagUser(User currentUser, UUID userToBeKickedId) {
+    public boolean voteToKickUser(User currentUser, UUID userToBeKickedId) {
         Preconditions.checkState(!currentUser.getUserId().equals(userToBeKickedId),
             "User cannot vote for himself");
+
+        final KickVoteInfoDto kickVoteInfo = calcKickVoteInfo(currentUser, userToBeKickedId);
+
+        final boolean quorum = kickVoteInfo.getKickVotes() > kickVoteInfo.getMaxVoters() / 2;
+
+        if (quorum) {
+            final User userToBeKicked = onboardingRepository.lookupUserById(userToBeKickedId);
+            final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
+                .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
+            leaveGroup(currentGroup.getGroupId(), userToBeKicked);
+            // TODO rmove
+            System.out.println("User has been kicked");
+        } else {
+            System.out.println("User not yet kicked got votes: " + kickVoteInfo.getKickVotes());
+        }
+
+        return quorum;
+    }
+
+    public void unvoteToKickUser(User currentUser, UUID userToBeKickedId) {
+        Preconditions.checkState(!currentUser.getUserId().equals(userToBeKickedId),
+            "User cannot vote for himself");
+        final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
+            .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
+        checkUserInSameGroup(currentUser, userToBeKickedId);
+
+        onboardingRepository.flagKickVote(userToBeKickedId, false, currentUser.getUserId());
+    }
+
+    public KickVoteInfoDto calcKickVoteInfo(User currentUser, UUID userToBeKickedId) {
         final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
             .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
         checkUserInSameGroup(currentUser, userToBeKickedId);
@@ -297,21 +331,16 @@ public class OnboardingService {
 
         final long votes =
             onboardingRepository.findKickVotes(userToBeKickedId).stream()
-            .filter(userIdsInGroup::contains)
-            .count();
+                .filter(userIdsInGroup::contains)
+                .count();
 
-        final boolean quorum = votes > userIdsInGroup.size() / 2;
-
-        if (quorum) {
-            final User userToBeKicked = onboardingRepository.lookupUserById(userToBeKickedId);
-            leaveGroup(currentGroup.getGroupId(), userToBeKicked);
-            // TODO rmove
-            System.out.println("User has been kicked");
-        } else {
-            System.out.println("User not yet kicked got votes: " + votes);
-        }
-
-        return quorum;
+        return
+            KickVoteInfoDto.builder()
+                .kickVotes(votes)
+                // victim cannot vote
+            .maxVoters(usersInGroup.size() - 1)
+            .build();
     }
+
 
 }

@@ -9,13 +9,12 @@ import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
+import de.wirvsvirus.hack.service.dto.KickVoteInfoDto;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -119,11 +118,26 @@ public class PersistenceTest {
     onboardingRepository.joinGroup(group.getGroupId(), newUser3.getUserId());
 
     // 1st vote
-    assertFalse(onboardingService.kickFlagUser(newUser1, newUser3.getUserId()));
+    assertFalse(onboardingService.voteToKickUser(newUser1, newUser3.getUserId()));
     // redundant vote by user1
-    assertFalse(onboardingService.kickFlagUser(newUser1, newUser3.getUserId()));
-    // 2nd vote -> kicked
-    assertTrue(onboardingService.kickFlagUser(newUser2, newUser3.getUserId()));
+    assertFalse(onboardingService.voteToKickUser(newUser1, newUser3.getUserId()));
+
+    final KickVoteInfoDto kickVoteInfo = onboardingService
+        .calcKickVoteInfo(newUser1, newUser3.getUserId());
+    assertEquals(1, kickVoteInfo.getKickVotes());
+    assertEquals(2, kickVoteInfo.getMaxVoters());
+
+    // unvote
+    onboardingService.unvoteToKickUser(newUser1, newUser3.getUserId());
+
+
+    // 1st vote
+    assertFalse(onboardingService.voteToKickUser(newUser2, newUser3.getUserId()));
+
+
+    // 2nd vote -> kick
+    assertTrue(onboardingService.voteToKickUser(newUser1, newUser3.getUserId()));
+
 
     assertEquals(2, onboardingRepository.findAllUsersInGroup(group.getGroupId()).size());
 
