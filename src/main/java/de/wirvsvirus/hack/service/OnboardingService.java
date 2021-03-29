@@ -194,10 +194,10 @@ public class OnboardingService {
     public void checkUserInSameGroup(final User currentUser, final UUID otherUserId) {
         final Group currentGroup = onboardingRepository.findGroupByUser(currentUser.getUserId())
             .orElseThrow(() -> new IllegalStateException("Current user not in a group"));
-        final Group group = onboardingRepository.findGroupByUser(otherUserId)
-            .orElseThrow(() -> new IllegalStateException("Group not found"));
+        final Group otherGroup = onboardingRepository.findGroupByUser(otherUserId)
+            .orElseThrow(() -> new IllegalStateException("Group for other user not found"));
 
-        Preconditions.checkState(group.getGroupId().equals(currentGroup.getGroupId()),
+        Preconditions.checkState(otherGroup.getGroupId().equals(currentGroup.getGroupId()),
             "User to vote must be in same group");
     }
 
@@ -338,7 +338,7 @@ public class OnboardingService {
             KickVoteInfoDto.builder()
                 .kickVotes(votes)
                 // victim cannot vote
-            .maxVoters(usersInGroup.size() - 1)
+            .maxVoters(usersInGroup.size() - 1L)
             .build();
     }
 
