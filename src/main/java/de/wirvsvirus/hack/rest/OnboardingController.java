@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.rest;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.repository.microstream.MicrostreamBackupService;
 import de.wirvsvirus.hack.rest.dto.*;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.PushNotificationService;
@@ -12,6 +13,8 @@ import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,8 @@ import java.util.UUID;
 @RequestMapping("/onboarding")
 @Slf4j
 public class OnboardingController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamBackupService.class);
 
     @Autowired
     private OnboardingService onboardingService;
@@ -123,10 +128,21 @@ public class OnboardingController {
     }
 
     @PutMapping("/group/join")
-    public void joinGroup(@RequestBody @Valid final JoinGroupRequest request) {
+    public ResponseEntity<GroupDataResponse> joinGroup(@RequestBody @Valid final JoinGroupRequest request) {
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        onboardingService.joinGroup(request.getGroupId(), user);
+        final Optional<Group> joinedGroup = onboardingService.joinGroup(request.getGroupCode(), user);
+
+        if (!joinedGroup.isPresent()) {
+            return ResponseEntity.noContent().build();
+        }
+        final Group group = joinedGroup.get();
+
+        return ResponseEntity.ok(GroupDataResponse.builder()
+            .groupId(group.getGroupId())
+            .groupCode(group.getGroupCode())
+            .groupName(group.getGroupName())
+            .build());
     }
 
     @PutMapping("/group/leave")
@@ -147,22 +163,6 @@ public class OnboardingController {
                         .groupName(newGroup.getGroupName())
                         .groupCode(newGroup.getGroupCode())
                         .build());
-
-    }
-
-    @PostMapping("/group-by-code")
-    public ResponseEntity<GroupDataResponse> getGroupByCode(@RequestBody @Valid final FindGroupRequest request) {
-
-        final Optional<Group> match =
-                onboardingRepository.findGroupByCode(request.getGroupCode());
-
-        return match.map(group -> ResponseEntity.ok(
-            GroupDataResponse.builder()
-                        .groupId(group.getGroupId())
-                        .groupCode(group.getGroupCode())
-                        .groupName(group.getGroupName())
-                        .build())
-        ).orElseGet(() -> ResponseEntity.noContent().build());
 
     }
 
