@@ -116,25 +116,31 @@ public class OnboardingService {
         onboardingRepository.updateGroup(group.getGroupId(), groupSettings);
     }
 
-    public void joinGroup(UUID groupId, User user) {
-        log.info("User {} joining group {}", user.getName(), groupId);
+    public Optional<Group> joinGroup(String groupCode, User user) {
+        final Optional<Group> match =
+            onboardingRepository.findGroupByCode(groupCode);
+        if (!match.isPresent()) {
+            return Optional.empty();
+        }
+        final Group group = match.get();
 
-        final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
-        if (currentGroup.isPresent()) {
-            if (currentGroup.get().getGroupId().equals(groupId)) {
+        log.info("User {} joining group {}", user.getName(), group.getGroupName());
+
+        final Optional<Group> currentGroupOfUser = onboardingRepository.findGroupByUser(user.getUserId());
+        if (currentGroupOfUser.isPresent()) {
+            if (currentGroupOfUser.get().getGroupId().equals(currentGroupOfUser.get().getGroupId())) {
                 log.info("User is already member of requested group");
             } else {
                 log.info("User is already member of another group");
             }
         } else {
-            final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
-            Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
-            onboardingRepository.joinGroup(groupId, user.getUserId());
+            onboardingRepository.joinGroup(group.getGroupId(), user.getUserId());
 
-            onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
-                .forEach(otherUser -> sendPushMessageUserJoined(otherUser, user, lookup.get()));
+            onboardingRepository.findOtherUsersInGroup(group.getGroupId(), user.getUserId())
+                .forEach(otherUser -> sendPushMessageUserJoined(otherUser, user, group));
         }
 
+        return Optional.of(group);
     }
 
     public void leaveGroup(final UUID groupId, final User user) {
