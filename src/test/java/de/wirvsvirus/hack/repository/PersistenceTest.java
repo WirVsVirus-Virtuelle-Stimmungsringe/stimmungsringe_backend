@@ -33,9 +33,6 @@ public class PersistenceTest {
   private OnboardingRepository onboardingRepository;
 
   @Autowired
-  private OnboardingService onboardingService;
-
-  @Autowired
   private Database database;
 
   private String deviceIdentifier = "deviceIdent-" + new Random().nextLong();
