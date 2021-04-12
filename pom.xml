@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.3.RELEASE</version>
+		<version>2.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.wirvsvirus.hack</groupId>
@@ -21,7 +21,7 @@
 		<outputEncoding>UTF-8</outputEncoding>
 		<argLine>-Dfile.encoding=utf8</argLine>
 		<microstream.version>04.01.00-MS-GA</microstream.version>
-		<lombok.version>1.18.12</lombok.version>
+		<lombok.version>1.18.20</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>29.0-jre</version>
+			<version>30.1.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>one.util</groupId>
