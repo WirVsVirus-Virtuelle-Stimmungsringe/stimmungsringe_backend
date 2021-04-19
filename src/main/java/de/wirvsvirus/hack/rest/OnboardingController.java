@@ -3,8 +3,16 @@ package de.wirvsvirus.hack.rest;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.repository.microstream.MicrostreamBackupService;
-import de.wirvsvirus.hack.rest.dto.*;
+import de.wirvsvirus.hack.rest.dto.GroupDataResponse;
+import de.wirvsvirus.hack.rest.dto.GroupSettingsResponse;
+import de.wirvsvirus.hack.rest.dto.JoinGroupRequest;
+import de.wirvsvirus.hack.rest.dto.LeaveGroupRequest;
+import de.wirvsvirus.hack.rest.dto.SigninUserRequest;
+import de.wirvsvirus.hack.rest.dto.SigninUserResponse;
+import de.wirvsvirus.hack.rest.dto.StartNewGroupRequest;
+import de.wirvsvirus.hack.rest.dto.UpdateGroupSettingsRequest;
+import de.wirvsvirus.hack.rest.dto.UpdateUserSettingsRequest;
+import de.wirvsvirus.hack.rest.dto.UserSettingsResponse;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
@@ -12,24 +20,25 @@ import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/onboarding")
 @Slf4j
 public class OnboardingController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamBackupService.class);
 
     @Autowired
     private OnboardingService onboardingService;

@@ -5,6 +5,12 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.LoggingService;
 import de.wirvsvirus.hack.spring.Database;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.function.Predicate;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
@@ -18,13 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.function.Predicate;
 
 @RestController
 @RequestMapping("/debug")

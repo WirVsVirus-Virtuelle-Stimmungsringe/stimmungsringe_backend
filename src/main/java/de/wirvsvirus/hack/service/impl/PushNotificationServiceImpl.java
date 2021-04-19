@@ -1,6 +1,6 @@
 package de.wirvsvirus.hack.service.impl;
 
-import de.wirvsvirus.hack.model.*;
+import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.push.Notification;
 import de.wirvsvirus.hack.push.NotificationAndroidDeliveryOptions;
 import de.wirvsvirus.hack.push.NotificationData;
@@ -13,18 +13,22 @@ import de.wirvsvirus.hack.push.NotificationMessage;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j

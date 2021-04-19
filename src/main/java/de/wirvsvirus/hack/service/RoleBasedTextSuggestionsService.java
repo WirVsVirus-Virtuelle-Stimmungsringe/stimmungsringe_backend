@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.service;
 
 import de.wirvsvirus.hack.model.Role;
-
 import java.util.List;
 
 public interface RoleBasedTextSuggestionsService {

@@ -1,10 +1,7 @@
 package de.wirvsvirus.hack.spring;
 
-import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -13,16 +10,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.stereotype.Component;
 
 @Component
 @WebFilter("/stimmungsring/*")
+@Slf4j
 public class RestEndpointTimingsStatsFilter implements Filter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestEndpointTimingsStatsFilter.class);
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -35,7 +30,7 @@ public class RestEndpointTimingsStatsFilter implements Filter {
         try {
             chain.doFilter(req, resp);
         } finally {
-            LOGGER.debug("Time spent in endpoint {}: {} us", ((HttpServletRequest) req).getRequestURI(),
+            log.debug("Time spent in endpoint {}: {} us", ((HttpServletRequest) req).getRequestURI(),
                     stopWatch.getTime(TimeUnit.MICROSECONDS));
         }
     }

@@ -1,11 +1,9 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.Sentiment;
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
-
-import java.time.Instant;
 
 @Data
 @Builder

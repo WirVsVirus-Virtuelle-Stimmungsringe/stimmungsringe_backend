@@ -2,10 +2,9 @@ package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import lombok.ToString;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.ToString;
 
 @ToString
 public class User {

@@ -6,16 +6,14 @@ import de.wirvsvirus.hack.repository.OnboardingRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class InactivityCheckService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(InactivityCheckService.class);
 
   @Autowired
   private OnboardingRepository onboardingRepository;
@@ -42,7 +40,7 @@ public class InactivityCheckService {
           }
 
           sendPushMessageInactiveUser(inactiveUser, group.get());
-          LOGGER.info("Sent retention push message to inactive user {} - last active {}",
+          log.info("Sent retention push message to inactive user {} - last active {}",
               inactiveUser.getUserId(),
               onboardingRepository.findLastStatusUpdateByUserId(inactiveUser.getUserId()));
         });

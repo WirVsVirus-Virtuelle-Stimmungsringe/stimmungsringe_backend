@@ -1,14 +1,10 @@
 package de.wirvsvirus.hack.service.impl;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import de.wirvsvirus.hack.exception.RoleNotFoundException;
 import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.service.RoleBasedTextSuggestionsService;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,8 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
+import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j

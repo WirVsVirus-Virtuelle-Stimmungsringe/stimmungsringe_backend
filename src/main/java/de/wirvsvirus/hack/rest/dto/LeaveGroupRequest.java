@@ -1,9 +1,8 @@
 package de.wirvsvirus.hack.rest.dto;
 
-import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 import java.util.UUID;
+import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class LeaveGroupRequest {

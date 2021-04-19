@@ -1,6 +1,5 @@
 package de.wirvsvirus.hack.spring;
 
-import com.google.common.base.MoreObjects;
 import de.wirvsvirus.hack.mock.MockDataProvider;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.UserStatus;
@@ -11,18 +10,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import one.microstream.storage.types.StorageManager;
 import one.util.streamex.EntryStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 // run after repositories
 @Service
+@Slf4j
 public class DatabaseMigration {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMigration.class);
 
   @Autowired
   private OnboardingRepository onboardingRepository;
@@ -38,7 +35,7 @@ public class DatabaseMigration {
     final MigrationMetadata migrationMetadata = database.dataRoot().getMigrationMetadata();
     if (!migrationMetadata.isMockDataCreated()) {
 
-      LOGGER.info("Persisting mock data...");
+      log.info("Persisting mock data...");
 
       migrationMetadata.setMockDataCreated(true);
       database.persist(migrationMetadata);
@@ -67,7 +64,7 @@ public class DatabaseMigration {
           initial.setSentiment(Sentiment.cloudy);
           initial.setLastStatusUpdate(Instant.now());
           statusByUser.put(userId, initial);
-          LOGGER.info("- init user status for {}", userId);
+          log.info("- init user status for {}", userId);
         }
       }
       database.persist(statusByUser);

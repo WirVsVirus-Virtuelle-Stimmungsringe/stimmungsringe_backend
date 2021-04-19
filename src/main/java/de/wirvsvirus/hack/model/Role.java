@@ -1,12 +1,9 @@
 package de.wirvsvirus.hack.model;
 
 import de.wirvsvirus.hack.exception.RoleNotFoundException;
+import java.util.Arrays;
 import one.util.streamex.MoreCollectors;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Deprecated
 public enum Role {

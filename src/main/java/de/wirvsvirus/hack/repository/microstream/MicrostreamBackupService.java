@@ -1,28 +1,21 @@
 package de.wirvsvirus.hack.repository.microstream;
 
-import de.wirvsvirus.hack.spring.MicrostreamConfiguration;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import lombok.extern.slf4j.Slf4j;
 import one.microstream.afs.nio.NioFileSystem;
-import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.util.streamex.StreamEx;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class MicrostreamBackupService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamBackupService.class);
 
   @Value("${backend.microstream.backup-path:}")
   private Path backupPath;
@@ -36,7 +29,7 @@ public class MicrostreamBackupService {
   @Scheduled(cron = "1 */15 7-23 * * *")
   public void performBackup() {
     if (backupPath == null) {
-      LOGGER.info("No microstream backup path configured!");
+      log.info("No microstream backup path configured!");
       return;
     }
 
@@ -46,7 +39,7 @@ public class MicrostreamBackupService {
         NioFileSystem.New().ensureDirectoryPath(
             StreamEx.of(fullPath).map(Path::toString).toArray(new String[]{}))
     );
-    LOGGER.info("Performed full microstream backup to <{}>", fullPath);
+    log.info("Performed full microstream backup to <{}>", fullPath);
   }
 
   private Path leveledBackupDirName() {

@@ -1,10 +1,9 @@
 package de.wirvsvirus.hack.model;
 
-import lombok.Data;
-import lombok.ToString;
-
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Data;
+import lombok.ToString;
 
 @Data
 @ToString

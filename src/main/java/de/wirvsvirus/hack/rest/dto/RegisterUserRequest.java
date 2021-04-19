@@ -2,11 +2,10 @@ package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.model.Sentiment;
-import lombok.Data;
-
+import java.util.List;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import lombok.Data;
 
 
 @Data

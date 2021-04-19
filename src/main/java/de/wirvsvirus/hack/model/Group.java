@@ -1,9 +1,8 @@
 package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
-import lombok.ToString;
-
 import java.util.UUID;
+import lombok.ToString;
 
 @ToString
 public class Group {

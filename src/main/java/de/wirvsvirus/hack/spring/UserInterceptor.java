@@ -1,12 +1,11 @@
 package de.wirvsvirus.hack.spring;
 
 import com.google.common.base.Preconditions;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Slf4j
 public class UserInterceptor extends HandlerInterceptorAdapter {

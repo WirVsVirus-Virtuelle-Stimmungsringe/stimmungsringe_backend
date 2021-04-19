@@ -9,14 +9,17 @@ import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

@@ -1,9 +1,8 @@
 package de.wirvsvirus.hack.model;
 
 import de.wirvsvirus.hack.service.dto.DeviceType;
-import lombok.ToString;
-
 import java.util.UUID;
+import lombok.ToString;
 
 @ToString
 public class Device {

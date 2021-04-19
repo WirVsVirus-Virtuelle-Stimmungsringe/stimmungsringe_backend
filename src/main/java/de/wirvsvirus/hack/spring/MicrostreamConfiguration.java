@@ -7,27 +7,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import lombok.extern.slf4j.Slf4j;
 import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
-import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
-import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
-import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
-import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Slf4j
 @Profile("microstream")
 public class MicrostreamConfiguration {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(MicrostreamConfiguration.class);
 
   private static final Path STORAGE_ROOT_MARKER_FILE = Paths.get(".microstream-root");
 
@@ -54,7 +47,7 @@ public class MicrostreamConfiguration {
     final Path fullPath = storagePath.resolve(Paths.get(
         "familiarise-v" + storageCurrentVersion));
 
-    LOGGER.info("Using storage path {}", fullPath);
+    log.info("Using storage path {}", fullPath);
 
     final EmbeddedStorageManager storageManager = createStorageManager(fullPath);
     return storageManager;
@@ -99,7 +92,7 @@ public class MicrostreamConfiguration {
   }
 
   private void bootstrapDataRoot(final StorageManager storageManager) {
-    LOGGER.info("Bootstrapping database ({})...", storageManager.configuration().fileProvider().getStorageLocationIdentifier());
+    log.info("Bootstrapping database ({})...", storageManager.configuration().fileProvider().getStorageLocationIdentifier());
 
     final DataRoot newDataRoot = new DataRoot();
 

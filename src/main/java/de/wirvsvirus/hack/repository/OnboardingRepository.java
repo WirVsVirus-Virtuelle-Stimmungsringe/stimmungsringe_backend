@@ -7,7 +7,6 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

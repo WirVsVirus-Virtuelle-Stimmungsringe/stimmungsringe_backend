@@ -1,8 +1,6 @@
 package de.wirvsvirus.hack.spring;
 
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
-import java.util.Collection;
-import java.util.Map;
 
 public interface Database {
 

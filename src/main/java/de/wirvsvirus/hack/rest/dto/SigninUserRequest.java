@@ -1,9 +1,8 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.service.dto.DeviceType;
-import lombok.Data;
-
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class SigninUserRequest {
