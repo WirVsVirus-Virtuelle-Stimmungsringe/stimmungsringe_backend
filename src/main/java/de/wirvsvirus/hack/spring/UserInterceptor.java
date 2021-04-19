@@ -5,10 +5,11 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Slf4j
-public class UserInterceptor extends HandlerInterceptorAdapter {
+public class UserInterceptor implements HandlerInterceptor {
 
     private static final String HEADER_USER_ID = "X-User-ID";
 
