@@ -4,12 +4,12 @@
 ## Entwicklerinformationen
 ### Branches
 **master** - Branch für Entwicklung  
-**ci/release** - Branch für Buildpipeline (automatisches deployment auf AWS)
+**ci/release** - Branch für Buildpipeline (Google Actions, deployment auf Server media-it)
 
 ### Microstream
 Der Storage-Pfad muss extern als Property gesetzt werden:
 
-`java .... backend.jar --backend.microstream.storage-path=/tmp/microstream-database/ --backend.microstream.backup-path=/tmp/microstream-database-backups/`
+`java .... backend.jar --spring.profiles.active=microstream --backend.microstream.storage-path=/tmp/microstream-database/ --backend.microstream.backup-path=/tmp/microstream-database-backups/`
 
 ### Spring Boot Profiles
 local dev with microstream and push: microstream, firebase-push-secrets
