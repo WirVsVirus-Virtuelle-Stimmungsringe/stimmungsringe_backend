@@ -71,21 +71,17 @@ public class OnboardingService {
 
             onboardingRepository.touchLastSignin(userId);
 
-            if (group.isPresent()) {
-                return UserSignedInDto.builder()
-                        .userId(userId)
-                        .group(group)
-                        .build();
-            } else {
-                return UserSignedInDto.builder()
-                        .userId(userId)
-                        .group(group)
-                        .build();
-            }
+            return UserSignedInDto.builder()
+                    .userId(userId)
+                    .group(group)
+                    .build();
         }
 
     }
 
+    /**
+     * note: supports partial update
+     */
     public void updateUser(final User user, final UserSettingsDto userSettings) {
 
         if (StringUtils.isNotBlank(userSettings.getName())) {
@@ -116,7 +112,7 @@ public class OnboardingService {
         onboardingRepository.updateGroup(group.getGroupId(), groupSettings);
     }
 
-    public Optional<Group> joinGroup(String groupCode, User user) {
+    public Optional<Group> joinGroup(final String groupCode, final User user) {
         final Optional<Group> match =
             onboardingRepository.findGroupByCode(groupCode);
         if (!match.isPresent()) {
@@ -248,8 +244,8 @@ public class OnboardingService {
             ));
     }
 
-    private void sendPushMessageUserLeft(User recipient, User newUser,
-        Group group) {
+    private void sendPushMessageUserLeft(
+        final User recipient, final User newUser, final Group group) {
         onboardingRepository.findDevicesByUserId(recipient.getUserId())
             .forEach(device -> pushNotificationService.sendMessage(
                 device.getFcmToken(), "Familiarise",

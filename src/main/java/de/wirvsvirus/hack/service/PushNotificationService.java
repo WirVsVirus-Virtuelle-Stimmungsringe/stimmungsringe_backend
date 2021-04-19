@@ -10,9 +10,6 @@ public interface PushNotificationService {
     void registerFcmTokenForUser(UUID userId, String deviceIdentifier, DeviceType android,
         String fcmToken);
 
-    // TODO do we need that?
-    String getSenderId();
-
     void sendMessage(String to, String title, String body, Optional<String> collapseId, Optional<URI> imageUri);
 
 }

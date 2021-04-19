@@ -70,11 +70,6 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     }
 
     @Override
-    public String getSenderId() {
-        return this.notificationSenderId;
-    }
-
-    @Override
     public void sendMessage(String to, String title, String body, Optional<String> collapseId, Optional<URI> imageUri) {
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders headers = new HttpHeaders();
