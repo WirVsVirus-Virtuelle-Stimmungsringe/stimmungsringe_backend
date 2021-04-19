@@ -3,11 +3,11 @@ package de.wirvsvirus.hack.spring;
 import de.wirvsvirus.hack.repository.microstream.DataRoot;
 import one.microstream.storage.types.StorageManager;
 
-public class DatabaseAccessImpl implements Database {
+class DatabaseAccessImpl implements Database {
 
   private final StorageManager storageManager;
 
-  public DatabaseAccessImpl(StorageManager storageManager) {
+  DatabaseAccessImpl(StorageManager storageManager) {
     this.storageManager = storageManager;
   }
 

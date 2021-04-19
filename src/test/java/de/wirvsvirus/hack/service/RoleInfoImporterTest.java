@@ -1,16 +1,15 @@
 package de.wirvsvirus.hack.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import de.wirvsvirus.hack.model.Role;
 import de.wirvsvirus.hack.service.impl.RoleInfoImporterServiceImpl;
+import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 @SpringBootTest(classes = {RoleInfoImporterServiceImpl.class})
 public class RoleInfoImporterTest {

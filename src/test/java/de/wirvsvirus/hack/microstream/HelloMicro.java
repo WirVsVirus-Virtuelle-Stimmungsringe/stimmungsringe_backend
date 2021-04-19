@@ -1,14 +1,7 @@
 package de.wirvsvirus.hack.microstream;
 
-import de.wirvsvirus.hack.spring.DatabaseAccessImpl;
-import de.wirvsvirus.hack.spring.MicrostreamConfiguration;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
 import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;

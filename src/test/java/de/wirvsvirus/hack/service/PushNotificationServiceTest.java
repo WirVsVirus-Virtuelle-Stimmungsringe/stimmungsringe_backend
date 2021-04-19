@@ -1,9 +1,8 @@
 package de.wirvsvirus.hack.service;
 
 import de.wirvsvirus.hack.exception.PushMessageNotSendException;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 //@SpringBootTest
 public class PushNotificationServiceTest {

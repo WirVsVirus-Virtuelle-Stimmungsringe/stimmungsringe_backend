@@ -58,7 +58,7 @@ public class DatabaseMigration {
       database.persist(migrationMetadata);
 
       final Map<UUID, UserStatus> statusByUser = database.dataRoot().getStatusByUser();
-      for (UUID userId : database.dataRoot().getAllUsers().keySet()) {
+      for (final UUID userId : database.dataRoot().getAllUsers().keySet()) {
         if (!statusByUser.containsKey(userId)) {
           final UserStatus initial = new UserStatus();
           initial.setSentiment(Sentiment.cloudy);
