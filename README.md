@@ -17,4 +17,4 @@ local dev with microstream and push: microstream, firebase-push-secrets
 
 ### Sonstiges
 Port für Backend (localhost): 5000
-
+Security-Header "X-FAM-Proxy-Key" - siehe nginx-Config

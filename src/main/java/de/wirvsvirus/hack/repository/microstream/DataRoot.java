@@ -16,7 +16,9 @@ public class DataRoot {
   private Map<UUID, User> allUsers;
   private Map<UUID, Group> allGroups;
   private Map<UUID, UUID> groupByUserId;
+  @Deprecated
   private Map<UUID, Sentiment> sentimentByUser;
+  @Deprecated
   private Map<UUID, Instant> lastStatusUpdateByUser;
   private Map<UUID, UserStatus> statusByUser;
 
