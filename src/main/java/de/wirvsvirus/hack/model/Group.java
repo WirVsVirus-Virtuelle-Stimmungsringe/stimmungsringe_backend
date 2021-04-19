@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.ToString;
 
 @ToString
-public class Group {
+public class Group implements MicrostreamObject {
 
     private final UUID groupId;
     private String groupName;

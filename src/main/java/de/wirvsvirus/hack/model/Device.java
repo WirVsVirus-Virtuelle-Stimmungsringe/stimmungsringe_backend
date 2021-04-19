@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.ToString;
 
 @ToString
-public class Device {
+public class Device implements MicrostreamObject {
 
     private UUID userId;
     private DeviceType deviceType;

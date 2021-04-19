@@ -7,7 +7,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class Message {
+public class Message implements MicrostreamObject {
 
     private UUID groupId;
     private UUID messageId;

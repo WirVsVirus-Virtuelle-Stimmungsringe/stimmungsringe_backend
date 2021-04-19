@@ -1,9 +1,10 @@
 package de.wirvsvirus.hack.repository.microstream;
 
+import de.wirvsvirus.hack.model.MicrostreamObject;
 import lombok.Data;
 
 @Data
-public class MigrationMetadata {
+public class MigrationMetadata implements MicrostreamObject {
 
   boolean mockDataCreated;
 

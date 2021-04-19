@@ -4,7 +4,7 @@ import java.time.Instant;
 import lombok.ToString;
 
 @ToString
-public class UserStatus {
+public class UserStatus implements MicrostreamObject {
 
   private Instant lastStatusUpdate;
   private Sentiment sentiment;

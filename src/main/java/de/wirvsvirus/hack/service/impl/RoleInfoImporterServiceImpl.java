@@ -19,6 +19,10 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 
+/**
+ * @deprecated feature not used ATM
+ */
+@Deprecated
 @Service
 @Slf4j
 public class RoleInfoImporterServiceImpl implements RoleBasedTextSuggestionsService {
