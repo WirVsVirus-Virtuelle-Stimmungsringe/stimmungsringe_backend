@@ -49,6 +49,9 @@ public class OnboardingController {
     @Autowired
     private PushNotificationService pushNotificationService;
 
+    /**
+     * unauthenticated - see @link {@link UserInterceptor}
+     */
     @PutMapping("/signin")
     public SigninUserResponse signin(@RequestBody @Valid final SigninUserRequest request) {
 
