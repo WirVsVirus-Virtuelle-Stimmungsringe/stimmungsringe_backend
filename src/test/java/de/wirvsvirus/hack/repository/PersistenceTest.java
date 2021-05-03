@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.wirvsvirus.hack.Application;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
-import de.wirvsvirus.hack.repository.PersistenceTest.Foo;
+import de.wirvsvirus.hack.repository.PersistenceTest.PersistenceTestConfiguration;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
@@ -27,17 +28,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 
 @Disabled
-@SpringBootTest(properties = {"backend.microstream.storage-path=file:${user.home}/familiarise-test-microstream/"})
-@ActiveProfiles("microstream")
+@SpringBootTest(
+    classes = {Application.class, PersistenceTestConfiguration.class},
+    properties = {"backend.microstream.storage-path=file:${user.home}/familiarise-test-microstream/"})
+@ActiveProfiles({"microstream", "no-push-notification-service"})
 public class PersistenceTest {
 
   @Configuration
-  static class Foo {
+  static class PersistenceTestConfiguration {
     @Bean
     @Primary
     PushNotificationService mock() {
@@ -45,13 +47,11 @@ public class PersistenceTest {
         @Override
         public void registerFcmTokenForUser(UUID userId, String deviceIdentifier,
             DeviceType android, String fcmToken) {
-
         }
 
         @Override
         public void sendMessage(String to, String title, String body, Optional<String> collapseId,
             Optional<URI> imageUri) {
-
         }
       };
     }
