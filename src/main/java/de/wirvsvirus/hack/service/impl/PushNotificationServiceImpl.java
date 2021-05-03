@@ -37,7 +37,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     @Autowired
     private OnboardingRepository onboardingRepository;
 
-    @Value("${notification.service.url:}")
+    @Value("${notification.service.url}")
     private String notificationServiceUrl;
 
     @Value("${notification.sender.id:}")

@@ -152,7 +152,8 @@ public class OnboardingService {
                 onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
                     .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
 
-                log.info("... remove user {} from group {} with groupId {}", user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
+                log.info("... remove user {} from group {} with groupId {}",
+                    user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
             } else {
                 log.info("User is member of another group");
             }
@@ -160,6 +161,7 @@ public class OnboardingService {
             log.info("User is not member of any group");
         }
 
+        onboardingRepository.deleteUser(user.getUserId());
     }
 
     public Group startNewGroup(final User user, final String groupName) {
