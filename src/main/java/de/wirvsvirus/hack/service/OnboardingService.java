@@ -57,7 +57,7 @@ public class OnboardingService {
             newUser.setRoles(Collections.emptyList());
             onboardingRepository.createNewUser(newUser,
                 Sentiment.sunnyWithClouds,
-                "",
+                "Bin neu hier!",
                 Instant.now());
             return UserSignedInDto.builder()
                     .userId(newUser.getUserId())
