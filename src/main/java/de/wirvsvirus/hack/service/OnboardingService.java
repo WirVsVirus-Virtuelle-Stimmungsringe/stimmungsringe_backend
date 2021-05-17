@@ -143,25 +143,27 @@ public class OnboardingService {
         log.info("User {} leaving group {}", user.getName(), groupId);
 
         final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
-        if (currentGroup.isPresent()) {
-            if (currentGroup.get().getGroupId().equals(groupId)) {
-                final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
-                Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
-                onboardingRepository.leaveGroup(lookup.get().getGroupId(), user.getUserId());
-
-                onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
-                    .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
-
-                log.info("... remove user {} from group {} with groupId {}",
-                    user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
-            } else {
-                log.info("User is member of another group");
-            }
-        } else {
+        if (!currentGroup.isPresent()) {
             log.info("User is not member of any group");
+            log.info("... remove user {} with no group", user.getUserId());
+            onboardingRepository.deleteUser(user.getUserId());
+            return;
         }
 
+        Preconditions.checkState(currentGroup.get().getGroupId().equals(groupId),
+            "User is member of another group");
+
+        final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
+        Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
+        onboardingRepository.leaveGroup(lookup.get().getGroupId(), user.getUserId());
+
+        onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
+            .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
+
+        log.info("... remove user {} from group {} with groupId {}",
+            user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());
         onboardingRepository.deleteUser(user.getUserId());
+
     }
 
     public Group startNewGroup(final User user, final String groupName) {
