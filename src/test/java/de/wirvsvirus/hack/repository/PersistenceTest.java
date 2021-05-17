@@ -110,10 +110,16 @@ public class PersistenceTest {
     final List<User> others = onboardingRepository
         .findOtherUsersInGroup(group.getGroupId(), newUser1.getUserId());
 
+    onboardingRepository.sendMessage(newUser2, newUser1, "user2 -> user1");
+
     assertEquals(1, others.size());
     assertEquals("Flack", others.get(0).getName());
 
+    assertEquals(1, onboardingRepository.findMessagesByRecipientId(newUser1.getUserId()).size());
+
     onboardingService.leaveGroup(group.getGroupId(), newUser2);
+
+    assertEquals(0, onboardingRepository.findMessagesByRecipientId(newUser1.getUserId()).size());
 
     assertTrue(onboardingRepository.findAllUsers()
         .noneMatch(user -> user.getUserId().equals(newUser2.getUserId())),
