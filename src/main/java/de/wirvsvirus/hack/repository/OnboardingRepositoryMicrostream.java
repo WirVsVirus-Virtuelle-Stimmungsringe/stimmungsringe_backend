@@ -71,6 +71,12 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
+  public boolean isUserExisting(UUID userId) {
+    Preconditions.checkNotNull(userId);
+    return database.dataRoot().getAllUsers().containsValue(userId);
+  }
+
+  @Override
   public void updateUser(final UUID userId, final UserSettingsDto userSettings) {
     final User user = lookupUserById(userId);
     user.setName(userSettings.getName());
@@ -314,6 +320,13 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     Preconditions.checkState(database.dataRoot().getAllUsers().containsKey(userId),
         "User does not exist for id %s", userId);
 
+    findGroupByUser(userId).ifPresent(group -> {
+      final List<Message> messages = database.dataRoot().getAllGroupMessages()
+          .get(group.getGroupId());
+      messages.removeIf(message -> message.getSenderUserId().equals(userId));
+      database.persist(messages);
+    });
+
     database.dataRoot().getAllUsers().remove(userId);
     database.persist(database.dataRoot().getAllUsers());
 
@@ -325,6 +338,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllDevicesByUser().remove(userId);
     database.persist(database.dataRoot().getAllDevicesByUser());
+
   }
 
 }

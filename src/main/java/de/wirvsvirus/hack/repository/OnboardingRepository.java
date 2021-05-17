@@ -20,6 +20,8 @@ public interface OnboardingRepository {
 
     User lookupUserById(UUID userId);
 
+    boolean isUserExisting(UUID userId);
+
     void updateUser(UUID userId, UserSettingsDto userSettings);
 
     Group startNewGroup(String groupName, String groupCode);
@@ -70,4 +72,5 @@ public interface OnboardingRepository {
     Stream<User> findAllUsers();
 
     void deleteUser(UUID userId);
+
 }
