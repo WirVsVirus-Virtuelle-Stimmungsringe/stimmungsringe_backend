@@ -308,4 +308,23 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   public Stream<User> findAllUsers() {
     return database.dataRoot().getAllUsers().values().stream();
   }
+
+  @Override
+  public void deleteUser(UUID userId) {
+    Preconditions.checkState(database.dataRoot().getAllUsers().containsKey(userId),
+        "User does not exist for id %s", userId);
+
+    database.dataRoot().getAllUsers().remove(userId);
+    database.persist(database.dataRoot().getAllUsers());
+
+    database.dataRoot().getGroupByUserId().remove(userId);
+    database.persist(database.dataRoot().getGroupByUserId());
+
+    database.dataRoot().getStatusByUser().remove(userId);
+    database.persist(database.dataRoot().getStatusByUser());
+
+    database.dataRoot().getAllDevicesByUser().remove(userId);
+    database.persist(database.dataRoot().getAllDevicesByUser());
+  }
+
 }

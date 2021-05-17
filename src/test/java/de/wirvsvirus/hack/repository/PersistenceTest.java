@@ -2,16 +2,23 @@ package de.wirvsvirus.hack.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.wirvsvirus.hack.Application;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.PersistenceTest.PersistenceTestConfiguration;
+import de.wirvsvirus.hack.service.OnboardingService;
+import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
 import de.wirvsvirus.hack.spring.Database;
+import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
@@ -19,15 +26,42 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 
 @Disabled
-@SpringBootTest(properties = {"backend.microstream.storage-path=test-micro/"})
-@ActiveProfiles("microstream")
+@SpringBootTest(
+    classes = {Application.class, PersistenceTestConfiguration.class},
+    properties = {"backend.microstream.storage-path=file:${user.home}/familiarise-test-microstream/"})
+@ActiveProfiles({"microstream", "no-push-notification-service"})
 public class PersistenceTest {
+
+  @Configuration
+  static class PersistenceTestConfiguration {
+    @Bean
+    @Primary
+    PushNotificationService mock() {
+      return new PushNotificationService() {
+        @Override
+        public void registerFcmTokenForUser(UUID userId, String deviceIdentifier,
+            DeviceType android, String fcmToken) {
+        }
+
+        @Override
+        public void sendMessage(String to, String title, String body, Optional<String> collapseId,
+            Optional<URI> imageUri) {
+        }
+      };
+    }
+  }
 
   @Autowired
   private OnboardingRepository onboardingRepository;
+
+  @Autowired
+  private OnboardingService onboardingService;
 
   @Autowired
   private Database database;
@@ -65,7 +99,6 @@ public class PersistenceTest {
 
     final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
 
-
     assertEquals("Testgrp", onboardingRepository.findGroupByCode(groupCode)
         .get().getGroupName());
     assertFalse(onboardingRepository.findGroupByCode("NoGroup")
@@ -80,7 +113,11 @@ public class PersistenceTest {
     assertEquals(1, others.size());
     assertEquals("Flack", others.get(0).getName());
 
-    onboardingRepository.leaveGroup(group.getGroupId(), newUser2.getUserId());
+    onboardingService.leaveGroup(group.getGroupId(), newUser2);
+
+    assertTrue(onboardingRepository.findAllUsers()
+        .noneMatch(user -> user.getUserId().equals(newUser2.getUserId())),
+        "Must delete User if she leaves group");
 
     assertFalse(onboardingRepository.findGroupByUser(newUser2.getUserId()).isPresent());
 

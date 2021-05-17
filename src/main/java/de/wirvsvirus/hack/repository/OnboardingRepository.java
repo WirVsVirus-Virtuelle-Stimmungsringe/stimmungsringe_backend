@@ -69,4 +69,5 @@ public interface OnboardingRepository {
 
     Stream<User> findAllUsers();
 
+    void deleteUser(UUID userId);
 }

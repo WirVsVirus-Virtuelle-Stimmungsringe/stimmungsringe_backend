@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,12 +33,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @Slf4j
+@Profile("!no-push-notification-service")
 public class PushNotificationServiceImpl implements PushNotificationService {
 
     @Autowired
     private OnboardingRepository onboardingRepository;
 
-    @Value("${notification.service.url:}")
+    @Value("${notification.service.url}")
     private String notificationServiceUrl;
 
     @Value("${notification.sender.id:}")

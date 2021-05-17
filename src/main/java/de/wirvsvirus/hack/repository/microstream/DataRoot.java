@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * on change .. consider updating deleteUser
+ */
 public class DataRoot {
 
   private Map<UUID, User> allUsers;
