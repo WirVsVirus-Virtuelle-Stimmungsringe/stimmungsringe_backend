@@ -73,7 +73,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   @Override
   public boolean isUserExisting(UUID userId) {
     Preconditions.checkNotNull(userId);
-    return database.dataRoot().getAllUsers().containsValue(userId);
+    return database.dataRoot().getAllUsers().containsKey(userId);
   }
 
   @Override
