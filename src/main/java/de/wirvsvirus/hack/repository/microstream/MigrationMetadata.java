@@ -19,4 +19,6 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean sentimentTextInitialized2;
 
+  boolean staleMessagesDeleted;
+
 }

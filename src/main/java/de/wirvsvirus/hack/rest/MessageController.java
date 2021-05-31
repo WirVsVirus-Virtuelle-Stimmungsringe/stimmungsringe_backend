@@ -94,7 +94,6 @@ public class MessageController {
 
         final List<MessageResponse> responseList = messages.stream()
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-                .filter(message -> onboardingRepository.isUserExisting(message.getSenderUserId()))
                 .map(message -> MessageResponse.builder()
                         .createdAt(message.getCreatedAt())
                         .senderUser(resolveSenderUser(message.getSenderUserId()))

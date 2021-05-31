@@ -1,18 +1,23 @@
 package de.wirvsvirus.hack.spring;
 
 import de.wirvsvirus.hack.mock.MockDataProvider;
+import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import one.microstream.storage.types.StorageManager;
 import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -96,6 +101,27 @@ public class DatabaseMigration {
           .forEach(userStatus ->  {
             userStatus.setSentimentText("");
             database.persist(userStatus);
+          });
+    }
+
+    // delete messages for non-existing users
+    if (!migrationMetadata.isStaleMessagesDeleted()) {
+      migrationMetadata.setStaleMessagesDeleted(true);
+      database.persist(migrationMetadata);
+
+      final Set<UUID> staleMessages =
+          EntryStream.of(database.dataRoot().getAllGroupMessages())
+              .flatMapValues(Collection::stream)
+              .values()
+              .filter(message -> !onboardingRepository.isUserExisting(message.getSenderUserId()))
+              .map(Message::getMessageId)
+              .toImmutableSet();
+
+      EntryStream.of(database.dataRoot().getAllGroupMessages())
+          .values()
+          .forEach(messageList -> {
+            messageList.removeIf(m -> staleMessages.contains(m.getMessageId()));
+            database.persist(messageList);
           });
     }
 
