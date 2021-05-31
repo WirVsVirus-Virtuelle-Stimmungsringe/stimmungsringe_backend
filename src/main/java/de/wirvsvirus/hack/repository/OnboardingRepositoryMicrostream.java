@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -320,12 +321,7 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     Preconditions.checkState(database.dataRoot().getAllUsers().containsKey(userId),
         "User does not exist for id %s", userId);
 
-    findGroupByUser(userId).ifPresent(group -> {
-      final List<Message> messages = database.dataRoot().getAllGroupMessages()
-          .get(group.getGroupId());
-      messages.removeIf(message -> message.getSenderUserId().equals(userId));
-      database.persist(messages);
-    });
+    deleteMessagesForUser(userId);
 
     database.dataRoot().getAllUsers().remove(userId);
     database.persist(database.dataRoot().getAllUsers());
@@ -339,6 +335,22 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
     database.dataRoot().getAllDevicesByUser().remove(userId);
     database.persist(database.dataRoot().getAllDevicesByUser());
 
+  }
+
+  /**
+   * scan all messages and delete message if sender or recipient is the user
+   */
+  private void deleteMessagesForUser(UUID userId) {
+    final Predicate<Message> matcher =
+        m -> m.getSenderUserId().equals(userId) || m.getRecipientUserId().equals(userId);
+
+    EntryStream.of(database.dataRoot().getAllGroupMessages())
+        .filterValues(messageList -> messageList.stream().anyMatch(matcher))
+        .values()
+        .forEach(messageList -> {
+          messageList.removeIf(matcher);
+          database.persist(messageList);
+        });
   }
 
 }

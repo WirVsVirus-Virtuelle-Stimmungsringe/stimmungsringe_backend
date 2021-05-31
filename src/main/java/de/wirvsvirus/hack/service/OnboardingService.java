@@ -140,7 +140,7 @@ public class OnboardingService {
     }
 
     public void leaveGroup(final UUID groupId, final User user) {
-        log.info("User {} leaving group {}", user.getName(), groupId);
+        log.info("User {} leaving group {}...", user.getName(), groupId);
 
         final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
         if (!currentGroup.isPresent()) {
