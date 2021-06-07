@@ -14,6 +14,8 @@ Der Storage-Pfad muss extern als Property gesetzt werden:
 ### Spring Boot Profiles
 local dev with microstream and push: microstream, firebase-push-secrets
 
+### Health Check (Actuator)
+`curl http://localhost:5000/stimmungsring/actuator/health`
 
 ### Sonstiges
 Port für Backend (localhost): 5000
