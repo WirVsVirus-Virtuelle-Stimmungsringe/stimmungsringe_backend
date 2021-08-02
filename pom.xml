@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.wirvsvirus.hack</groupId>
-	<artifactId>virtuelle-stimmungsringe</artifactId>
+	<artifactId>familiarise-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>virtuelle-stimmungsringe</name>
-	<description>Virtuelle Stimmungsringe Backend</description>
+	<name>familiarise-backend</name>
+	<description>familiarise Backend</description>
 
 	<properties>
 		<java.version>1.8</java.version>
