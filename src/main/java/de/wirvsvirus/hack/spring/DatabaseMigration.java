@@ -125,6 +125,22 @@ public class DatabaseMigration {
           });
     }
 
+    if (!migrationMetadata.isLastSigninInitialized2()) {
+      migrationMetadata.setLastSigninInitialized2(true);
+      database.persist(migrationMetadata);
+
+      EntryStream.of(database.dataRoot().getStatusByUser())
+          .values()
+          .filter(userStatus -> userStatus.getLastSignin() == null)
+          .forEach(userStatus -> {
+            userStatus.setLastSignin(
+                userStatus.getLastStatusUpdate() != null
+                    ? userStatus.getLastStatusUpdate()
+                    : Instant.parse("2019-01-01T10:15:32.00Z"));
+            database.persist(userStatus);
+          });
+    }
+
   }
 
 }
