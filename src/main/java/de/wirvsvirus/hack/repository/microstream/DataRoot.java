@@ -101,9 +101,15 @@ public class DataRoot {
   public void dumpToSysout() {
     System.out.println("-- Inspecting database:");
 
+    System.out.println("   Groups");
+    for (Group group : allGroups.values()) {
+      System.out.println("   - G " + group.getGroupName() + " " + group.getGroupCode());
+    }
+
     System.out.println("   Users");
     for (User user : allUsers.values()) {
       System.out.println("   - M " + user.getName() + " " + user.getUserId());
     }
+
   }
 }
