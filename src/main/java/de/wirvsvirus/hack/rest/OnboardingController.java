@@ -117,8 +117,8 @@ public class OnboardingController {
 
         final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
         return UserSettingsResponse.builder()
-                .userName(user.getName())
                 .hasName(user.hasName())
+                .userName(user.getName())
                 .stockAvatar(user.getStockAvatar())
                 .build();
     }

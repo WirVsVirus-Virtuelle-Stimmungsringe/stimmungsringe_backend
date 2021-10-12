@@ -10,8 +10,8 @@ public final class Mappers {
         final User user, final Function<User, String> avatarUrlFromUser) {
         return UserMinimalResponse.builder()
                 .userId(user.getUserId())
-                .displayName(user.getName())
                 .hasName(user.hasName())
+                .displayName(user.getName())
                 .avatarUrl(avatarUrlFromUser.apply(user))
                 .build();
     }

@@ -30,6 +30,9 @@ public class User implements MicrostreamObject {
         return deviceIdentifier;
     }
 
+    /**
+     * nullable
+     */
     public String getName() {
         return name;
     }
