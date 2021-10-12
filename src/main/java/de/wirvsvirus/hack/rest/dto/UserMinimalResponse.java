@@ -10,15 +10,15 @@ import lombok.Data;
 @Builder
 public class UserMinimalResponse {
 
-    @NotNull
+    // not null
     private UUID userId;
 
-    @NotEmpty
+    // not empty
     private String displayName;
 
     private boolean hasName;
 
-    @NotEmpty
+    // not empty
     private String avatarUrl;
 
 }

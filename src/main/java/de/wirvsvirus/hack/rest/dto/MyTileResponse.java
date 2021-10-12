@@ -2,6 +2,7 @@ package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.Sentiment;
 import java.time.Instant;
+import javax.validation.Valid;
 import lombok.Builder;
 import lombok.Data;
 
