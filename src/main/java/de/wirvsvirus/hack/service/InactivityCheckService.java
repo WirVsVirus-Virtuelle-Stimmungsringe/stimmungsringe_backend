@@ -123,6 +123,7 @@ public class InactivityCheckService {
     final List<String> otherUserNames =
         allOtherUserNames.stream()
             .filter(name -> name.length() < 12)
+            .limit(3)
             .collect(Collectors.toList());
 
     final String pushText;

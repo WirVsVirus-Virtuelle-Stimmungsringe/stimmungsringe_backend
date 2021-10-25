@@ -32,4 +32,10 @@ class InactivityCheckServiceTest {
         buildNoStatusUpdateString(Lists.newArrayList("Blubb", "Dani", "Gudrun")));
   }
 
+  @Test
+  void buildFromMoreThanThree() {
+    assertEquals("Blubb, Dani und Gudrun möchten wissen, wie es dir geht!",
+        buildNoStatusUpdateString(Lists.newArrayList("Blubb", "Dani", "Gudrun", "Foo", "bar")));
+  }
+
 }
