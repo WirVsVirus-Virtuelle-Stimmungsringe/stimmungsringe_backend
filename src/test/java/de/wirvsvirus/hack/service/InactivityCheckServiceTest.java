@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.service;
 
+import static de.wirvsvirus.hack.service.InactivityCheckService.buildNoStatusUpdateString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -36,10 +37,6 @@ class InactivityCheckServiceTest {
   void buildFromMoreThanThree() {
     assertEquals("Blubb, Dani und Gudrun möchten wissen, wie es dir geht!",
         buildNoStatusUpdateString(Lists.newArrayList("Blubb", "Dani", "Gudrun", "Foo", "Bar")));
-  }
-
-  private String buildNoStatusUpdateString(final List<String> allOtherUserNames) {
-    return InactivityCheckService.buildNoStatusUpdateString(allOtherUserNames, false);
   }
 
 }

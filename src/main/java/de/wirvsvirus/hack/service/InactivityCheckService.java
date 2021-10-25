@@ -110,27 +110,23 @@ public class InactivityCheckService {
             .filter(User::hasName)
             .map(User::getName)
             .collect(Collectors.toList());
+    Collections.shuffle(otherUserNames);
 
     onboardingRepository.findDevicesByUserId(lazyUser.getUserId())
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
-            buildNoStatusUpdateString(otherUserNames, true),
+            buildNoStatusUpdateString(otherUserNames),
             Optional.empty(),
             Optional.empty())
         );
   }
 
-  static String buildNoStatusUpdateString(
-      final List<String> allOtherUserNames,
-      final boolean shuffle) {
+  static String buildNoStatusUpdateString(final List<String> allOtherUserNames) {
     final List<String> otherUserNames =
         allOtherUserNames.stream()
             .filter(name -> name.length() < 12)
             .limit(3)
             .collect(Collectors.toList());
-    if (shuffle) {
-      Collections.shuffle(otherUserNames);
-    }
 
     final String pushText;
     if (otherUserNames.isEmpty()) {
