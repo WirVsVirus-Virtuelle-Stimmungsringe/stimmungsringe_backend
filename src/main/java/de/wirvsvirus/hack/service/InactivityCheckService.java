@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -113,18 +114,23 @@ public class InactivityCheckService {
     onboardingRepository.findDevicesByUserId(lazyUser.getUserId())
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
-            buildNoStatusUpdateString(otherUserNames),
+            buildNoStatusUpdateString(otherUserNames, true),
             Optional.empty(),
             Optional.empty())
         );
   }
 
-  static String buildNoStatusUpdateString(final List<String> allOtherUserNames) {
+  static String buildNoStatusUpdateString(
+      final List<String> allOtherUserNames,
+      final boolean shuffle) {
     final List<String> otherUserNames =
         allOtherUserNames.stream()
             .filter(name -> name.length() < 12)
             .limit(3)
             .collect(Collectors.toList());
+    if (shuffle) {
+      Collections.shuffle(otherUserNames);
+    }
 
     final String pushText;
     if (otherUserNames.isEmpty()) {
