@@ -23,6 +23,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class InactivityCheckService {
 
+  /**
+   * limit number of names in enumeration
+   */
+  private static final int MAX_USER_NAMES = 3;
+
+  /**
+   * use only short names in push message
+   */
+  private static final int USER_NAME_LENGTH_LIMIT = 12;
+
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -124,8 +134,8 @@ public class InactivityCheckService {
   static String buildNoStatusUpdateString(final List<String> allOtherUserNames) {
     final List<String> otherUserNames =
         allOtherUserNames.stream()
-            .filter(name -> name.length() < 12)
-            .limit(3)
+            .filter(name -> name.length() <= USER_NAME_LENGTH_LIMIT)
+            .limit(MAX_USER_NAMES)
             .collect(Collectors.toList());
 
     final String pushText;
