@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
@@ -52,6 +53,8 @@ public class InactivityCheckService {
   }
 
   private void pokeInactiveUsers(final Set<UUID> deduplicationSet) {
+    final AtomicInteger sent = new AtomicInteger();
+    final AtomicInteger error = new AtomicInteger();
     final Instant cutoffNoSignin = Instant.now().minus(
         48, ChronoUnit.HOURS);
 
@@ -61,21 +64,32 @@ public class InactivityCheckService {
             onboardingRepository.findLastSigninByUserId(user.getUserId())
                 .isBefore(cutoffNoSignin))
         .forEach(inactiveUser -> {
-          final Optional<Group> group = onboardingRepository
-              .findGroupByUser(inactiveUser.getUserId());
-          if (!group.isPresent()) {
-            return;
-          }
+          try {
+            final Optional<Group> group = onboardingRepository
+                .findGroupByUser(inactiveUser.getUserId());
+            if (!group.isPresent()) {
+              return;
+            }
 
-          sendPushMessageInactiveUser(inactiveUser, group.get());
-          deduplicationSet.add(inactiveUser.getUserId());
-          log.info("Sent retention push message to inactive user {} - last active {}",
-              inactiveUser.getUserId(),
-              onboardingRepository.findLastSigninByUserId(inactiveUser.getUserId()));
+            sendPushMessageInactiveUser(inactiveUser, group.get());
+            deduplicationSet.add(inactiveUser.getUserId());
+            log.info("Sent retention push message to inactive user {} - last active {}",
+                inactiveUser.getUserId(),
+                onboardingRepository.findLastSigninByUserId(inactiveUser.getUserId()));
+            sent.incrementAndGet();
+          } catch (final Exception ex) {
+            log.warn("Skip processing inactive user {} due to error", inactiveUser, ex);
+            error.incrementAndGet();
+          }
         });
+
+    log.info("Retention job for inactive users sent {} messages and skipped {} users",
+        sent.get(), error.get());
   }
 
   private void pokeUsersWithoutStatusUpdate(final Set<UUID> deduplicationSet) {
+    final AtomicInteger sent = new AtomicInteger();
+    final AtomicInteger error = new AtomicInteger();
     final Instant cutoffNoStatusUpdate = Instant.now().minus(
         36, ChronoUnit.HOURS);
 
@@ -84,18 +98,28 @@ public class InactivityCheckService {
         .filter(user -> onboardingRepository.findLastStatusUpdateByUserId(user.getUserId())
             .isBefore(cutoffNoStatusUpdate))
         .forEach(lazyUser -> {
-          final Optional<Group> group = onboardingRepository
-              .findGroupByUser(lazyUser.getUserId());
-          if (!group.isPresent()) {
-            return;
+          try {
+            final Optional<Group> group = onboardingRepository
+                .findGroupByUser(lazyUser.getUserId());
+            if (!group.isPresent()) {
+              return;
+            }
+
+            sendPushMessageLazyUser(lazyUser, group.get());
+            deduplicationSet.add(lazyUser.getUserId());
+            log.info("Sent retention push message to user {} with no status update since {}",
+                lazyUser.getUserId(),
+                onboardingRepository.findLastStatusUpdateByUserId(lazyUser.getUserId()));
+            sent.incrementAndGet();
+          } catch (final Exception ex) {
+            log.warn("Skip processing lazy user {} due to error", lazyUser, ex);
+            error.incrementAndGet();
           }
 
-          sendPushMessageLazyUser(lazyUser, group.get());
-          deduplicationSet.add(lazyUser.getUserId());
-          log.info("Sent retention push message to user {} with no status update since {}",
-              lazyUser.getUserId(),
-              onboardingRepository.findLastStatusUpdateByUserId(lazyUser.getUserId()));
         });
+
+    log.info("Retention job for lazy users sent {} messages and skipped {} users",
+        sent.get(), error.get());
   }
 
   private void sendPushMessageInactiveUser(
