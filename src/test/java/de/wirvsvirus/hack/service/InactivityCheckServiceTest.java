@@ -1,12 +1,12 @@
 package de.wirvsvirus.hack.service;
 
-import static de.wirvsvirus.hack.service.InactivityCheckService.buildNoStatusUpdateString;
+import static de.wirvsvirus.hack.service.UserRetentionJob.buildNoStatusUpdateString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
-class InactivityCheckServiceTest {
+class UserRetentionJobTest {
 
   @Test
   void buildWithoutNames() {

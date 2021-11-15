@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class InactivityCheckService {
+public class UserRetentionJob {
 
   /**
    * limit number of names in enumeration
