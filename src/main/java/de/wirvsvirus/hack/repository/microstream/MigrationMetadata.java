@@ -21,6 +21,9 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean staleMessagesDeleted;
 
+  @Deprecated
   boolean lastSigninInitialized2;
+
+  boolean lastSigninInitialized3;
 
 }
