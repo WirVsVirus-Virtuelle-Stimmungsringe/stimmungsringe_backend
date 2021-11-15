@@ -12,6 +12,7 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean userStatusMapPopulatedFromExistingUsers;
 
+  @Deprecated
   boolean lastSigninInitialized;
 
   @Deprecated
@@ -21,6 +22,9 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean staleMessagesDeleted;
 
+  @Deprecated
   boolean lastSigninInitialized2;
+
+  boolean lastSigninInitialized3;
 
 }
