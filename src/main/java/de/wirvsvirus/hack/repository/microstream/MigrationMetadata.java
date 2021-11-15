@@ -12,6 +12,7 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean userStatusMapPopulatedFromExistingUsers;
 
+  @Deprecated
   boolean lastSigninInitialized;
 
   @Deprecated
