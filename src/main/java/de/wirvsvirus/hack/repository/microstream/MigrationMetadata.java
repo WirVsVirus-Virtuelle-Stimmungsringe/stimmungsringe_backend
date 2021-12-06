@@ -27,4 +27,6 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean lastSigninInitialized3;
 
+  boolean lastSigninInitialized4;
+
 }
