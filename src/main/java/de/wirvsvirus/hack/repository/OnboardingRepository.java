@@ -47,7 +47,7 @@ public interface OnboardingRepository {
     Optional<User> findByDeviceIdentifier(String deviceIdentifier);
 
     void createNewUser(User newUser, Sentiment sentiment, String sentimentText,
-        final Instant lastUpdate);
+        final Instant signinTimestamp);
 
     Optional<Group> findGroupById(UUID groupId);
 

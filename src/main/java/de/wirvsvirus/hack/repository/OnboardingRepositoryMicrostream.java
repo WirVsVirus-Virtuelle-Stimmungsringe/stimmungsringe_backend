@@ -45,14 +45,15 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   @Override
   public void createNewUser(final User newUser, final Sentiment sentiment,
-      final String sentimentText, final Instant lastUpdate) {
+      final String sentimentText, final Instant signinTimestamp) {
     Preconditions.checkNotNull(sentiment);
     Preconditions.checkState(!database.dataRoot().getAllUsers().containsKey(newUser.getUserId()));
     database.dataRoot().getAllUsers().put(newUser.getUserId(), newUser);
     final UserStatus userStatus = new UserStatus();
     userStatus.setSentiment(sentiment);
     userStatus.setSentimentText(sentimentText);
-    userStatus.setLastStatusUpdate(lastUpdate);
+    userStatus.setLastStatusUpdate(signinTimestamp);
+    userStatus.setLastSignin(signinTimestamp);
 
     database.dataRoot().getStatusByUser().put(newUser.getUserId(), userStatus);
     database.persist(database.dataRoot().getStatusByUser());
