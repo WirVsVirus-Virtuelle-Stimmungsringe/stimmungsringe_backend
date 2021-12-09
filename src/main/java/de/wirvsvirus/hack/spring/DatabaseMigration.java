@@ -125,8 +125,8 @@ public class DatabaseMigration {
           });
     }
 
-    if (!migrationMetadata.isLastSigninInitialized3()) {
-      migrationMetadata.setLastSigninInitialized3(true);
+    if (!migrationMetadata.isLastSigninInitialized4()) {
+      migrationMetadata.setLastSigninInitialized4(true);
       database.persist(migrationMetadata);
 
       EntryStream.of(database.dataRoot().getStatusByUser())
