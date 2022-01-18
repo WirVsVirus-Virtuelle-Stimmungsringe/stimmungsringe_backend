@@ -40,13 +40,15 @@ public class DatabaseMigration {
   private StorageManager storageManager;
 
   @PostConstruct
-  public void runMigrations() {
+  public void autoRunOnStartup() {
     log.info("Migration auto-run={}", autoRun);
 
-    if (!autoRun) {
-      return;
+    if (autoRun) {
+      runMigrations();
     }
+  }
 
+  public void runMigrations() {
     final MigrationMetadata migrationMetadata = database.dataRoot().getMigrationMetadata();
     if (!migrationMetadata.isMockDataCreated()) {
 
