@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.model;
 
 import com.google.common.base.Preconditions;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.ToString;
 
@@ -10,6 +11,7 @@ public class Group implements MicrostreamObject {
     private final UUID groupId;
     private String groupName;
     private String groupCode;
+    private Instant createdAt;
 
     public Group(final UUID groupId) {
         Preconditions.checkNotNull(groupId);
@@ -34,5 +36,13 @@ public class Group implements MicrostreamObject {
 
     public void setGroupCode(final String groupCode) {
         this.groupCode = groupCode;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 }

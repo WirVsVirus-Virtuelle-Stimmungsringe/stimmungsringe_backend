@@ -24,7 +24,7 @@ public interface OnboardingRepository {
 
     void updateUser(UUID userId, UserSettingsDto userSettings);
 
-    Group startNewGroup(String groupName, String groupCode);
+    Group startNewGroup(String groupName, String groupCode, Instant now);
 
     void joinGroup(UUID groupId, UUID userId);
 

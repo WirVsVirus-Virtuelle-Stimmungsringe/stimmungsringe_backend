@@ -97,10 +97,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
-  public Group startNewGroup(final String groupName, final String groupCode) {
+  public Group startNewGroup(final String groupName, final String groupCode, final Instant createdAt) {
     final Group newGroup = new Group(UUID.randomUUID());
     newGroup.setGroupName(groupName);
     newGroup.setGroupCode(groupCode);
+    newGroup.setCreatedAt(createdAt);
 
     database.dataRoot().getAllGroups().put(newGroup.getGroupId(), newGroup);
     database.dataRoot().getAllGroupMessages().putIfAbsent(newGroup.getGroupId(), new ArrayList<>());

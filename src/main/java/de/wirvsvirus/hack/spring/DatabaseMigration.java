@@ -156,6 +156,19 @@ public class DatabaseMigration {
           });
     }
 
+    if (!migrationMetadata.isGroupCreatedAtInitialized()) {
+      migrationMetadata.setGroupCreatedAtInitialized(true);
+      database.persist(migrationMetadata);
+
+      EntryStream.of(database.dataRoot().getAllGroups())
+          .values()
+          .filter(group -> group.getCreatedAt() == null)
+          .forEach(group -> {
+            group.setCreatedAt(Instant.parse("2022-01-01T11:11:11.00Z"));
+            database.persist(group);
+          });
+    }
+
     if (migrationMetadata.hashCode() == prevMigrationHash) {
       log.info("Keep migration metadata unchanged: {}", migrationMetadata);
     } else {

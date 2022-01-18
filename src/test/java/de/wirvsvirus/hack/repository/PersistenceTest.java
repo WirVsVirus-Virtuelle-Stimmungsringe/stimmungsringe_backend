@@ -38,6 +38,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"microstream", "no-push-notification-service"})
 public class PersistenceTest {
 
+  private Instant now;
+
   @Configuration
   static class PersistenceTestConfiguration {
     @Bean
@@ -97,7 +99,7 @@ public class PersistenceTest {
     final List<Device> devLookup = onboardingRepository
         .findDevicesByUserId(newUser1.getUserId());
 
-    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode, now);
 
     assertEquals("Testgrp", onboardingRepository.findGroupByCode(groupCode)
         .get().getGroupName());
@@ -139,7 +141,8 @@ public class PersistenceTest {
       onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds,
           "Wolken! Welche Wolken?", Instant.now());
     }
-    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+    now = Instant.now();
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode, now);
 
     onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
 
@@ -238,7 +241,7 @@ public class PersistenceTest {
           Instant.now());
     }
 
-    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode, now);
 
     onboardingRepository.joinGroup(group.getGroupId(), alice.getUserId());
     onboardingRepository.joinGroup(group.getGroupId(), bob.getUserId());
