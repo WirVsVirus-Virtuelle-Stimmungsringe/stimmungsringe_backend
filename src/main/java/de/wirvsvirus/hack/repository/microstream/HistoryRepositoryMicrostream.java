@@ -48,6 +48,25 @@ public class HistoryRepositoryMicrostream {
     log.debug("Write history: {}", change);
   }
 
+  public void logUserGroupStart(
+      @Nonnull final Instant timestamp,
+      @Nonnull final Group group,
+      @Nonnull final User user
+  ) {
+    final UserGroupMembershipHistory change = new UserGroupMembershipHistory();
+    change.setTimestamp(timestamp);
+    change.setGroupId(group.getGroupId());
+    change.setUserId(user.getUserId());
+    change.setChange(Change.START);
+
+    database.dataRoot()
+        .getHistoryUserGroupMembership().add(change);
+    database.persist(database.dataRoot()
+        .getHistoryUserGroupMembership());
+
+    log.debug("Write history: {}", change);
+  }
+
   public void logUserGroupJoin(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
@@ -88,5 +107,6 @@ public class HistoryRepositoryMicrostream {
 
     log.debug("Write history: {}", change);
   }
+
 
 }
