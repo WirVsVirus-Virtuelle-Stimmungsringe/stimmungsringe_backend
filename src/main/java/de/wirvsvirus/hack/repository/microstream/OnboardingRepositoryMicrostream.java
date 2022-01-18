@@ -1,4 +1,4 @@
-package de.wirvsvirus.hack.repository;
+package de.wirvsvirus.hack.repository.microstream;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Device;
@@ -7,6 +7,7 @@ import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserStatus;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.spring.Database;

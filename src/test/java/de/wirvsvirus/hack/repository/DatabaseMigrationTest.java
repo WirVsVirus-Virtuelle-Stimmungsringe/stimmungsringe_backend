@@ -24,7 +24,7 @@ public class DatabaseMigrationTest {
   private Database database;
 
   @Test
-  void runMigration() {
+  void runMigrationOfGroups() {
 
     databaseMigration.runMigrations();
 
@@ -32,8 +32,6 @@ public class DatabaseMigrationTest {
             .forEach(group -> {
               System.out.println("- " + group);
             });
-
-    System.out.println();
 
   }
 }

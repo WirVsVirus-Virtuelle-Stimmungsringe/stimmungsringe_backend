@@ -18,12 +18,13 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @Profile("microstream")
-public class HistoryRepositoryMicrostream {
+public class HistoryRepositoryMicrostream implements
+    de.wirvsvirus.hack.repository.HistoryRepositoryMicrostream {
 
   @Autowired
   private Database database;
   
-  public void logStatusUpdate(
+  public void logUserUpdatedStatus(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
       @Nonnull final User user,
@@ -48,7 +49,7 @@ public class HistoryRepositoryMicrostream {
     log.debug("Write history: {}", change);
   }
 
-  public void logUserGroupStart(
+  public void logUserStartedGroup(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
       @Nonnull final User user
@@ -67,7 +68,7 @@ public class HistoryRepositoryMicrostream {
     log.debug("Write history: {}", change);
   }
 
-  public void logUserGroupJoin(
+  public void logUserJoinedGroup(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
       @Nonnull final User user
@@ -89,7 +90,7 @@ public class HistoryRepositoryMicrostream {
   /**
    * note: user gets deleted as soon as he leaves his group
    */
-  public void logUserGroupLeave(
+  public void logUserLeftGroup(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
       @Nonnull final User user

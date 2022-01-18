@@ -5,6 +5,9 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import lombok.ToString;
 
+/**
+ * changed status/text, might be a noop
+ */
 @ToString
 public class UserStatusChangeHistory implements MicrostreamObject {
 

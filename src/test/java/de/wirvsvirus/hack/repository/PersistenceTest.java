@@ -152,6 +152,8 @@ public class PersistenceTest {
     Thread.sleep(1);
 
     onboardingService.updateStatus(newUser1, Sentiment.cloudy, "No money!");
+    // noop - should log
+    onboardingService.updateStatus(newUser1, Sentiment.cloudy, "No money!");
 
     final Instant update2 = onboardingRepository
         .findLastStatusUpdateByUserId(newUser1.getUserId());

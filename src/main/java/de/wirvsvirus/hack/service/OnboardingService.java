@@ -130,17 +130,16 @@ public class OnboardingService {
 
         final Optional<Group> currentGroupOfUser = onboardingRepository.findGroupByUser(user.getUserId());
         if (currentGroupOfUser.isPresent()) {
-            // FIXME
-            if (currentGroupOfUser.get().getGroupId().equals(currentGroupOfUser.get().getGroupId())) {
-                log.info("User is already member of requested group");
+            if (currentGroupOfUser.get().getGroupId().equals(group.getGroupId())) {
+                log.warn("User is already member of requested group");
             } else {
-                log.info("User is already member of another group");
+                log.warn("User is already member of another group");
             }
         } else {
             onboardingRepository.joinGroup(group.getGroupId(), user.getUserId());
 
             // write history
-            historyRepository.logUserGroupJoin(timestamp, group, user);
+            historyRepository.logUserJoinedGroup(timestamp, group, user);
 
             onboardingRepository.findOtherUsersInGroup(group.getGroupId(), user.getUserId())
                 .forEach(otherUser -> sendPushMessageUserJoined(otherUser, user, group));
@@ -156,8 +155,8 @@ public class OnboardingService {
 
         final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
         if (!currentGroup.isPresent()) {
-            log.info("User is not member of any group");
-            log.info("... remove user {} with no group", user.getUserId());
+            log.warn("User is not member of any group");
+            log.warn("... remove user {} with no group", user.getUserId());
             onboardingRepository.deleteUser(user.getUserId());
             return;
         }
@@ -170,7 +169,7 @@ public class OnboardingService {
         onboardingRepository.leaveGroup(group.getGroupId(), user.getUserId());
 
         // write history
-        historyRepository.logUserGroupLeave(timestamp, group, user);
+        historyRepository.logUserLeftGroup(timestamp, group, user);
 
         onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
             .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, group));
@@ -184,6 +183,14 @@ public class OnboardingService {
     public Group startNewGroup(final User user, final String groupName) {
         log.info("New group {} by user {}", groupName, user.getName());
 
+        onboardingRepository.findGroupByUser(user.getUserId())
+                .ifPresent(group -> {
+                    throw new IllegalStateException(String.format(
+                        "User %s must not be in group (groupId=%s) when starting a new one!",
+                        user.getUserId(), group.getGroupId()
+                    ));
+                });
+
         final Instant timestamp = Instant.now();
 
         Preconditions.checkState(groupName.length() >= 3);
@@ -193,7 +200,7 @@ public class OnboardingService {
         final Group newGroup = onboardingRepository.startNewGroup(groupName, groupCode, timestamp);
         onboardingRepository.joinGroup(newGroup.getGroupId(), user.getUserId());
         // write history
-        historyRepository.logUserGroupStart(timestamp, newGroup, user);
+        historyRepository.logUserStartedGroup(timestamp, newGroup, user);
         log.info("...started new group {} with groupid {}", newGroup.getGroupName(), newGroup.getGroupId());
         return newGroup;
 
@@ -230,13 +237,21 @@ public class OnboardingService {
         final Sentiment prevSentiment = onboardingRepository
             .findSentimentByUserId(user.getUserId());
         final boolean sentimentChanged = prevSentiment != sentiment;
+        final String prevSentimentText = onboardingRepository
+            .findSentimentTextByUserId(user.getUserId());
+        final boolean sentimentTextChanged = !StringUtils.equals(prevSentimentText, sentimentText);
+
+        if (!sentimentChanged && !sentimentTextChanged) {
+            log.warn("User {} tried to issue a noop status update!", user.getUserId());
+            return;
+        }
 
         onboardingRepository.updateStatus(user.getUserId(), sentiment,
             sentimentText);
         onboardingRepository.touchLastStatusUpdate(user.getUserId(), timestamp);
 
         // write history
-        historyRepository.logStatusUpdate(timestamp, group, user, sentiment, sentimentText, prevSentiment);
+        historyRepository.logUserUpdatedStatus(timestamp, group, user, sentiment, sentimentText, prevSentiment);
 
         if (sentimentChanged) {
             final Instant oldLastUpdated = onboardingRepository
