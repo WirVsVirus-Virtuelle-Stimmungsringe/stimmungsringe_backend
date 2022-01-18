@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(
     classes = {Application.class, PersistenceTestConfiguration.class},
     properties = {"backend.microstream.storage-path=file:${user.home}/familiarise-microstream-migrationtest/19/"})
-@ActiveProfiles({"microstream", "no-push-notification-service"})
+@ActiveProfiles({"microstream", "migration-test", "no-push-notification-service"})
 public class MigrationTest {
 
   @Autowired

@@ -19,12 +19,16 @@ import one.microstream.storage.types.StorageManager;
 import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 // run after repositories
 @Service
 @Slf4j
 public class DatabaseMigration {
+
+  @Value("${database.migration.auto-run}")
+  private boolean autoRun;
 
   @Autowired
   private OnboardingRepository onboardingRepository;
@@ -37,6 +41,12 @@ public class DatabaseMigration {
 
   @PostConstruct
   public void runMigrations() {
+    log.info("Migration auto-run={}", autoRun);
+
+    if (!autoRun) {
+      return;
+    }
+
     final MigrationMetadata migrationMetadata = database.dataRoot().getMigrationMetadata();
     if (!migrationMetadata.isMockDataCreated()) {
 
