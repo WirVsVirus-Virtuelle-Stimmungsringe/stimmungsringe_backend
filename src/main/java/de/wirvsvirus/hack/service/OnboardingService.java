@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.HistoryRepository;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.HistoryRepositoryMicrostream;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
@@ -30,7 +31,7 @@ public class OnboardingService {
     private OnboardingRepository onboardingRepository;
 
     @Autowired
-    private HistoryRepositoryMicrostream historyRepository;
+    private HistoryRepository historyRepository;
 
     @Autowired
     private PushNotificationService pushNotificationService;

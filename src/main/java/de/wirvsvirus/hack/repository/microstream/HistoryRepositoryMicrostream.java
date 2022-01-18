@@ -6,9 +6,9 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserGroupMembershipHistory;
 import de.wirvsvirus.hack.model.UserGroupMembershipHistory.Change;
 import de.wirvsvirus.hack.model.UserStatusChangeHistory;
+import de.wirvsvirus.hack.repository.HistoryRepository;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
-import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @Profile("microstream")
-public class HistoryRepositoryMicrostream implements
-    de.wirvsvirus.hack.repository.HistoryRepositoryMicrostream {
+public class HistoryRepositoryMicrostream implements HistoryRepository {
 
   @Autowired
   private Database database;
   
+  @Override
   public void logUserUpdatedStatus(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
@@ -49,6 +49,7 @@ public class HistoryRepositoryMicrostream implements
     log.debug("Write history: {}", change);
   }
 
+  @Override
   public void logUserStartedGroup(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
@@ -68,6 +69,7 @@ public class HistoryRepositoryMicrostream implements
     log.debug("Write history: {}", change);
   }
 
+  @Override
   public void logUserJoinedGroup(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,
@@ -90,6 +92,7 @@ public class HistoryRepositoryMicrostream implements
   /**
    * note: user gets deleted as soon as he leaves his group
    */
+  @Override
   public void logUserLeftGroup(
       @Nonnull final Instant timestamp,
       @Nonnull final Group group,

@@ -17,6 +17,8 @@ public class StatsServiceTest {
   @Test
   public void sunnyTime() {
 
+    // TODO WIP
+
     updateStatus(start.plusSeconds(0), Sentiment.sunny, Sentiment.sunnyWithClouds);
     updateStatus(start.plusSeconds(5), Sentiment.cloudy, Sentiment.sunny);
     updateStatus(start.plusSeconds(12), Sentiment.sunny, Sentiment.cloudy);
