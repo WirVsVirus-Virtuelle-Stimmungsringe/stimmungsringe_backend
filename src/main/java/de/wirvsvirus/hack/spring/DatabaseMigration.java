@@ -48,6 +48,9 @@ public class DatabaseMigration {
       MockDataProvider.persistTo(onboardingRepository);
     }
 
+    log.info("Reading migration metadata: {}", migrationMetadata);
+    final int prevMigrationHash = migrationMetadata.hashCode();
+
     if (!migrationMetadata.isUserStatusMapInitialized()) {
       migrationMetadata.setUserStatusMapInitialized(true);
       database.persist(migrationMetadata);
@@ -139,6 +142,12 @@ public class DatabaseMigration {
                     : Instant.parse("2019-01-01T10:15:32.00Z"));
             database.persist(userStatus);
           });
+    }
+
+    if (migrationMetadata.hashCode() == prevMigrationHash) {
+      log.info("Keep migration metadata unchanged: {}", migrationMetadata);
+    } else {
+      log.info("Updated migration metadata: {}", migrationMetadata);
     }
 
   }
