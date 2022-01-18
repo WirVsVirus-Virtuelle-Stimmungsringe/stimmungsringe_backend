@@ -181,6 +181,16 @@ public class DatabaseMigration {
       }
     }
 
+    if (!migrationMetadata.isHistoryUserGroupMembershipInitialized()) {
+      migrationMetadata.setHistoryUserGroupMembershipInitialized(true);
+      database.persist(migrationMetadata);
+
+      if (database.dataRoot().getHistoryUserGroupMembership() == null) {
+        database.dataRoot().setHistoryUserGroupMembership(new ArrayList<>());
+        storageManager.storeRoot();
+      }
+    }
+
     if (migrationMetadata.hashCode() == prevMigrationHash) {
       log.info("Keep migration metadata unchanged: {}", migrationMetadata);
     } else {

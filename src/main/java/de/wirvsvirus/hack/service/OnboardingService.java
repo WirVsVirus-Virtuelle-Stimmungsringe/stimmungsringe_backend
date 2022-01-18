@@ -117,6 +117,8 @@ public class OnboardingService {
     }
 
     public Optional<Group> joinGroup(final String groupCode, final User user) {
+        final Instant timestamp = Instant.now();
+
         final Optional<Group> match =
             onboardingRepository.findGroupByCode(groupCode);
         if (!match.isPresent()) {
@@ -137,6 +139,9 @@ public class OnboardingService {
         } else {
             onboardingRepository.joinGroup(group.getGroupId(), user.getUserId());
 
+            // write history
+            historyRepository.logUserGroupJoin(timestamp, group, user);
+
             onboardingRepository.findOtherUsersInGroup(group.getGroupId(), user.getUserId())
                 .forEach(otherUser -> sendPushMessageUserJoined(otherUser, user, group));
         }
@@ -146,6 +151,8 @@ public class OnboardingService {
 
     public void leaveGroup(final UUID groupId, final User user) {
         log.info("User {} leaving group {}...", user.getName(), groupId);
+
+        final Instant timestamp = Instant.now();
 
         final Optional<Group> currentGroup = onboardingRepository.findGroupByUser(user.getUserId());
         if (!currentGroup.isPresent()) {
@@ -158,12 +165,15 @@ public class OnboardingService {
         Preconditions.checkState(currentGroup.get().getGroupId().equals(groupId),
             "User is member of another group");
 
-        final Optional<Group> lookup = onboardingRepository.findGroupById(groupId);
-        Preconditions.checkState(lookup.isPresent(), "Group <%s> does not exist", groupId);
-        onboardingRepository.leaveGroup(lookup.get().getGroupId(), user.getUserId());
+        final Group group = onboardingRepository.findGroupById(groupId)
+                .orElseThrow(() -> new IllegalStateException("Group <" + groupId + "> does not exist"));
+        onboardingRepository.leaveGroup(group.getGroupId(), user.getUserId());
+
+        // write history
+        historyRepository.logUserGroupLeave(timestamp, group, user);
 
         onboardingRepository.findOtherUsersInGroup(groupId, user.getUserId())
-            .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, lookup.get()));
+            .forEach(otherUser -> sendPushMessageUserLeft(otherUser, user, group));
 
         log.info("... remove user {} from group {} with groupId {}",
             user.getUserId(), currentGroup.get().getGroupName(), currentGroup.get().getGroupId());

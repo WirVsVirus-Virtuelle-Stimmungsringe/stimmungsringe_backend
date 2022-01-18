@@ -104,6 +104,7 @@ public class MicrostreamConfiguration {
     newDataRoot.setAllDevicesByUser(new HashMap<>());
     newDataRoot.setAllGroupMessages(new HashMap<>());
     newDataRoot.setHistoryUserStatusChanges(new ArrayList<>());
+    newDataRoot.setHistoryUserGroupMembership(new ArrayList<>());
 
     storageManager.setRoot(newDataRoot);
     storageManager.storeRoot();

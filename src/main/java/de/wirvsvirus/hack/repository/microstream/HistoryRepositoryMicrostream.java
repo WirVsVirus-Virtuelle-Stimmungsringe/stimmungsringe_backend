@@ -3,6 +3,8 @@ package de.wirvsvirus.hack.repository.microstream;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.model.UserGroupMembershipHistory;
+import de.wirvsvirus.hack.model.UserGroupMembershipHistory.Change;
 import de.wirvsvirus.hack.model.UserStatusChangeHistory;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
@@ -37,12 +39,54 @@ public class HistoryRepositoryMicrostream {
     change.setSentimentText(sentimentText);
     change.setPrevSentiment(prevSentiment);
 
-    final List<UserStatusChangeHistory> historyItems = database.dataRoot()
-        .getHistoryUserStatusChanges();
-    historyItems.add(change);
-    database.persist(historyItems);
+    database.dataRoot()
+        .getHistoryUserStatusChanges().add(change);
+    database.persist(database.dataRoot()
+        .getHistoryUserStatusChanges());
 
     // TODO remove after prod testing of history feature
     log.debug("Write history: {}", change);
   }
+
+  public void logUserGroupJoin(
+      @Nonnull final Instant timestamp,
+      @Nonnull final Group group,
+      @Nonnull final User user
+  ) {
+    final UserGroupMembershipHistory change = new UserGroupMembershipHistory();
+    change.setTimestamp(timestamp);
+    change.setGroupId(group.getGroupId());
+    change.setUserId(user.getUserId());
+    change.setChange(Change.JOIN);
+
+    database.dataRoot()
+        .getHistoryUserGroupMembership().add(change);
+    database.persist(database.dataRoot()
+        .getHistoryUserGroupMembership());
+
+    log.debug("Write history: {}", change);
+  }
+
+  /**
+   * note: user gets deleted as soon as he leaves his group
+   */
+  public void logUserGroupLeave(
+      @Nonnull final Instant timestamp,
+      @Nonnull final Group group,
+      @Nonnull final User user
+  ) {
+    final UserGroupMembershipHistory change = new UserGroupMembershipHistory();
+    change.setTimestamp(timestamp);
+    change.setGroupId(group.getGroupId());
+    change.setUserId(user.getUserId());
+    change.setChange(Change.LEAVE);
+
+    database.dataRoot()
+        .getHistoryUserGroupMembership().add(change);
+    database.persist(database.dataRoot()
+        .getHistoryUserGroupMembership());
+
+    log.debug("Write history: {}", change);
+  }
+
 }

@@ -342,6 +342,10 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
         .removeIf(hus -> hus.getUserId().equals(userId));
     database.persist(database.dataRoot().getHistoryUserStatusChanges());
 
+    database.dataRoot().getHistoryUserGroupMembership()
+        .removeIf(change -> change.getUserId().equals(userId));
+    database.persist(database.dataRoot().getHistoryUserGroupMembership());
+
   }
 
   /**

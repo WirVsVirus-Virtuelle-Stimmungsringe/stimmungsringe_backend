@@ -106,8 +106,8 @@ public class PersistenceTest {
     assertFalse(onboardingRepository.findGroupByCode("NoGroup")
         .isPresent());
 
-    onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
-    onboardingRepository.joinGroup(group.getGroupId(), newUser2.getUserId());
+    onboardingService.joinGroup(groupCode, newUser1);
+    onboardingService.joinGroup(groupCode, newUser2);
 
     final List<User> others = onboardingRepository
         .findOtherUsersInGroup(group.getGroupId(), newUser1.getUserId());

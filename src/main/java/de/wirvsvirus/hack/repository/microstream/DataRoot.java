@@ -5,6 +5,7 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.model.UserGroupMembershipHistory;
 import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.model.UserStatusChangeHistory;
 import java.time.Instant;
@@ -39,6 +40,8 @@ public class DataRoot {
   private Map<UUID, List<Device>> allDevicesByUser;
 
   private List<UserStatusChangeHistory> historyUserStatusChanges;
+
+  private List<UserGroupMembershipHistory> historyUserGroupMembership;
 
   //
 
@@ -109,6 +112,15 @@ public class DataRoot {
   public void setHistoryUserStatusChanges(
       List<UserStatusChangeHistory> historyUserStatusChanges) {
     this.historyUserStatusChanges = historyUserStatusChanges;
+  }
+
+  public List<UserGroupMembershipHistory> getHistoryUserGroupMembership() {
+    return historyUserGroupMembership;
+  }
+
+  public void setHistoryUserGroupMembership(
+      List<UserGroupMembershipHistory> historyUserGroupMembership) {
+    this.historyUserGroupMembership = historyUserGroupMembership;
   }
 
   public void dumpToSysout() {
