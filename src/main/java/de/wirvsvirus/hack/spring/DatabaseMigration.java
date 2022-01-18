@@ -7,8 +7,10 @@ import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,13 +42,15 @@ public class DatabaseMigration {
   private StorageManager storageManager;
 
   @PostConstruct
-  public void runMigrations() {
+  public void autoRunOnStartup() {
     log.info("Migration auto-run={}", autoRun);
 
-    if (!autoRun) {
-      return;
+    if (autoRun) {
+      runMigrations();
     }
+  }
 
+  public void runMigrations() {
     final MigrationMetadata migrationMetadata = database.dataRoot().getMigrationMetadata();
     if (!migrationMetadata.isMockDataCreated()) {
 
@@ -152,6 +156,39 @@ public class DatabaseMigration {
                     : Instant.parse("2019-01-01T10:15:32.00Z"));
             database.persist(userStatus);
           });
+    }
+
+    if (!migrationMetadata.isGroupCreatedAtInitialized()) {
+      migrationMetadata.setGroupCreatedAtInitialized(true);
+      database.persist(migrationMetadata);
+
+      EntryStream.of(database.dataRoot().getAllGroups())
+          .values()
+          .filter(group -> group.getCreatedAt() == null)
+          .forEach(group -> {
+            group.setCreatedAt(Instant.parse("2022-01-01T11:11:11.00Z"));
+            database.persist(group);
+          });
+    }
+
+    if (!migrationMetadata.isHistoryUserStatusChangesInitialized()) {
+      migrationMetadata.setHistoryUserStatusChangesInitialized(true);
+      database.persist(migrationMetadata);
+
+      if (database.dataRoot().getHistoryUserStatusChanges() == null) {
+        database.dataRoot().setHistoryUserStatusChanges(new ArrayList<>());
+        storageManager.storeRoot();
+      }
+    }
+
+    if (!migrationMetadata.isHistoryUserGroupMembershipInitialized()) {
+      migrationMetadata.setHistoryUserGroupMembershipInitialized(true);
+      database.persist(migrationMetadata);
+
+      if (database.dataRoot().getHistoryUserGroupMembership() == null) {
+        database.dataRoot().setHistoryUserGroupMembership(new ArrayList<>());
+        storageManager.storeRoot();
+      }
     }
 
     if (migrationMetadata.hashCode() == prevMigrationHash) {

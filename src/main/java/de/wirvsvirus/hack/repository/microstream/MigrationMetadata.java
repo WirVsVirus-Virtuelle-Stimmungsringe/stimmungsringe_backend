@@ -29,4 +29,10 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean lastSigninInitialized4;
 
+  boolean groupCreatedAtInitialized;
+
+  boolean historyUserStatusChangesInitialized;
+
+  boolean historyUserGroupMembershipInitialized;
+
 }

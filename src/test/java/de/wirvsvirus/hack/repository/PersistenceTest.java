@@ -38,6 +38,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"microstream", "no-push-notification-service"})
 public class PersistenceTest {
 
+  private Instant now;
+
   @Configuration
   static class PersistenceTestConfiguration {
     @Bean
@@ -97,15 +99,15 @@ public class PersistenceTest {
     final List<Device> devLookup = onboardingRepository
         .findDevicesByUserId(newUser1.getUserId());
 
-    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode, now);
 
     assertEquals("Testgrp", onboardingRepository.findGroupByCode(groupCode)
         .get().getGroupName());
     assertFalse(onboardingRepository.findGroupByCode("NoGroup")
         .isPresent());
 
-    onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
-    onboardingRepository.joinGroup(group.getGroupId(), newUser2.getUserId());
+    onboardingService.joinGroup(groupCode, newUser1);
+    onboardingService.joinGroup(groupCode, newUser2);
 
     final List<User> others = onboardingRepository
         .findOtherUsersInGroup(group.getGroupId(), newUser1.getUserId());
@@ -139,7 +141,8 @@ public class PersistenceTest {
       onboardingRepository.createNewUser(newUser1, Sentiment.sunnyWithClouds,
           "Wolken! Welche Wolken?", Instant.now());
     }
-    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+    now = Instant.now();
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode, now);
 
     onboardingRepository.joinGroup(group.getGroupId(), newUser1.getUserId());
 
@@ -148,9 +151,9 @@ public class PersistenceTest {
 
     Thread.sleep(1);
 
-    onboardingRepository.updateStatus(newUser1.getUserId(), Sentiment.cloudy,
-        "No money!");
-    onboardingRepository.touchLastStatusUpdate(newUser1.getUserId());
+    onboardingService.updateStatus(newUser1, Sentiment.cloudy, "No money!");
+    // noop - should log
+    onboardingService.updateStatus(newUser1, Sentiment.cloudy, "No money!");
 
     final Instant update2 = onboardingRepository
         .findLastStatusUpdateByUserId(newUser1.getUserId());
@@ -159,6 +162,11 @@ public class PersistenceTest {
         onboardingRepository.findSentimentByUserId(newUser1.getUserId()));
 
     Assertions.assertTrue(update2.isAfter(update1));
+
+    database.dataRoot().getHistoryUserStatusChanges()
+        .forEach(hus -> {
+//          System.out.println("- " + hus);
+        });
   }
 
   @Test
@@ -238,7 +246,7 @@ public class PersistenceTest {
           Instant.now());
     }
 
-    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode);
+    final Group group = onboardingRepository.startNewGroup("Testgrp", groupCode, now);
 
     onboardingRepository.joinGroup(group.getGroupId(), alice.getUserId());
     onboardingRepository.joinGroup(group.getGroupId(), bob.getUserId());

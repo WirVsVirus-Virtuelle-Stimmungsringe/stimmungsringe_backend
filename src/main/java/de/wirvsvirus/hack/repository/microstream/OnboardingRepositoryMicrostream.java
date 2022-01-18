@@ -1,4 +1,4 @@
-package de.wirvsvirus.hack.repository;
+package de.wirvsvirus.hack.repository.microstream;
 
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Device;
@@ -7,6 +7,7 @@ import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserStatus;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.spring.Database;
@@ -97,10 +98,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
-  public Group startNewGroup(final String groupName, final String groupCode) {
+  public Group startNewGroup(final String groupName, final String groupCode, final Instant createdAt) {
     final Group newGroup = new Group(UUID.randomUUID());
     newGroup.setGroupName(groupName);
     newGroup.setGroupCode(groupCode);
+    newGroup.setCreatedAt(createdAt);
 
     database.dataRoot().getAllGroups().put(newGroup.getGroupId(), newGroup);
     database.dataRoot().getAllGroupMessages().putIfAbsent(newGroup.getGroupId(), new ArrayList<>());
@@ -176,9 +178,10 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
-  public void touchLastStatusUpdate(final UUID userId) {
+  public void touchLastStatusUpdate(final UUID userId, Instant timestamp) {
+    Preconditions.checkNotNull(timestamp, "timestamp of update missing");
     final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
-    userStatus.setLastStatusUpdate(Instant.now());
+    userStatus.setLastStatusUpdate(timestamp);
 
     database.persist(userStatus);
   }
@@ -335,6 +338,14 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllDevicesByUser().remove(userId);
     database.persist(database.dataRoot().getAllDevicesByUser());
+
+    database.dataRoot().getHistoryUserStatusChanges()
+        .removeIf(hus -> hus.getUserId().equals(userId));
+    database.persist(database.dataRoot().getHistoryUserStatusChanges());
+
+    database.dataRoot().getHistoryUserGroupMembership()
+        .removeIf(change -> change.getUserId().equals(userId));
+    database.persist(database.dataRoot().getHistoryUserGroupMembership());
 
   }
 
