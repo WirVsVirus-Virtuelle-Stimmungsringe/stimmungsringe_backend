@@ -31,4 +31,6 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean groupCreatedAtInitialized;
 
+  boolean historyUserStatusChangesInitialized;
+
 }

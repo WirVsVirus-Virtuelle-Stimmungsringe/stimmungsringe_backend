@@ -151,9 +151,7 @@ public class PersistenceTest {
 
     Thread.sleep(1);
 
-    onboardingRepository.updateStatus(newUser1.getUserId(), Sentiment.cloudy,
-        "No money!");
-    onboardingRepository.touchLastStatusUpdate(newUser1.getUserId());
+    onboardingService.updateStatus(newUser1, Sentiment.cloudy, "No money!");
 
     final Instant update2 = onboardingRepository
         .findLastStatusUpdateByUserId(newUser1.getUserId());
@@ -162,6 +160,11 @@ public class PersistenceTest {
         onboardingRepository.findSentimentByUserId(newUser1.getUserId()));
 
     Assertions.assertTrue(update2.isAfter(update1));
+
+    database.dataRoot().getHistoryUserStatusChanges()
+        .forEach(hus -> {
+//          System.out.println("- " + hus);
+        });
   }
 
   @Test

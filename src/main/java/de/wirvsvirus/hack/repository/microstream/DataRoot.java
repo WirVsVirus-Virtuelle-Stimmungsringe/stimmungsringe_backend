@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserStatus;
+import de.wirvsvirus.hack.model.UserStatusChangeHistory;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,9 @@ public class DataRoot {
    */
   private Map<UUID, List<Device>> allDevicesByUser;
 
+  private List<UserStatusChangeHistory> historyUserStatusChanges;
+
+  //
 
   public Map<UUID, User> getAllUsers() {
     return allUsers;
@@ -96,6 +100,15 @@ public class DataRoot {
   public void setMigrationMetadata(
       MigrationMetadata migrationMetadata) {
     this.migrationMetadata = migrationMetadata;
+  }
+
+  public List<UserStatusChangeHistory> getHistoryUserStatusChanges() {
+    return historyUserStatusChanges;
+  }
+
+  public void setHistoryUserStatusChanges(
+      List<UserStatusChangeHistory> historyUserStatusChanges) {
+    this.historyUserStatusChanges = historyUserStatusChanges;
   }
 
   public void dumpToSysout() {

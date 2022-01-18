@@ -177,9 +177,10 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
-  public void touchLastStatusUpdate(final UUID userId) {
+  public void touchLastStatusUpdate(final UUID userId, Instant timestamp) {
+    Preconditions.checkNotNull(timestamp, "timestamp of update missing");
     final UserStatus userStatus = database.dataRoot().getStatusByUser().get(userId);
-    userStatus.setLastStatusUpdate(Instant.now());
+    userStatus.setLastStatusUpdate(timestamp);
 
     database.persist(userStatus);
   }
@@ -336,6 +337,10 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
     database.dataRoot().getAllDevicesByUser().remove(userId);
     database.persist(database.dataRoot().getAllDevicesByUser());
+
+    database.dataRoot().getHistoryUserStatusChanges()
+        .removeIf(hus -> hus.getUserId().equals(userId));
+    database.persist(database.dataRoot().getHistoryUserStatusChanges());
 
   }
 

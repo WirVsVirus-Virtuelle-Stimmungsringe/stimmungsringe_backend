@@ -7,8 +7,10 @@ import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -167,6 +169,16 @@ public class DatabaseMigration {
             group.setCreatedAt(Instant.parse("2022-01-01T11:11:11.00Z"));
             database.persist(group);
           });
+    }
+
+    if (!migrationMetadata.isHistoryUserStatusChangesInitialized()) {
+      migrationMetadata.setHistoryUserStatusChangesInitialized(true);
+      database.persist(migrationMetadata);
+
+      if (database.dataRoot().getHistoryUserStatusChanges() == null) {
+        database.dataRoot().setHistoryUserStatusChanges(new ArrayList<>());
+        storageManager.storeRoot();
+      }
     }
 
     if (migrationMetadata.hashCode() == prevMigrationHash) {

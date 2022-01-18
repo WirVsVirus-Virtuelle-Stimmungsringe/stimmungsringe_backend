@@ -55,7 +55,7 @@ public interface OnboardingRepository {
 
     void updateGroup(UUID groupId, GroupSettingsDto groupSettings);
 
-    void touchLastStatusUpdate(UUID userId);
+    void touchLastStatusUpdate(UUID userId, Instant timestamp);
 
     void touchLastSignin(UUID userId);
 

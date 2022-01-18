@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import one.microstream.persistence.binary.jdk8.types.BinaryHandlersJDK8;
@@ -102,6 +103,7 @@ public class MicrostreamConfiguration {
     newDataRoot.setStatusByUser(new HashMap<>());
     newDataRoot.setAllDevicesByUser(new HashMap<>());
     newDataRoot.setAllGroupMessages(new HashMap<>());
+    newDataRoot.setHistoryUserStatusChanges(new ArrayList<>());
 
     storageManager.setRoot(newDataRoot);
     storageManager.storeRoot();

@@ -5,6 +5,7 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.repository.microstream.HistoryRepositoryMicrostream;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
@@ -27,6 +28,9 @@ public class OnboardingService {
 
     @Autowired
     private OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private HistoryRepositoryMicrostream historyRepository;
 
     @Autowired
     private PushNotificationService pushNotificationService;
@@ -124,6 +128,7 @@ public class OnboardingService {
 
         final Optional<Group> currentGroupOfUser = onboardingRepository.findGroupByUser(user.getUserId());
         if (currentGroupOfUser.isPresent()) {
+            // FIXME
             if (currentGroupOfUser.get().getGroupId().equals(currentGroupOfUser.get().getGroupId())) {
                 log.info("User is already member of requested group");
             } else {
@@ -198,17 +203,28 @@ public class OnboardingService {
     }
 
     /**
-     * Set the (new) status.
+     * Set the (new) status (aka sentiment status).
      * Note: status might not have changed
      */
     public void updateStatus(final User user, final Sentiment sentiment,
         final String sentimentText) {
-        final boolean sentimentChanged = onboardingRepository
-            .findSentimentByUserId(user.getUserId()) != sentiment;
+        final Instant timestamp = Instant.now();
+
+        final Group group = onboardingRepository
+            .findGroupByUser(user.getUserId())
+            .orElseThrow(
+                () -> new IllegalStateException("User must be in group when updating status"));
+
+        final Sentiment prevSentiment = onboardingRepository
+            .findSentimentByUserId(user.getUserId());
+        final boolean sentimentChanged = prevSentiment != sentiment;
 
         onboardingRepository.updateStatus(user.getUserId(), sentiment,
             sentimentText);
-        onboardingRepository.touchLastStatusUpdate(user.getUserId());
+        onboardingRepository.touchLastStatusUpdate(user.getUserId(), timestamp);
+
+        // write history
+        historyRepository.logStatusUpdate(timestamp, group, user, sentiment, sentimentText, prevSentiment);
 
         if (sentimentChanged) {
             final Instant oldLastUpdated = onboardingRepository
@@ -216,12 +232,12 @@ public class OnboardingService {
             onboardingRepository.clearMessagesByRecipientId(user.getUserId());
 
             // throttle pushes
-            if (oldLastUpdated.isBefore(Instant.now().minusSeconds(10))) {
+            if (oldLastUpdated.isBefore(timestamp.minusSeconds(10))) {
                 onboardingRepository
-                    .findGroupByUser(user.getUserId()).ifPresent(g -> onboardingRepository
-                        .findOtherUsersInGroup(g.getGroupId(), user.getUserId())
-                        .forEach(recipient -> sendPushMessageStatusChanged(recipient, user)));
+                    .findOtherUsersInGroup(group.getGroupId(), user.getUserId())
+                    .forEach(recipient -> sendPushMessageStatusChanged(recipient, user));
             }
+
         }
     }
 

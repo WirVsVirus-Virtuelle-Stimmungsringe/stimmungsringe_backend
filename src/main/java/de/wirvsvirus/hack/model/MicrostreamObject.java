@@ -8,6 +8,7 @@ package de.wirvsvirus.hack.model;
  *   <li>new properties must be appended after last property</li>
  *   <li>NEVER change the order of properties</li>
  *   <li>NEVER change the type/name of a property</li>
+ *   <li>NEVER change the name of class</li>
  *   <li>migrate data by extending the class @link {@link de.wirvsvirus.hack.spring.DatabaseMigration}</li>
  * </ul>
  */
