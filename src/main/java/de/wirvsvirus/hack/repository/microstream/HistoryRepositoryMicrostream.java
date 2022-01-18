@@ -29,17 +29,20 @@ public class HistoryRepositoryMicrostream {
       @Nonnull final String sentimentText,
       @Nonnull final Sentiment prevSentiment) {
 
-    final UserStatusChangeHistory ush = new UserStatusChangeHistory();
-    ush.setTimestamp(timestamp);
-    ush.setGroupId(group.getGroupId());
-    ush.setUserId(user.getUserId());
-    ush.setSentiment(sentiment);
-    ush.setSentimentText(sentimentText);
-    ush.setPrevSentiment(prevSentiment);
+    final UserStatusChangeHistory change = new UserStatusChangeHistory();
+    change.setTimestamp(timestamp);
+    change.setGroupId(group.getGroupId());
+    change.setUserId(user.getUserId());
+    change.setSentiment(sentiment);
+    change.setSentimentText(sentimentText);
+    change.setPrevSentiment(prevSentiment);
 
     final List<UserStatusChangeHistory> historyItems = database.dataRoot()
         .getHistoryUserStatusChanges();
-    historyItems.add(ush);
+    historyItems.add(change);
     database.persist(historyItems);
+
+    // TODO remove after prod testing of history feature
+    log.debug("Write history: {}", change);
   }
 }
