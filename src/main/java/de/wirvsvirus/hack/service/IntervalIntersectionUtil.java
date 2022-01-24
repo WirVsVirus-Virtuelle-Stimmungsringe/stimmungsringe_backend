@@ -34,7 +34,6 @@ public final class IntervalIntersectionUtil {
             .collect(Collectors.toList());
   }
 
-  // TRODO change to right open
   static List<Pair<Long, Long>> intersectListOfLongs(
       final List<Pair<Long, Long>> list1,
       final List<Pair<Long, Long>> list2) {
@@ -62,7 +61,7 @@ public final class IntervalIntersectionUtil {
       final long r = Math.min(list1.get(i).getRight(), list2.get(j).getRight());
 
       // If segment is valid print it
-      if (l <= r) {
+      if (l < r) {
         output.add(Pair.of(l, r));
       }
 
@@ -78,12 +77,15 @@ public final class IntervalIntersectionUtil {
   }
 
   static void checkRangesListPreconditions(final List<Pair<Long, Long>> list) {
+    StreamEx.of(list)
+        .forEach(
+            p -> Preconditions.checkArgument(
+                p.getLeft() <= p.getRight(),
+                "Range %s malformed", p));
     final boolean strictMonotonicAsc = !StreamEx.of(list)
-        .peek(
-            p -> Preconditions.checkArgument(p.getLeft() <= p.getRight(), "Range %s malformed", p))
         .pairMap((l, r) -> {
           Preconditions.checkArgument(l.getLeft() < r.getLeft(), "Ranges must be ordered");
-          return l.getRight() < r.getLeft();
+          return l.getRight() <= r.getLeft();
         })
         .has(false);
     if (!strictMonotonicAsc) {
