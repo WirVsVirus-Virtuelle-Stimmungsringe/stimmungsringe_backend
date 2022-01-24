@@ -6,6 +6,7 @@ import de.wirvsvirus.hack.push.NotificationAndroidDeliveryOptions;
 import de.wirvsvirus.hack.push.NotificationAndroidDeliveryOptions.Priority;
 import de.wirvsvirus.hack.push.NotificationData;
 import de.wirvsvirus.hack.push.NotificationIosApsPayload;
+import de.wirvsvirus.hack.push.NotificationIosApsPayload.MutableContent;
 import de.wirvsvirus.hack.push.NotificationIosDeliveryHeaders;
 import de.wirvsvirus.hack.push.NotificationIosFcmOptions;
 import de.wirvsvirus.hack.push.NotificationIosOptions;
@@ -125,7 +126,8 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 
             iosDeliveryOptions.setPayload(NotificationIosPayload.builder()
                 .notificationIosApsPayload(NotificationIosApsPayload.builder()
-                    .mutableContent(NotificationIosApsPayload.MutableContent.FALSE)
+                    // allow modifications in app (e.g. images)
+                    .mutableContent(MutableContent.TRUE)
                     .build())
                 .build());
             iosDeliveryOptions.setFcmOptions(NotificationIosFcmOptions.builder()
