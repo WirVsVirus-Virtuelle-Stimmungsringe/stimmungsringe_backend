@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "pivotal.vscode-boot-dev-pack",
+        "gabrielbb.vscode-lombok",
+        "vscjava.vscode-java-pack"
+    ]
+}

@@ -28,11 +28,14 @@ target/
 build/
 
 ### VS Code ###
-.vscode/
+.vscode/settings.json
 .history/
 
 # Mac
 .DS_Store
+
+# Microstream roots
+database-micro*/
 
 # secrets
 src/main/resources/application-firebase-push-secrets.properties

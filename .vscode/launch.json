@@ -1,0 +1,21 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "cwd": "${workspaceFolder}",
+      "name": "Familiarise Backend",
+      "request": "launch",
+      "mainClass": "de.wirvsvirus.hack.Application",
+      "projectName": "familiarise-backend",
+      "args": [
+        "--spring.profiles.active=microstream,firebase-push-secrets",
+        "--backend.microstream.storage-path=${workspaceFolder}/database-micro",
+        "--backend.microstream.backup-path=${workspaceFolder}/database-micro-backup"
+      ]
+    }
+  ]
+}
