@@ -9,7 +9,7 @@ import lombok.ToString;
  * changed status/text, might be a noop
  */
 @ToString
-public class UserStatusChangeHistory implements MicrostreamObject {
+public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject {
 
   private Instant timestamp;
   private UUID groupId;
@@ -19,6 +19,7 @@ public class UserStatusChangeHistory implements MicrostreamObject {
   private Sentiment prevSentiment;
 
   @Nonnull
+  @Override
   public Instant getTimestamp() {
     return timestamp;
   }

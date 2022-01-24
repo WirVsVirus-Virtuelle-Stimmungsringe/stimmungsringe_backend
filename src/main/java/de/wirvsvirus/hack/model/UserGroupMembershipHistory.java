@@ -2,10 +2,11 @@ package de.wirvsvirus.hack.model;
 
 import java.time.Instant;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.ToString;
 
 @ToString
-public class UserGroupMembershipHistory implements MicrostreamObject {
+public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObject {
 
   public enum Change {
     START,
@@ -21,6 +22,8 @@ public class UserGroupMembershipHistory implements MicrostreamObject {
   private UUID userId;
   private Change change;
 
+  @Override
+  @Nonnull
   public Instant getTimestamp() {
     return timestamp;
   }
@@ -29,6 +32,7 @@ public class UserGroupMembershipHistory implements MicrostreamObject {
     this.timestamp = timestamp;
   }
 
+  @Nonnull
   public UUID getGroupId() {
     return groupId;
   }
@@ -37,6 +41,7 @@ public class UserGroupMembershipHistory implements MicrostreamObject {
     this.groupId = groupId;
   }
 
+  @Nonnull
   public UUID getUserId() {
     return userId;
   }
@@ -45,6 +50,7 @@ public class UserGroupMembershipHistory implements MicrostreamObject {
     this.userId = userId;
   }
 
+  @Nonnull
   public Change getChange() {
     return change;
   }
