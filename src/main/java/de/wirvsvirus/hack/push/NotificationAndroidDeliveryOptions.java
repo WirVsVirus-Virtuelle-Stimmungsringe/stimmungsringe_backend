@@ -10,14 +10,16 @@ public class NotificationAndroidDeliveryOptions {
     Priority priority;
     String collapseKey;
 
+    /**
+     * see https://firebase.google.com/docs/cloud-messaging/concept-options?hl=en#setting-the-priority-of-a-message
+     */
     public enum Priority {
         /**
-         * Default for data messages.
+         *  Normal priority messages are delivered immediately when the app is in the foreground.
          */
         NORMAL,
-
         /**
-         * Should be used for notifications.
+         * FCM attempts to deliver high priority messages immediately, allowing FCM to wake a sleeping device when necessary and to run some limited processing
          */
         HIGH;
 

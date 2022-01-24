@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.service.impl;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.push.Notification;
 import de.wirvsvirus.hack.push.NotificationAndroidDeliveryOptions;
+import de.wirvsvirus.hack.push.NotificationAndroidDeliveryOptions.Priority;
 import de.wirvsvirus.hack.push.NotificationData;
 import de.wirvsvirus.hack.push.NotificationIosApsPayload;
 import de.wirvsvirus.hack.push.NotificationIosDeliveryHeaders;
@@ -97,7 +98,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
                 .title(title)
                 .body(body).build())
             .androidDeliveryOptions(NotificationAndroidDeliveryOptions.builder()
-                .priority(NotificationAndroidDeliveryOptions.Priority.HIGH)
+                .priority(Priority.NORMAL)
                 .build())
             .data(NotificationData.builder()
                 .clickAction("FLUTTER_NOTIFICATION_CLICK")
@@ -111,6 +112,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             message.setIosDeliveryOptions(NotificationIosOptions.builder()
                 .headers(NotificationIosDeliveryHeaders.builder()
                     .apnsCollapseId(collapseId)
+                    .priority(NotificationIosDeliveryHeaders.Priority.NORMAL)
                     .build())
                 .build());
         });
@@ -123,7 +125,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 
             iosDeliveryOptions.setPayload(NotificationIosPayload.builder()
                 .notificationIosApsPayload(NotificationIosApsPayload.builder()
-                    .mutableContent(NotificationIosApsPayload.MutableContent.TRUE)
+                    .mutableContent(NotificationIosApsPayload.MutableContent.FALSE)
                     .build())
                 .build());
             iosDeliveryOptions.setFcmOptions(NotificationIosFcmOptions.builder()
