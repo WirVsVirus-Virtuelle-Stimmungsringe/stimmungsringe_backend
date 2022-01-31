@@ -16,6 +16,9 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class IntervalIntersectionUtil {
 
+  public static final Instant INSTANT_MIN = Instant.ofEpochSecond(0);
+  public static final Instant INSTANT_MAX = Instant.parse("2055-12-12T12:12:30.00Z");
+
   /**
    * truncate to timestamp
    */
@@ -24,7 +27,7 @@ public final class IntervalIntersectionUtil {
       final Instant truncateTimestamp) {
 
     return intersectList(list, Collections.singletonList(
-        Pair.of(Instant.ofEpochSecond(0), truncateTimestamp)));
+        Pair.of(INSTANT_MIN, truncateTimestamp)));
   }
 
   public static List<Pair<Instant, Instant>> intersectList(
