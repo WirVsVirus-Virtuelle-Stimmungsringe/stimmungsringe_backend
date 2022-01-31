@@ -19,16 +19,12 @@ public abstract class AbstractStatsTest {
   protected final Instant t0 = Instant.now();
   protected final UUID userId = UUID.randomUUID();
   protected final UUID groupId = UUID.randomUUID();
-  private final List<HistoryObject> hist = new LinkedList<>();
+  protected final List<HistoryObject> hist = new LinkedList<>();
 
   protected final void printHistory() {
     hist.forEach(
         entry -> System.out.println("- " + entry)
     );
-  }
-
-  public List<HistoryObject> getHistory() {
-    return Collections.unmodifiableList(hist);
   }
 
   protected final void appendToHistory(final HistoryObject change) {

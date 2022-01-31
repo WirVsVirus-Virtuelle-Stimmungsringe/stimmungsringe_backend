@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.model;
 
 import java.time.Instant;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 
 /**
@@ -10,4 +11,5 @@ public interface HistoryObject {
 
   @Nonnull
   Instant getTimestamp();
+
 }

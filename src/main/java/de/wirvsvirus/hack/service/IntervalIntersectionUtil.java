@@ -3,6 +3,7 @@ package de.wirvsvirus.hack.service;
 import com.google.common.base.Preconditions;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import one.util.streamex.StreamEx;
@@ -14,6 +15,17 @@ import org.apache.commons.lang3.tuple.Pair;
  * https://www.geeksforgeeks.org/find-intersection-of-intervals-given-by-two-lists/
  */
 public final class IntervalIntersectionUtil {
+
+  /**
+   * truncate to timestamp
+   */
+  public static List<Pair<Instant, Instant>> truncateListUnit(
+      final List<Pair<Instant, Instant>> list,
+      final Instant truncateTimestamp) {
+
+    return intersectList(list, Collections.singletonList(
+        Pair.of(Instant.ofEpochSecond(0), truncateTimestamp)));
+  }
 
   public static List<Pair<Instant, Instant>> intersectList(
       final List<Pair<Instant, Instant>> list1,
