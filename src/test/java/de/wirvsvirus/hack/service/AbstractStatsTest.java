@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import one.util.streamex.StreamEx;
 
 public abstract class AbstractStatsTest {
 
@@ -20,6 +21,19 @@ public abstract class AbstractStatsTest {
   protected final UUID userId = UUID.randomUUID();
   protected final UUID groupId = UUID.randomUUID();
   protected final List<HistoryObject> hist = new LinkedList<>();
+
+
+  protected List<UserStatusChangeHistory> getHistoryOfStatusChanges() {
+    return StreamEx.of(hist)
+        .select(UserStatusChangeHistory.class)
+        .toList();
+  }
+
+  protected List<UserGroupMembershipHistory> getHistoryUserGroupMembership() {
+    return StreamEx.of(hist)
+        .select(UserGroupMembershipHistory.class)
+        .toList();
+  }
 
   protected final void printHistory() {
     hist.forEach(

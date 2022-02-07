@@ -140,6 +140,16 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   }
 
   @Override
+  public List<User> findAllUsersInGroup(UUID groupId) {
+    return
+        EntryStream.of(database.dataRoot().getGroupByUserId())
+            .filterValues(gid -> gid.equals(groupId))
+            .keys()
+            .map(database.dataRoot().getAllUsers()::get)
+            .collect(Collectors.toList());
+  }
+
+  @Override
   public Sentiment findSentimentByUserId(final UUID userId) {
     final Sentiment sentiment = database.dataRoot().getStatusByUser()
         .get(userId).getSentiment();
@@ -318,6 +328,11 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
   @Override
   public Stream<User> findAllUsers() {
     return database.dataRoot().getAllUsers().values().stream();
+  }
+
+  @Override
+  public Stream<Group> findAllGroups() {
+    return database.dataRoot().getAllGroups().values().stream();
   }
 
   @Override

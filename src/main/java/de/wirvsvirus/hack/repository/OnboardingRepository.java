@@ -30,6 +30,8 @@ public interface OnboardingRepository {
 
     List<User> findOtherUsersInGroup(UUID groupId, UUID currentUserId);
 
+    List<User> findAllUsersInGroup(UUID groupId);
+
     Sentiment findSentimentByUserId(UUID userId);
 
     String findSentimentTextByUserId(UUID userId);
@@ -70,6 +72,8 @@ public interface OnboardingRepository {
     List<Device> findDevicesByUserId(UUID userId);
 
     Stream<User> findAllUsers();
+
+    Stream<Group> findAllGroups();
 
     void deleteUser(UUID userId);
 

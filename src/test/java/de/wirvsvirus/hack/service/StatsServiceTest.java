@@ -14,7 +14,12 @@ import lombok.Value;
 import one.util.streamex.MoreCollectors;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 public class StatsServiceTest extends AbstractStatsTest {
 
@@ -37,111 +42,10 @@ public class StatsServiceTest extends AbstractStatsTest {
 
     printHistory();
 
-    // 27 sec
-    calcSunshineHoursInGroup(now);
-  }
-
-
-
-  @Value
-  class MembershipPoints {
-    Instant timestamp;
-    Change change;
-  }
-
-  @Value
-  class StatusPoints {
-    Instant timestamp;
-    Sentiment prevSentiment;
-    Sentiment sentiment;
-  }
-
-
-  private void calcSunshineHoursInGroup(Instant now) {
-
-    // intersect group membership with sunny status
-
-
-    // Group membership
-    
-    final List<Pair<Instant, Instant>> membershipIntervals =
-      StreamEx.of(hist)
-        .select(UserGroupMembershipHistory.class)
-        .filter(h -> h.getGroupId().equals(groupId))
-        .map(hist -> new MembershipPoints(hist.getTimestamp(), hist.getChange()))
-        .append(new MembershipPoints(INSTANT_MAX, Change.LEAVE))
-        .pairMap((a, b) -> {
-          final Optional<Pair<Instant, Instant>> result;
-          if (a.getChange() == Change.JOIN && b.getChange() == Change.LEAVE) {
-            final Pair<Instant, Instant> pair = Pair.of(a.getTimestamp(), b.getTimestamp());
-            result = Optional.of(pair);
-          } else {
-            result = Optional.empty();
-          }
-          return result;
-        })
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .toList();
-
-    System.out.println("membership " + membershipIntervals);
-
-    final UserStatusChangeHistory fillLeft = StreamEx.of(hist)
-        .select(UserStatusChangeHistory.class)
-        .filter(h -> h.getGroupId().equals(groupId))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("TODO"));// FIXME
-
-    final UserStatusChangeHistory fillRight = StreamEx.of(hist)
-        .select(UserStatusChangeHistory.class)
-        .filter(h -> h.getGroupId().equals(groupId))
-        .collect(MoreCollectors.last())
-        .orElseThrow(() -> new IllegalArgumentException("TODO")); // FIXME
-
-    // assume that the leftmost status entry documents the status up to that point
-    final StatusPoints insertLeft = new StatusPoints(INSTANT_MIN, fillLeft.getPrevSentiment(),
-        fillLeft.getPrevSentiment());
-    // assume that last status lasts forever
-    final StatusPoints insertRight = new StatusPoints(INSTANT_MAX, fillRight.getSentiment(),
-        fillRight.getSentiment());
-
-    final List<Pair<Instant, Instant>> sunshineIntervals =
-        StreamEx.of(insertLeft).append(
-            StreamEx.of(hist)
-                .select(UserStatusChangeHistory.class)
-                .filter(h -> h.getGroupId().equals(groupId))
-                .map(h -> new StatusPoints(h.getTimestamp(), h.getPrevSentiment(), h.getSentiment()))
-        ).append(insertRight)
-        .pairMap((a, b) -> {
-          Optional<Pair<Instant, Instant>> result;
-          if (a.getSentiment() == Sentiment.sunny) {
-            final Pair<Instant, Instant> pair = Pair.of(a.getTimestamp(), b.getTimestamp());
-            result = Optional.of(pair);
-          } else {
-            result = Optional.empty();
-          }
-          return result;
-        })
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .toList();
-
-    System.out.println("sunshineIntervals " + sunshineIntervals);
-
-
-    final List<Pair<Instant, Instant>> combined =
-        truncateListUnit(intersectList(
-            membershipIntervals, sunshineIntervals), now);
-
-    System.out.println("combined " + combined);
-
-    final Duration total = StreamEx.of(combined)
-        .map(p -> Duration.between(p.getLeft(), p.getRight()))
-        .reduce(Duration::plus)
-        .orElse(Duration.ZERO);
-
-    System.out.println("total=" + total);
-
+     // 27 sec
+    final Duration sunshine = StatsCalculationLogic.calcSunshineHoursInGroup(
+        getHistoryOfStatusChanges(), getHistoryUserGroupMembership(), userId, groupId, now);
+    Assertions.assertEquals(Duration.ofSeconds(27), sunshine);
   }
 
 }

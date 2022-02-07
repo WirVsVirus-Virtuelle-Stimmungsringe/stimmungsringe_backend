@@ -6,9 +6,11 @@ import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.model.UserGroupMembershipHistory;
 import de.wirvsvirus.hack.model.UserGroupMembershipHistory.Change;
 import de.wirvsvirus.hack.model.UserStatusChangeHistory;
-import de.wirvsvirus.hack.repository.HistoryRepository;
+import de.wirvsvirus.hack.repository.HistoryLogSinkRepository;
+import de.wirvsvirus.hack.repository.HistoryQueryRepository;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
+import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @Profile("microstream")
-public class HistoryRepositoryMicrostream implements HistoryRepository {
+public class HistoryRepositoryMicrostream implements HistoryLogSinkRepository,
+    HistoryQueryRepository {
 
   @Autowired
   private Database database;
@@ -112,5 +115,14 @@ public class HistoryRepositoryMicrostream implements HistoryRepository {
     log.debug("Write history: {}", change);
   }
 
+  @Override
+  public List<UserStatusChangeHistory> getHistoryOfStatusChanges() {
+    return database.dataRoot().getHistoryUserStatusChanges();
+  }
+
+  @Override
+  public List<UserGroupMembershipHistory> getHistoryUserGroupMembership() {
+    return database.dataRoot().getHistoryUserGroupMembership();
+  }
 
 }
