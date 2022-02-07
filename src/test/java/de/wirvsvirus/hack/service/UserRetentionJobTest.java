@@ -10,7 +10,7 @@ class UserRetentionJobTest {
 
   @Test
   void buildWithoutNames() {
-    assertEquals("Wie geht es dir gerade!",
+    assertEquals("Wie geht es dir gerade?",
         buildNoStatusUpdateString(Lists.newArrayList()));
   }
 
