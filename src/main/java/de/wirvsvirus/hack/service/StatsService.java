@@ -20,8 +20,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.MoreCollectors;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,6 +33,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class StatsService {
 
   @Autowired
@@ -37,6 +41,9 @@ public class StatsService {
 
   @Autowired
   private OnboardingRepository onboardingRepository;
+
+  @Autowired
+  private PushNotificationService pushNotificationService;
 
   @Value
   static
@@ -53,35 +60,64 @@ public class StatsService {
     Sentiment sentiment;
   }
 
-  @Scheduled(fixedDelay = 2000)
-  public void tickTack() {
-    System.out.println("Tick..tack");
+  @Scheduled(cron = "0 0 19 * * SUN")
+//  @Scheduled(fixedDelay = 5000)
+  public void calcSunshineHoursAndSendPushes() {
+    final AtomicInteger sent = new AtomicInteger();
+    final AtomicLong totalHours = new AtomicLong();
     final Instant now = Instant.now();
 
     onboardingRepository.findAllGroups()
-        .filter(group -> "Let the sun shine!".equals(group.getGroupName()))
         .forEach(
-        group -> {
+            group -> {
+              final Duration sunshine = calcSunshineTimeForGroup(group.getGroupId(), now);
 
-          for (User user : onboardingRepository.findAllUsersInGroup(group.getGroupId())) {
+              for (final User user : onboardingRepository.findAllUsersInGroup(group.getGroupId())) {
+                final long hours = sunshine.toHours();
+                log.info("> {} collected {} hours of sunshine", user, hours);
+                sendPushSunshineHours(user, group, hours);
+                sent.incrementAndGet();
+                totalHours.addAndGet(hours);
+              }
+            }
+        );
 
-            final Duration sunshineDuration =
-                StatsCalculationLogic.calcSunshineHoursInGroup(
-                    historyQueryRepository.getHistoryOfStatusChanges(),
-                    historyQueryRepository.getHistoryUserGroupMembership(),
-                    user.getUserId(),
-                    group.getGroupId(),
-                    now);
-
-              System.out.println("User " + user.getName());
-              System.out.println("> " + sunshineDuration);
-
-          } // all users in group
+    log.info("Sunshine-Hours-Stats job sent {} messages with total of {} sunny hours",
+        sent.get(), totalHours.get());
+  }
 
 
-        }
-    );
+  private Duration calcSunshineTimeForGroup(final UUID groupId, final Instant now) {
 
+    Duration sum = Duration.ZERO;
+
+    for (final User user : onboardingRepository.findAllUsersInGroup(groupId)) {
+
+      final Duration sunshineDuration =
+          StatsCalculationLogic.calcSunshineHoursInGroup(
+              historyQueryRepository.getHistoryOfStatusChanges(),
+              historyQueryRepository.getHistoryUserGroupMembership(),
+              user.getUserId(),
+              groupId,
+              now);
+
+      sum = sum.plus(sunshineDuration);
+
+    } // all users in group
+
+    return sum;
+  }
+
+  private void sendPushSunshineHours(
+      final User user, final Group group, final long hours) {
+    final String prefix = hours > 10 ? "Toll! " : "";
+    onboardingRepository.findDevicesByUserId(user.getUserId())
+        .forEach(device -> pushNotificationService.sendMessage(
+            device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
+            String.format("%sDeine Fam-Group hat %s Sonnenstunden gesammelt!", prefix, hours),
+            Optional.empty(),
+            Optional.empty())
+        );
   }
 
 }
