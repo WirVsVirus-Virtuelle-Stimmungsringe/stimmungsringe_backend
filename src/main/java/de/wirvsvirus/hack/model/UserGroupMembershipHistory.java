@@ -9,12 +9,12 @@ import lombok.ToString;
 public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObject {
 
   public enum Change {
+    START,
     JOIN,
     /**
      * note: user gets deleted upon group leave
      */
-    LEAVE,
-    START;
+    LEAVE;
   }
 
   private Instant timestamp;
