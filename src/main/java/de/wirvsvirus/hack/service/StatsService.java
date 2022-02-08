@@ -110,11 +110,10 @@ public class StatsService {
 
   private void sendPushSunshineHours(
       final User user, final Group group, final long hours) {
-    final String prefix = hours > 10 ? "Toll! " : "";
     onboardingRepository.findDevicesByUserId(user.getUserId())
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
-            String.format("%sDeine Fam-Group hat %s Sonnenstunden gesammelt!", prefix, hours),
+            String.format("☀️ Deine Fam-Group hat %s Sonnenstunden gesammelt!", hours),
             Optional.empty(),
             Optional.empty())
         );
