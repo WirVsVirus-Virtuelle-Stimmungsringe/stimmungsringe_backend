@@ -26,7 +26,7 @@ public class MicrostreamBackupService {
   /**
    * incremental backup (./monday/22)
    */
-  @Scheduled(cron = "1 */15 7-23 * * *")
+  @Scheduled(cron = "1 */15 7-23 * * *", zone = "Europe/Berlin")
   public void performBackup() {
     if (backupPath == null) {
       log.info("No microstream backup path configured!");

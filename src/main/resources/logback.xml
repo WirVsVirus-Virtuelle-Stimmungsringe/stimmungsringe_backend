@@ -11,6 +11,9 @@
     <logger name="de.wirvsvirus.hack.spring.UserInterceptor" level="WARN" />
     <logger name="de.wirvsvirus.hack.spring.RestEndpointTimingsStatsFilter" level="WARN" />
 
+    <!--  remove after testing phase -->
+    <logger name="de.wirvsvirus.hack.repository.microstream.HistoryRepositoryMicrostream" level="DEBUG" />
+
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
     </root>

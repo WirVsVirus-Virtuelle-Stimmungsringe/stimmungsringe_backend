@@ -40,7 +40,7 @@ public class UserRetentionJob {
   @Autowired
   private PushNotificationService pushNotificationService;
 
-  @Scheduled(cron = "0 0 19 * * *")
+  @Scheduled(cron = "0 0 19 * * *", zone = "Europe/Berlin")
 //  @Scheduled(fixedDelay = 5000)
   public void checkForInactiveUsers() {
 
