@@ -60,7 +60,7 @@ public class StatsService {
     Sentiment sentiment;
   }
 
-  @Scheduled(cron = "0 0 19 * * SUN")
+  @Scheduled(cron = "0 0 19 * * SUN", zone = "Europe/Berlin")
 //  @Scheduled(fixedDelay = 5000)
   public void calcSunshineHoursAndSendPushes() {
     final AtomicInteger sent = new AtomicInteger();
