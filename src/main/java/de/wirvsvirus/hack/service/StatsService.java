@@ -58,6 +58,10 @@ public class StatsService {
             group -> {
               final Duration sunshine = calcSunshineTimeForGroup(group.getGroupId(), now);
 
+              if (sunshine.toHours() < 2) {
+                return;
+              }
+
               for (final User user : onboardingRepository.findAllUsersInGroup(group.getGroupId())) {
                 final long hours = sunshine.toHours();
                 log.info("> {} collected {} hours of sunshine", user, hours);
