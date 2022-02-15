@@ -1,7 +1,9 @@
 package de.wirvsvirus.hack.model;
 
+import com.google.common.base.Preconditions;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import lombok.ToString;
 

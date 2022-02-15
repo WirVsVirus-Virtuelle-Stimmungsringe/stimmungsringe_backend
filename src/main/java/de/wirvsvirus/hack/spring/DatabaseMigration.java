@@ -3,6 +3,8 @@ package de.wirvsvirus.hack.spring;
 import de.wirvsvirus.hack.mock.MockDataProvider;
 import de.wirvsvirus.hack.model.Message;
 import de.wirvsvirus.hack.model.Sentiment;
+import de.wirvsvirus.hack.model.UserGroupMembershipHistory;
+import de.wirvsvirus.hack.model.UserGroupMembershipHistory.Change;
 import de.wirvsvirus.hack.model.UserStatus;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.repository.microstream.MigrationMetadata;
@@ -189,6 +191,30 @@ public class DatabaseMigration {
         database.dataRoot().setHistoryUserGroupMembership(new ArrayList<>());
         storageManager.storeRoot();
       }
+    }
+
+    // if no historic user-group membership is tracked, initialize with one JOIN event
+    if (!migrationMetadata.isHistoryOfGroupMembershipInitialized()) {
+      migrationMetadata.setHistoryOfGroupMembershipInitialized(true);
+      database.persist(migrationMetadata);
+
+      final List<UserGroupMembershipHistory> groupMembership = database.dataRoot()
+          .getHistoryUserGroupMembership();
+      final Set<UUID> allUserIds = database.dataRoot().getAllUsers().keySet();
+      final Set<UUID> allGroupIds = database.dataRoot().getAllGroups().keySet();
+
+      EntryStream.of(database.dataRoot().getGroupByUserId())
+          .filterKeys(allUserIds::contains)
+          .filterValues(allGroupIds::contains)
+          .forKeyValue((userId, groupId) -> {
+            final UserGroupMembershipHistory membership = new UserGroupMembershipHistory();
+            membership.setChange(Change.JOIN);
+            membership.setUserId(userId);
+            membership.setGroupId(groupId);
+            membership.setTimestamp(Instant.parse("2020-01-01T11:11:11.00Z"));
+            groupMembership.add(membership);
+          });
+      database.persist(groupMembership);
     }
 
     if (migrationMetadata.hashCode() == prevMigrationHash) {

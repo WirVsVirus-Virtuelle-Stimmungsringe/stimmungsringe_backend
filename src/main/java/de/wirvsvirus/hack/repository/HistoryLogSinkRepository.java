@@ -6,7 +6,7 @@ import de.wirvsvirus.hack.model.User;
 import java.time.Instant;
 import javax.annotation.Nonnull;
 
-public interface HistoryRepository {
+public interface HistoryLogSinkRepository {
 
   void logUserUpdatedStatus(
       @Nonnull Instant timestamp,

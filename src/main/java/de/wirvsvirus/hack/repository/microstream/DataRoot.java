@@ -61,6 +61,7 @@ public class DataRoot {
     this.allGroups = allGroups;
   }
 
+  // userId -> groupId
   public Map<UUID, UUID> getGroupByUserId() {
     return groupByUserId;
   }
