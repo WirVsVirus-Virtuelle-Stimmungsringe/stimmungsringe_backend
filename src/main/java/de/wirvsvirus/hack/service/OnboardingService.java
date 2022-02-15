@@ -6,7 +6,6 @@ import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.HistoryRepository;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
-import de.wirvsvirus.hack.repository.microstream.HistoryRepositoryMicrostream;
 import de.wirvsvirus.hack.service.dto.GroupSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSettingsDto;
 import de.wirvsvirus.hack.service.dto.UserSignedInDto;
@@ -195,7 +194,7 @@ public class OnboardingService {
         final Instant timestamp = Instant.now();
 
         Preconditions.checkState(groupName.length() >= 3);
-        final String groupCode = GroupCodeUtil.generateGroupCode();
+        final String groupCode = AlgoUtil.generateGroupCode();
         final Optional<Group> conflict = onboardingRepository.findGroupByCode(groupCode);
         Preconditions.checkState(!conflict.isPresent(), "Group code cannot be used - conflicting");
         final Group newGroup = onboardingRepository.startNewGroup(groupName, groupCode, timestamp);
