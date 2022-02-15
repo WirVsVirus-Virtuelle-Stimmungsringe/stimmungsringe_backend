@@ -138,7 +138,7 @@ public class UserRetentionJob {
   }
 
   private long fullDaysElapsedSince(final Instant timestamp) {
-    return Duration.between(timestamp, Instant.now()).get(ChronoUnit.DAYS);
+    return Duration.between(timestamp, Instant.now()).toDays();
   }
 
   private void sendPushMessageInactiveUser(final User inactiveUser, final Group group) {

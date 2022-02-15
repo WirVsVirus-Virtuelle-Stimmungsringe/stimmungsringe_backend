@@ -22,6 +22,6 @@ public class AlgoUtil {
         String.format(
             "This method is only defined for numbers <= %d, got: %d",
             fibonacci30[fibonacci30.length - 1], numberToTest));
-    return Arrays.stream(fibonacci30).filter(fib -> fib == numberToTest).count() > 0;
+    return Arrays.stream(fibonacci30).anyMatch(fib -> fib == numberToTest);
   }
 }
