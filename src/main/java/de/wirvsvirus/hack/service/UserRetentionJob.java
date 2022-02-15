@@ -56,7 +56,7 @@ public class UserRetentionJob {
   private void pokeInactiveUsers(final Set<UUID> deduplicationSet) {
     final AtomicInteger sent = new AtomicInteger();
     final AtomicInteger error = new AtomicInteger();
-    final long cutoffNoSignInDays = 2;
+    final long cutoffNoSignInDays = 3;
 
     onboardingRepository
         .findAllUsers()
@@ -66,7 +66,7 @@ public class UserRetentionJob {
               final long daysSinceLastSignIn =
                   fullDaysElapsedSince(
                       onboardingRepository.findLastSigninByUserId(user.getUserId()));
-              return daysSinceLastSignIn > cutoffNoSignInDays
+              return daysSinceLastSignIn >= cutoffNoSignInDays
                   && AlgoUtil.isFibonacciNumber(daysSinceLastSignIn);
             })
         .forEach(
@@ -98,7 +98,7 @@ public class UserRetentionJob {
   private void pokeUsersWithoutStatusUpdate(final Set<UUID> deduplicationSet) {
     final AtomicInteger sent = new AtomicInteger();
     final AtomicInteger error = new AtomicInteger();
-    final long cutoffNoStatusUpdateDays = 1;
+    final long cutoffNoStatusUpdateDays = 2;
 
     onboardingRepository
         .findAllUsers()
@@ -108,7 +108,7 @@ public class UserRetentionJob {
               final long daysSinceLastStatusUpdate =
                   fullDaysElapsedSince(
                       onboardingRepository.findLastStatusUpdateByUserId(user.getUserId()));
-              return daysSinceLastStatusUpdate > cutoffNoStatusUpdateDays
+              return daysSinceLastStatusUpdate >= cutoffNoStatusUpdateDays
                   && AlgoUtil.isFibonacciNumber(daysSinceLastStatusUpdate);
             })
         .forEach(
