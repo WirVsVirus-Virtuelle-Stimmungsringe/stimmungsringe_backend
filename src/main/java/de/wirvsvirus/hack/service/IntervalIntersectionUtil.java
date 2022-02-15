@@ -24,10 +24,11 @@ public final class IntervalIntersectionUtil {
    */
   public static List<Pair<Instant, Instant>> truncateListUnit(
       final List<Pair<Instant, Instant>> list,
+      final Instant lowerBoundTimestamp,
       final Instant truncateTimestamp) {
 
     return intersectList(list, Collections.singletonList(
-        Pair.of(INSTANT_MIN, truncateTimestamp)));
+        Pair.of(lowerBoundTimestamp, truncateTimestamp)));
   }
 
   public static List<Pair<Instant, Instant>> intersectList(

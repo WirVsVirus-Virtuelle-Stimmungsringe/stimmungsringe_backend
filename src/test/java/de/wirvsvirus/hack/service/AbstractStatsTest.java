@@ -17,7 +17,7 @@ import one.util.streamex.StreamEx;
 
 public abstract class AbstractStatsTest {
 
-  protected final Instant t0 = Instant.now();
+  protected final Instant t0 = Instant.parse("2022-02-18T10:15:30.00Z");
   protected final UUID userId = UUID.randomUUID();
   protected final UUID groupId = UUID.randomUUID();
   protected final List<HistoryObject> hist = new LinkedList<>();
@@ -46,7 +46,7 @@ public abstract class AbstractStatsTest {
     hist.stream()
         .max(Comparator.comparing(HistoryObject::getTimestamp))
         .ifPresent(latest -> {
-          Preconditions.checkState(latest.getTimestamp().isBefore(change.getTimestamp()),
+          Preconditions.checkState(!latest.getTimestamp().isAfter(change.getTimestamp()),
               "Must not insert event older that latest! (%s < %s)",
               latest.toString(), change);
         });

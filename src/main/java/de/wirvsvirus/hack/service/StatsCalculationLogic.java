@@ -12,6 +12,12 @@ import de.wirvsvirus.hack.service.StatsService.MembershipPoints;
 import de.wirvsvirus.hack.service.StatsService.StatusPoints;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +34,12 @@ public final class StatsCalculationLogic {
       final UUID userId,
       final UUID groupId,
       final Instant now) {
+
+    final Instant startOfWeek =
+        now.atZone(ZoneId.of("Europe/Berlin"))
+        .truncatedTo(ChronoUnit.DAYS)
+        .with(ChronoField.DAY_OF_WEEK, 1)
+        .toInstant();
 
     final List<Pair<Instant, Instant>> membershipIntervals =
         StreamEx.of(historyGroupMembership)
@@ -99,7 +111,7 @@ public final class StatsCalculationLogic {
 
     final List<Pair<Instant, Instant>> combined =
         truncateListUnit(intersectList(
-            membershipIntervals, sunshineIntervals), now);
+            membershipIntervals, sunshineIntervals), startOfWeek, now);
 
     return StreamEx.of(combined)
         .map(p -> Duration.between(p.getLeft(), p.getRight()))

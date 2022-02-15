@@ -7,6 +7,7 @@ import de.wirvsvirus.hack.model.UserGroupMembershipHistory.Change;
 import de.wirvsvirus.hack.model.UserStatusChangeHistory;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,6 +47,21 @@ public class StatsServiceTest extends AbstractStatsTest {
     final Duration sunshine = StatsCalculationLogic.calcSunshineHoursInGroup(
         getHistoryOfStatusChanges(), getHistoryUserGroupMembership(), userId, groupId, now);
     Assertions.assertEquals(Duration.ofSeconds(27), sunshine);
+  }
+
+  @Test
+  public void truncateToWeek() {
+    joinGroup(t0.plusSeconds(0));
+    updateStatus(t0.plusSeconds(0), Sentiment.sunny, Sentiment.sunny);
+
+    final Instant now = Instant.parse("2022-03-07T10:15:00.00Z"); // monday
+
+    printHistory();
+
+    final Duration sunshine = StatsCalculationLogic.calcSunshineHoursInGroup(
+        getHistoryOfStatusChanges(), getHistoryUserGroupMembership(), userId, groupId, now);
+    Assertions.assertEquals(Duration.ofHours(11).plusMinutes(15), sunshine);
+
   }
 
 }
