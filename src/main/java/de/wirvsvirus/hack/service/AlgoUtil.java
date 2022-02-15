@@ -16,7 +16,7 @@ public class AlgoUtil {
     return String.valueOf(code);
   }
 
-  static boolean isFibonacciNumber(final long numberToTest) {
+  public static boolean isFibonacciNumber(final long numberToTest) {
     Preconditions.checkArgument(
         numberToTest <= fibonacci30[fibonacci30.length - 1],
         String.format(
@@ -24,4 +24,6 @@ public class AlgoUtil {
             fibonacci30[fibonacci30.length - 1], numberToTest));
     return Arrays.stream(fibonacci30).anyMatch(fib -> fib == numberToTest);
   }
+
+  private AlgoUtil() {}
 }
