@@ -121,7 +121,7 @@ public class HistoryRepositoryMicrostream implements HistoryLogSinkRepository,
   }
 
   @Override
-  public List<UserGroupMembershipHistory> getHistoryUserGroupMembership() {
+  public List<UserGroupMembershipHistory> getHistoryUserGroupMemberships() {
     return database.dataRoot().getHistoryUserGroupMembership();
   }
 

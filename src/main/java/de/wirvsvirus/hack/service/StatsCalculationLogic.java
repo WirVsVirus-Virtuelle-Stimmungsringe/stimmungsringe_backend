@@ -4,6 +4,7 @@ import static de.wirvsvirus.hack.service.IntervalIntersectionUtil.INSTANT_MAX;
 import static de.wirvsvirus.hack.service.IntervalIntersectionUtil.INSTANT_MIN;
 import static de.wirvsvirus.hack.service.IntervalIntersectionUtil.intersectList;
 import static de.wirvsvirus.hack.service.IntervalIntersectionUtil.truncateListUnit;
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.UserGroupMembershipHistory;
 import de.wirvsvirus.hack.model.UserGroupMembershipHistory.Change;
@@ -12,12 +13,9 @@ import de.wirvsvirus.hack.service.StatsService.MembershipPoints;
 import de.wirvsvirus.hack.service.StatsService.StatusPoints;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +25,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class StatsCalculationLogic {
 
-
   public static Duration calcSunshineHoursInGroup(
       final List<UserStatusChangeHistory> historyStatusChanges,
       final List<UserGroupMembershipHistory> historyGroupMembership,
@@ -35,16 +32,75 @@ public final class StatsCalculationLogic {
       final UUID groupId,
       final Instant now) {
 
+    final List<UserStatusChangeHistory> filteredChanges =
+        StreamEx.of(
+                historyStatusChanges)
+            .filter(h -> h.getUserId().equals(userId))
+            .filter(h -> h.getGroupId().equals(groupId))
+            .toList();
+
+    final List<UserGroupMembershipHistory> filteredMembership =
+        StreamEx.of(
+                historyGroupMembership)
+            .filter(h -> h.getUserId().equals(userId))
+            .filter(h -> h.getGroupId().equals(groupId))
+            .toList();
+
+    return calcSunshineHoursInGroup(
+        filteredChanges,
+        filteredMembership,
+        now);
+  }
+
+  public static Duration calcSunshineHoursInGroup(
+      final List<UserStatusChangeHistory> historyStatusChanges,
+      final List<UserGroupMembershipHistory> historyGroupMembership,
+      final Instant now) {
+
+    Preconditions.checkState(
+        historyStatusChanges.stream()
+            .map(UserStatusChangeHistory::getUserId)
+            .distinct()
+            .count() <= 1,
+        "Must pass in history of exactly one user"
+    );
+
+    Preconditions.checkState(
+        historyStatusChanges.stream()
+            .map(UserStatusChangeHistory::getGroupId)
+            .distinct()
+            .count() <= 1,
+        "Must pass in history of exactly one group"
+    );
+
+    Preconditions.checkState(
+        historyGroupMembership.stream()
+            .map(UserGroupMembershipHistory::getUserId)
+            .distinct()
+            .count() <= 1,
+        "Must pass in history of exactly one user"
+    );
+
+    Preconditions.checkState(
+        historyGroupMembership.stream()
+            .map(UserGroupMembershipHistory::getGroupId)
+            .distinct()
+            .count() <= 1,
+        "Must pass in history of exactly one group"
+    );
+
+    if (historyStatusChanges.isEmpty()) {
+      return Duration.ZERO;
+    }
+
     final Instant startOfWeek =
         now.atZone(ZoneId.of("Europe/Berlin"))
-        .truncatedTo(ChronoUnit.DAYS)
-        .with(ChronoField.DAY_OF_WEEK, 1)
-        .toInstant();
+            .truncatedTo(ChronoUnit.DAYS)
+            .with(ChronoField.DAY_OF_WEEK, 1)
+            .toInstant();
 
     final List<Pair<Instant, Instant>> membershipIntervals =
         StreamEx.of(historyGroupMembership)
-            .filter(h -> h.getUserId().equals(userId))
-            .filter(h -> h.getGroupId().equals(groupId))
             .map(hist -> new MembershipPoints(hist.getTimestamp(), hist.getChange()))
             .append(new MembershipPoints(INSTANT_MAX, Change.LEAVE))
             .pairMap((a, b) -> {
@@ -61,22 +117,11 @@ public final class StatsCalculationLogic {
             .map(Optional::get)
             .toList();
 
-    if (StreamEx.of(historyStatusChanges)
-        .noneMatch(h ->
-            h.getUserId().equals(userId)
-            && h.getGroupId().equals(groupId))) {
-      return Duration.ZERO;
-    }
-
     final UserStatusChangeHistory fillLeft = StreamEx.of(historyStatusChanges)
-        .filter(h -> h.getUserId().equals(userId))
-        .filter(h -> h.getGroupId().equals(groupId))
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("No status change history!"));
 
     final UserStatusChangeHistory fillRight = StreamEx.of(historyStatusChanges)
-        .filter(h -> h.getUserId().equals(userId))
-        .filter(h -> h.getGroupId().equals(groupId))
         .collect(MoreCollectors.last())
         .orElseThrow(() -> new IllegalStateException("No status change history!"));
 
@@ -90,8 +135,6 @@ public final class StatsCalculationLogic {
     final List<Pair<Instant, Instant>> sunshineIntervals =
         StreamEx.of(insertLeft).append(
                 StreamEx.of(historyStatusChanges)
-                    .filter(h -> h.getUserId().equals(userId))
-                    .filter(h -> h.getGroupId().equals(groupId))
                     .map(h -> new StatusPoints(h.getTimestamp(), h.getPrevSentiment(),
                         h.getSentiment()))
             ).append(insertRight)

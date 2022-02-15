@@ -8,6 +8,6 @@ public interface HistoryQueryRepository {
 
   List<UserStatusChangeHistory> getHistoryOfStatusChanges();
 
-  List<UserGroupMembershipHistory> getHistoryUserGroupMembership();
+  List<UserGroupMembershipHistory> getHistoryUserGroupMemberships();
 
 }
