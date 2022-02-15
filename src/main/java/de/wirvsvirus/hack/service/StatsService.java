@@ -113,7 +113,7 @@ public class StatsService {
     onboardingRepository.findDevicesByUserId(user.getUserId())
         .forEach(device -> pushNotificationService.sendMessage(
             device.getFcmToken(), "Familiarise  - " + group.getGroupName(),
-            String.format("☀️ Deine Fam-Group hat %s Sonnenstunden gesammelt!", hours),
+            String.format("☀️ Ihr hattet %d Sonnenstunden in dieser Woche!", hours),
             Optional.empty(),
             Optional.empty())
         );
