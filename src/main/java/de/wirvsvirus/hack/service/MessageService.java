@@ -73,6 +73,7 @@ public class MessageService {
             "Super!",
             "Drück' dich!",
             "Melde dich doch mal!",
+            "Bleib' gesund!",
             "Lust auf ein Käffchen!"
             )
                 .map(text -> {
