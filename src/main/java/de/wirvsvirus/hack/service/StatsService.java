@@ -77,7 +77,7 @@ public class StatsService {
   }
 
 
-  private Duration calcSunshineTimeForGroup(final UUID groupId, final Instant now) {
+  public Duration calcSunshineTimeForGroup(final UUID groupId, final Instant now) {
 
     Duration sum = Duration.ZERO;
 

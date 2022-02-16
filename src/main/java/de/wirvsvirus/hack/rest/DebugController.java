@@ -3,13 +3,19 @@ package de.wirvsvirus.hack.rest;
 import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.rest.dto.SunshineHoursResponse;
 import de.wirvsvirus.hack.service.LoggingService;
+import de.wirvsvirus.hack.service.StatsService;
 import de.wirvsvirus.hack.spring.Database;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
@@ -34,6 +40,9 @@ public class DebugController {
     private LoggingService loggingService;
 
     @Autowired
+    private StatsService statsService;
+
+    @Autowired
     private Database database;
 
     @GetMapping("/users")
@@ -48,6 +57,24 @@ public class DebugController {
     public Collection<Group> getAllGroups(@RequestHeader("X-FAM-Debug") String debugCode) {
         checkDebugCode(debugCode);
         return database.dataRoot().getAllGroups().values();
+    }
+
+    @GetMapping("/groups/sunshine-hours")
+    public List<SunshineHoursResponse> getSunshineHoursForAllGroups(@RequestHeader("X-FAM-Debug") String debugCode) {
+        checkDebugCode(debugCode);
+        final Instant now = Instant.now();
+        return
+            database.dataRoot().getAllGroups().values().stream()
+                .map(group -> {
+                    final Duration sunshine =
+                        statsService.calcSunshineTimeForGroup(group.getGroupId(), now);
+                    return SunshineHoursResponse.builder()
+                        .groupId(group.getGroupId())
+                        .groupName(group.getGroupName())
+                        .sunshineHours(sunshine.toString())
+                        .build();
+                })
+                .collect(Collectors.toList());
     }
 
     @GetMapping (value = "/logfiles", produces = MediaType.TEXT_PLAIN_VALUE)
