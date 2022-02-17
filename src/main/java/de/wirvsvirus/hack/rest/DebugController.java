@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -75,7 +74,6 @@ public class DebugController {
                         .sunshineHours(sunshine.toString())
                         .build();
                 })
-                .sorted(Comparator.comparing(SunshineHoursResponse::getSunshineHours).reversed())
                 .collect(Collectors.toList());
     }
 
