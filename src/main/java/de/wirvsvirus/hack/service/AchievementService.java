@@ -29,8 +29,6 @@ public class AchievementService {
     final Group group = onboardingRepository.findGroupByUser(currentUser.getUserId())
         .orElseThrow(() -> new IllegalStateException("User not in any group"));
 
-    // achievmentsLevelsAlreadyShown: GROUP_SUNSHINE_HOURS->level_3
-
     Duration sunshine =
         statsService.calcSunshineTimeForGroup(group.getGroupId(), Instant.now());
 
@@ -60,17 +58,16 @@ public class AchievementService {
 
     final StockAvatar stockAvatar;
 
-    // TODO change avatar mapping
     switch (level) {
-      case 1: stockAvatar = StockAvatar.ANXIOUS_ROBOT;
+      case 1: stockAvatar = StockAvatar.ICEBEAR;
         break;
-      case 2: stockAvatar = StockAvatar.GIRL_GOLDEN_GLASSES;
+      case 2: stockAvatar = StockAvatar.LEPRECHAUN;
         break;
-      case 3: stockAvatar = StockAvatar.GIRL_HUGE_HAIR;
+      case 3: stockAvatar = StockAvatar.HIPSTER_SUMO_HAIR;
         break;
-      case 4: stockAvatar = StockAvatar.CYBERPUNK;
+      case 4: stockAvatar = StockAvatar.GIRL_YELLOW;
         break;
-      case 5: stockAvatar = StockAvatar.CAT_HEART;
+      case 5: stockAvatar = StockAvatar.PIG_SHAMROCK;
         break;
       default:
         throw new IllegalStateException("no avatar for level " + level);
