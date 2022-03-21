@@ -1,7 +1,9 @@
 package de.wirvsvirus.hack.service.achievement;
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.AchievementType;
 import java.time.Duration;
+import javax.naming.ldap.PagedResultsControl;
 import lombok.Value;
 
 @Value
@@ -15,6 +17,7 @@ public class SunshineHoursAchievement {
   }
 
   public boolean isLevelUp(final int lastLevel) {
+    Preconditions.checkState(lastLevel >= 0);
     final int calcLevel = calcLevel();
     if (calcLevel == 0) {
       return false;

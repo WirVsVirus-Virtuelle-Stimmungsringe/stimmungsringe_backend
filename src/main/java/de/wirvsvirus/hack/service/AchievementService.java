@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.service;
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.StockAvatar;
@@ -35,7 +36,7 @@ public class AchievementService {
 
     if (sunshine.isZero()) {
       System.out.println("dummy hours");
-      sunshine = Duration.ofHours(500);
+      sunshine = Duration.ofHours(1500);
     }
 
     final AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;
@@ -82,11 +83,12 @@ public class AchievementService {
         .build();
   }
 
-  public void ackSplashSeen(AchievementType achievementType, int level) {
-    log.info("User ack'd achievement splash for {} at level {}", achievementType, level);
-    // TODO implement - persist
-    System.out.printf("TODO - implement");
-    // write AchievementShownStatus entity
-//    onboardingRepository.ackAchievementSeenAtLevel()
+  public void ackSplashSeen(User currentUser, AchievementType achievementType, int level) {
+    Preconditions.checkState(level > 0, "Cannot ack level %s", level);
+    final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(currentUser.getUserId(),
+        achievementType);
+    log.info("User ack'd achievement splash for {} at level {}, prev level was {}", achievementType, level, lastLevelUpShown);
+    Preconditions.checkState(level >= lastLevelUpShown, "Must not lower level");
+    onboardingRepository.ackAchievementShowAtLevel(currentUser.getUserId(), achievementType, level);
   }
 }

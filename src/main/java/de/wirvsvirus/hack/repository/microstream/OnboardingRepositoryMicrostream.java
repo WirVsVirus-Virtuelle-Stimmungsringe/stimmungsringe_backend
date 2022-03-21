@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.repository.microstream;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.model.AchievementShownStatus;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnegative;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
@@ -365,12 +367,6 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
 
   }
 
-  @Override
-  public int findLastLevelUpShown(UUID userId, AchievementType achievementType) {
-    System.err.println("TODO FIXME - return correct leve"); // FIXME
-    return 1;
-  }
-
   /**
    * scan all messages and delete message if sender or recipient is the user
    */
@@ -387,4 +383,24 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
         });
   }
 
+  @Override
+  @Nonnegative
+  public int findLastLevelUpShown(UUID userId, AchievementType achievementType) {
+    final AchievementShownStatus status = database.dataRoot()
+        .getAchievementShownStatusByUser().get(userId);
+    if (status == null) {
+      return 0;
+    }
+    return status.getLevel();
+  }
+
+  @Override
+  public void ackAchievementShowAtLevel(UUID userId, AchievementType achievementType, int level) {
+    final AchievementShownStatus shownStatus = new AchievementShownStatus();
+    shownStatus.setAchievementType(achievementType);
+    shownStatus.setShownAt(Instant.now());
+    shownStatus.setLevel(level);
+    database.dataRoot().getAchievementShownStatusByUser().put(userId, shownStatus);
+    database.persist(database.dataRoot().getAchievementShownStatusByUser());
+  }
 }

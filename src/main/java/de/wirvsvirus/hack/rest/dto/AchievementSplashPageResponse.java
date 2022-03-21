@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import java.time.Instant;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,6 +20,9 @@ public class AchievementSplashPageResponse {
 
     // not empty
     private String avatarUrl;
+
+    // 2+
+    private List<RGBAColor> gradientColors;
 
 }
 

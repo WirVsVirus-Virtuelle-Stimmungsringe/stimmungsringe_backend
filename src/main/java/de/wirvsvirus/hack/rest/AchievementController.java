@@ -1,27 +1,26 @@
 package de.wirvsvirus.hack.rest;
 
+import com.google.common.collect.Lists;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
 import de.wirvsvirus.hack.rest.dto.AchievementSplashPageResponse;
 import de.wirvsvirus.hack.rest.dto.AchievementSplashPageType;
 import de.wirvsvirus.hack.rest.dto.AcknowledgeAchievementSplashRequest;
+import de.wirvsvirus.hack.rest.dto.RGBAColor;
 import de.wirvsvirus.hack.service.AchievementService;
 import de.wirvsvirus.hack.service.dto.AchievementSplashTextAndAvatarDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
 import java.util.Optional;
-import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -58,16 +57,31 @@ public class AchievementController {
             .headline(splashDto.getHeadline())
             .bodyText(splashDto.getBodyText())
             .avatarUrl(avatarUrlResolver.getStockAvatarUrl(splashDto.getStockAvatar()))
+            .gradientColors(
+                Lists.newArrayList(
+                    RGBAColor.builder()
+                        .red(50)
+                        .green(99)
+                        .blue(200)
+                        .alpha(0.9f)
+                        .build(),
+                    RGBAColor.builder()
+                        .red(120)
+                        .green(140)
+                        .blue(200)
+                        .alpha(0.6f)
+                        .build()
+                ))
             .build());
   }
 
-  @PostMapping
-  public void removeSplashForLevel(
+  @PostMapping("/splash/{achievementType}/ack")
+  public void ackSplashSeenForLevel(
       @NotNull @RequestBody AcknowledgeAchievementSplashRequest request,
-      @NotNull @PathVariable("achievementType") final AchievementType achievementType,
-      final int levelSeen) {
+      @NotNull @PathVariable("achievementType") final AchievementType achievementType) {
+    final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-    achievementService.ackSplashSeen(achievementType, request.getLevel());
+    achievementService.ackSplashSeen(currentUser, achievementType, request.getLevel());
 
   }
 

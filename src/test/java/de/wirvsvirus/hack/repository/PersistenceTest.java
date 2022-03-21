@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.Application;
+import de.wirvsvirus.hack.model.AchievementShownStatus;
+import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.PersistenceTest.PersistenceTestConfiguration;
+import de.wirvsvirus.hack.service.AchievementService;
 import de.wirvsvirus.hack.service.OnboardingService;
 import de.wirvsvirus.hack.service.PushNotificationService;
 import de.wirvsvirus.hack.service.dto.DeviceType;
@@ -64,6 +68,9 @@ public class PersistenceTest {
 
   @Autowired
   private OnboardingService onboardingService;
+
+  @Autowired
+  private AchievementService achievementService;
 
   @Autowired
   private Database database;
@@ -266,4 +273,29 @@ public class PersistenceTest {
 
   }
 
+  @Test
+  void showAndAckAchievement() {
+    final User user;
+    {
+      user = new User(UUID.randomUUID(), deviceIdentifier);
+      user.setRoles(Collections.emptyList());
+      user.setName("Sunny Boy");
+      onboardingRepository.createNewUser(user, Sentiment.sunny,
+          "Cool!", Instant.now());
+    }
+
+    // initial status
+    final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(
+        user.getUserId(), AchievementType.GROUP_SUNSHINE_HOURS);
+    assertEquals(0, lastLevelUpShown);
+
+    // set level to 1
+    onboardingRepository.ackAchievementShowAtLevel(user.getUserId(), AchievementType.GROUP_SUNSHINE_HOURS, 1);
+
+    // reload level
+    final int reloadLevel = onboardingRepository.findLastLevelUpShown(
+        user.getUserId(), AchievementType.GROUP_SUNSHINE_HOURS);
+    assertEquals(1, reloadLevel);
+
+  }
 }

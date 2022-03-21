@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.model;
 
 import java.time.Instant;
+import javax.annotation.Nonnegative;
 import lombok.ToString;
 
 @ToString
@@ -26,6 +27,7 @@ public class AchievementShownStatus implements MicrostreamObject {
     this.shownAt = shownAt;
   }
 
+  @Nonnegative
   public int getLevel() {
     return level;
   }

@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository.microstream;
 
+import de.wirvsvirus.hack.model.AchievementShownStatus;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -42,6 +43,8 @@ public class DataRoot {
   private List<UserStatusChangeHistory> historyUserStatusChanges;
 
   private List<UserGroupMembershipHistory> historyUserGroupMembership;
+
+  private Map<UUID, AchievementShownStatus> achievementShownStatusByUser;
 
   //
 
@@ -122,6 +125,15 @@ public class DataRoot {
   public void setHistoryUserGroupMembership(
       List<UserGroupMembershipHistory> historyUserGroupMembership) {
     this.historyUserGroupMembership = historyUserGroupMembership;
+  }
+
+  public Map<UUID, AchievementShownStatus> getAchievementShownStatusByUser() {
+    return achievementShownStatusByUser;
+  }
+
+  public void setAchievementShownStatusByUser(
+      Map<UUID, AchievementShownStatus> achievementShownStatusByUser) {
+    this.achievementShownStatusByUser = achievementShownStatusByUser;
   }
 
   public void dumpToSysout() {
