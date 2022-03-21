@@ -1,0 +1,92 @@
+package de.wirvsvirus.hack.service;
+
+import de.wirvsvirus.hack.model.AchievementType;
+import de.wirvsvirus.hack.model.Group;
+import de.wirvsvirus.hack.model.StockAvatar;
+import de.wirvsvirus.hack.model.User;
+import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.service.achievement.SunshineHoursAchievement;
+import de.wirvsvirus.hack.service.dto.AchievementSplashTextAndAvatarDto;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+public class AchievementService {
+
+  @Autowired
+  private OnboardingRepository onboardingRepository;
+
+  @Autowired
+  private StatsService statsService;
+
+  public Optional<AchievementSplashTextAndAvatarDto> calculateCurrentSplash(final User currentUser) {
+    final Group group = onboardingRepository.findGroupByUser(currentUser.getUserId())
+        .orElseThrow(() -> new IllegalStateException("User not in any group"));
+
+    // achievmentsLevelsAlreadyShown: GROUP_SUNSHINE_HOURS->level_3
+
+    Duration sunshine =
+        statsService.calcSunshineTimeForGroup(group.getGroupId(), Instant.now());
+
+    if (sunshine.isZero()) {
+      System.out.println("dummy hours");
+      sunshine = Duration.ofHours(500);
+    }
+
+    final AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;
+
+    final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(
+        currentUser.getUserId(), achievementType);
+
+    final SunshineHoursAchievement a1 = new SunshineHoursAchievement(sunshine);
+    if (a1.isLevelUp(lastLevelUpShown)) {
+      log.info("Show level-up for achievement {} to user {}", achievementType, currentUser);
+
+      // select achievement level-up as best and return it
+      return Optional.of(levelUpSunshine(a1));
+    }
+
+    return Optional.empty();
+  }
+
+  private AchievementSplashTextAndAvatarDto levelUpSunshine(final SunshineHoursAchievement achv) {
+    final int level = achv.calcLevel();
+
+    final StockAvatar stockAvatar;
+
+    // TODO change avatar mapping
+    switch (level) {
+      case 1: stockAvatar = StockAvatar.ANXIOUS_ROBOT;
+        break;
+      case 2: stockAvatar = StockAvatar.GIRL_GOLDEN_GLASSES;
+        break;
+      case 3: stockAvatar = StockAvatar.GIRL_HUGE_HAIR;
+        break;
+      case 4: stockAvatar = StockAvatar.CYBERPUNK;
+        break;
+      case 5: stockAvatar = StockAvatar.CAT_HEART;
+        break;
+      default:
+        throw new IllegalStateException("no avatar for level " + level);
+    }
+
+    return AchievementSplashTextAndAvatarDto.builder()
+        .headline("You are a sunsine!")
+        .bodyText(String.format("Eure Gruppe hat schon %d Sonnenstunden!", achv.getSunshineHours()))
+        .stockAvatar(stockAvatar)
+        .build();
+  }
+
+  public void ackSplashSeen(AchievementType achievementType, int level) {
+    log.info("User ack'd achievement splash for {} at level {}", achievementType, level);
+    // TODO implement - persist
+    System.out.printf("TODO - implement");
+    // write AchievementShownStatus entity
+//    onboardingRepository.ackAchievementSeenAtLevel()
+  }
+}

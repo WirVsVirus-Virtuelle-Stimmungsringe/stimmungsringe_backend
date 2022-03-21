@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.repository.microstream;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -362,6 +363,12 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
         .removeIf(change -> change.getUserId().equals(userId));
     database.persist(database.dataRoot().getHistoryUserGroupMembership());
 
+  }
+
+  @Override
+  public int findLastLevelUpShown(UUID userId, AchievementType achievementType) {
+    System.err.println("TODO FIXME - return correct leve"); // FIXME
+    return 1;
   }
 
   /**

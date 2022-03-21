@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository;
 
+import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -77,4 +78,5 @@ public interface OnboardingRepository {
 
     void deleteUser(UUID userId);
 
+    int findLastLevelUpShown(UUID userId, AchievementType achievementType);
 }
