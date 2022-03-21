@@ -36,7 +36,7 @@ public class AchievementService {
 
     if (sunshine.isZero()) {
       System.out.println("dummy hours");
-      sunshine = Duration.ofHours(1500);
+      sunshine = Duration.ofHours(2500);
     }
 
     final AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;

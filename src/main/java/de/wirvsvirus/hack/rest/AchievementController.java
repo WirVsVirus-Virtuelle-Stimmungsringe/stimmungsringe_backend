@@ -53,7 +53,7 @@ public class AchievementController {
     return
         ResponseEntity.ok(
           AchievementSplashPageResponse.builder()
-            .pageType(AchievementSplashPageType.AVATAR_WITH_TEXT)
+            .pageType(AchievementSplashPageType.avatarWithText)
             .headline(splashDto.getHeadline())
             .bodyText(splashDto.getBodyText())
             .avatarUrl(avatarUrlResolver.getStockAvatarUrl(splashDto.getStockAvatar()))
