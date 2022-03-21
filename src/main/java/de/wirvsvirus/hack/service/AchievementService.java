@@ -29,6 +29,8 @@ public class AchievementService {
     final Group group = onboardingRepository.findGroupByUser(currentUser.getUserId())
         .orElseThrow(() -> new IllegalStateException("User not in any group"));
 
+    // ATM only one achievement type is supported; more types requires a heuristic to pick one
+
     Duration sunshine =
         statsService.calcSunshineTimeForGroup(group.getGroupId(), Instant.now());
 
@@ -80,7 +82,7 @@ public class AchievementService {
         .build();
   }
 
-  public void ackSplashSeen(User currentUser, AchievementType achievementType, int level) {
+  public void ackSplashSeen(final User currentUser, final AchievementType achievementType, final int level) {
     Preconditions.checkState(level > 0, "Cannot ack level %s", level);
     final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(currentUser.getUserId(),
         achievementType);
