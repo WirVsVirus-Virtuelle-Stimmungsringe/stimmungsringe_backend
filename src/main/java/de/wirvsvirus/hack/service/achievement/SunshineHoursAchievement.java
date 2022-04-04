@@ -3,14 +3,13 @@ package de.wirvsvirus.hack.service.achievement;
 import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.model.AchievementType;
 import java.time.Duration;
-import javax.naming.ldap.PagedResultsControl;
 import lombok.Value;
 
 @Value
 public class SunshineHoursAchievement {
 
   Duration sunshineDuration;
-  AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;
+  AchievementType achievementType = AchievementType.groupSunshineHours;
 
   public int getSunshineHours() {
     return (int) sunshineDuration.toHours();

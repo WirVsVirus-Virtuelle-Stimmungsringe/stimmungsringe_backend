@@ -1,7 +1,6 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
-import de.wirvsvirus.hack.model.AchievementShownStatus;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.StockAvatar;
@@ -14,7 +13,6 @@ import java.time.Instant;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.StreamEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +53,7 @@ public class AchievementService {
   private Optional<AchievementSplashTextAndAvatarDto> calculateSunshineHours(
       User currentUser, Group group) {
     // sunshine hours
-    final AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;
+    final AchievementType achievementType = AchievementType.groupSunshineHours;
     Duration sunshine =
         statsService.calcSunshineTimeForGroup(group.getGroupId(), Instant.now());
 
@@ -108,7 +106,7 @@ public class AchievementService {
     }
 
     return AchievementSplashTextAndAvatarDto.builder()
-        .achievementType(AchievementType.GROUP_SUNSHINE_HOURS)
+        .achievementType(AchievementType.groupSunshineHours)
         .headline("You are a sunsine!")
         .bodyText(String.format("Eure Gruppe hat schon %d Sonnenstunden!", achv.getSunshineHours()))
         .stockAvatar(stockAvatar)

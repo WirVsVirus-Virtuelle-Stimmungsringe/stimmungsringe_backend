@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.common.base.Preconditions;
 import de.wirvsvirus.hack.Application;
-import de.wirvsvirus.hack.model.AchievementShownStatus;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
@@ -286,15 +284,15 @@ public class PersistenceTest {
 
     // initial status
     final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(
-        user.getUserId(), AchievementType.GROUP_SUNSHINE_HOURS);
+        user.getUserId(), AchievementType.groupSunshineHours);
     assertEquals(0, lastLevelUpShown);
 
     // set level to 1
-    onboardingRepository.ackAchievementShowAtLevel(user.getUserId(), AchievementType.GROUP_SUNSHINE_HOURS, 1);
+    onboardingRepository.ackAchievementShowAtLevel(user.getUserId(), AchievementType.groupSunshineHours, 1);
 
     // reload level
     final int reloadLevel = onboardingRepository.findLastLevelUpShown(
-        user.getUserId(), AchievementType.GROUP_SUNSHINE_HOURS);
+        user.getUserId(), AchievementType.groupSunshineHours);
     assertEquals(1, reloadLevel);
 
   }
