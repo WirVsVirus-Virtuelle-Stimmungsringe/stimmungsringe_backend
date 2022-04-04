@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.rest.dto.SunshineHoursResponse;
+import de.wirvsvirus.hack.service.AchievementService;
 import de.wirvsvirus.hack.service.LoggingService;
 import de.wirvsvirus.hack.service.StatsService;
 import de.wirvsvirus.hack.spring.Database;
@@ -14,9 +15,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +48,21 @@ public class DebugController {
     private StatsService statsService;
 
     @Autowired
+    private AchievementService achievementService;
+
+    @Autowired
     private Database database;
+
+
+    @DeleteMapping("/achievement/level/{userId}")
+    public void resetSplashSeen(
+        @RequestHeader("X-FAM-Debug") String debugCode,
+        @NotNull @PathVariable("userId") final UUID userId
+    ) {
+        checkDebugCode(debugCode);
+        database.dataRoot().getAchievementShownStatusByUserAndType().remove(userId);
+        database.persist(database.dataRoot().getAchievementShownStatusByUserAndType());
+    }
 
     @GetMapping("/users")
     public Collection<User> getAllUsers(

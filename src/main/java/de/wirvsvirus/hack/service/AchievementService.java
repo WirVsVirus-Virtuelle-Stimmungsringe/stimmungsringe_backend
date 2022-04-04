@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
+import de.wirvsvirus.hack.model.AchievementShownStatus;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.StockAvatar;
@@ -11,7 +12,9 @@ import de.wirvsvirus.hack.service.dto.AchievementSplashTextAndAvatarDto;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +28,34 @@ public class AchievementService {
   @Autowired
   private StatsService statsService;
 
-  public Optional<AchievementSplashTextAndAvatarDto> calculateCurrentSplash(final User currentUser) {
+  // ATM we model only one visual type of achievement; to extend you need to use a more generic class
+  public Optional<AchievementSplashTextAndAvatarDto> calculateCurrentSplash(
+      final User currentUser) {
     final Group group = onboardingRepository.findGroupByUser(currentUser.getUserId())
         .orElseThrow(() -> new IllegalStateException("User not in any group"));
 
     // ATM only one achievement type is supported; more types requires a heuristic to pick one
 
+    final Optional<AchievementSplashTextAndAvatarDto> a1 = calculateSunshineHours(
+        currentUser, group);
+    if (a1.isPresent()) {
+      return a1;
+    }
+
+    final Optional<AchievementSplashTextAndAvatarDto> a2 = calculateSample();
+
+    if (a2.isPresent()) {
+      return a2;
+    }
+
+    return Optional.empty();
+  }
+
+  @Nonnull
+  private Optional<AchievementSplashTextAndAvatarDto> calculateSunshineHours(
+      User currentUser, Group group) {
+    // sunshine hours
+    final AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;
     Duration sunshine =
         statsService.calcSunshineTimeForGroup(group.getGroupId(), Instant.now());
 
@@ -38,8 +63,6 @@ public class AchievementService {
       System.out.println("dummy hours");
       sunshine = Duration.ofHours(2500);
     }
-
-    final AchievementType achievementType = AchievementType.GROUP_SUNSHINE_HOURS;
 
     final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(
         currentUser.getUserId(), achievementType);
@@ -51,7 +74,11 @@ public class AchievementService {
       // select achievement level-up as best and return it
       return Optional.of(levelUpSunshine(a1));
     }
+    return Optional.empty();
+  }
 
+  @Nonnull
+  private Optional<AchievementSplashTextAndAvatarDto> calculateSample() {
     return Optional.empty();
   }
 
@@ -61,33 +88,42 @@ public class AchievementService {
     final StockAvatar stockAvatar;
 
     switch (level) {
-      case 1: stockAvatar = StockAvatar.ICEBEAR;
+      case 1:
+        stockAvatar = StockAvatar.ICEBEAR;
         break;
-      case 2: stockAvatar = StockAvatar.LEPRECHAUN;
+      case 2:
+        stockAvatar = StockAvatar.LEPRECHAUN;
         break;
-      case 3: stockAvatar = StockAvatar.HIPSTER_SUMO_HAIR;
+      case 3:
+        stockAvatar = StockAvatar.HIPSTER_SUMO_HAIR;
         break;
-      case 4: stockAvatar = StockAvatar.GIRL_YELLOW;
+      case 4:
+        stockAvatar = StockAvatar.GIRL_YELLOW;
         break;
-      case 5: stockAvatar = StockAvatar.PIG_SHAMROCK;
+      case 5:
+        stockAvatar = StockAvatar.PIG_SHAMROCK;
         break;
       default:
         throw new IllegalStateException("no avatar for level " + level);
     }
 
     return AchievementSplashTextAndAvatarDto.builder()
+        .achievementType(AchievementType.GROUP_SUNSHINE_HOURS)
         .headline("You are a sunsine!")
         .bodyText(String.format("Eure Gruppe hat schon %d Sonnenstunden!", achv.getSunshineHours()))
         .stockAvatar(stockAvatar)
         .build();
   }
 
-  public void ackSplashSeen(final User currentUser, final AchievementType achievementType, final int level) {
+  public void ackSplashSeen(final User currentUser, final AchievementType achievementType,
+      final int level) {
     Preconditions.checkState(level > 0, "Cannot ack level %s", level);
     final int lastLevelUpShown = onboardingRepository.findLastLevelUpShown(currentUser.getUserId(),
         achievementType);
-    log.info("User ack'd achievement splash for {} at level {}, prev level was {}", achievementType, level, lastLevelUpShown);
+    log.info("User ack'd achievement splash for {} at level {}, prev level was {}", achievementType,
+        level, lastLevelUpShown);
     Preconditions.checkState(level >= lastLevelUpShown, "Must not lower level");
     onboardingRepository.ackAchievementShowAtLevel(currentUser.getUserId(), achievementType, level);
   }
+
 }

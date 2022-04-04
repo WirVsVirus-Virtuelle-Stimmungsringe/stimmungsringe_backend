@@ -221,8 +221,8 @@ public class DatabaseMigration {
       migrationMetadata.setAchievementShownStatusByUserInitialized(true);
       database.persist(migrationMetadata);
 
-      if (database.dataRoot().getAchievementShownStatusByUser() == null) {
-        database.dataRoot().setAchievementShownStatusByUser(new HashMap<>());
+      if (database.dataRoot().getAchievementShownStatusByUserAndType() == null) {
+        database.dataRoot().setAchievementShownStatusByUserAndType(new HashMap<>());
         storageManager.storeRoot();
       }
     }

@@ -1,6 +1,7 @@
 package de.wirvsvirus.hack.repository.microstream;
 
 import de.wirvsvirus.hack.model.AchievementShownStatus;
+import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -44,7 +45,8 @@ public class DataRoot {
 
   private List<UserGroupMembershipHistory> historyUserGroupMembership;
 
-  private Map<UUID, AchievementShownStatus> achievementShownStatusByUser;
+//  private Map<UUID, AchievementShownStatus> achievementShownStatusByUser;
+  private Map<UUID, Map<AchievementType, AchievementShownStatus>> achievementShownStatusByUserAndType;
 
   //
 
@@ -127,13 +129,13 @@ public class DataRoot {
     this.historyUserGroupMembership = historyUserGroupMembership;
   }
 
-  public Map<UUID, AchievementShownStatus> getAchievementShownStatusByUser() {
-    return achievementShownStatusByUser;
+  public Map<UUID, Map<AchievementType, AchievementShownStatus>> getAchievementShownStatusByUserAndType() {
+    return achievementShownStatusByUserAndType;
   }
 
-  public void setAchievementShownStatusByUser(
-      Map<UUID, AchievementShownStatus> achievementShownStatusByUser) {
-    this.achievementShownStatusByUser = achievementShownStatusByUser;
+  public void setAchievementShownStatusByUserAndType(
+      Map<UUID, Map<AchievementType, AchievementShownStatus>> achievementShownStatusByUserAndType) {
+    this.achievementShownStatusByUserAndType = achievementShownStatusByUserAndType;
   }
 
   public void dumpToSysout() {

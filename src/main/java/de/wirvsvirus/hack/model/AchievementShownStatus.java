@@ -7,17 +7,8 @@ import lombok.ToString;
 @ToString
 public class AchievementShownStatus implements MicrostreamObject {
 
-  private AchievementType achievementType;
   private Instant shownAt;
   private int level;
-
-  public AchievementType getAchievementType() {
-    return achievementType;
-  }
-
-  public void setAchievementType(AchievementType achievementType) {
-    this.achievementType = achievementType;
-  }
 
   public Instant getShownAt() {
     return shownAt;

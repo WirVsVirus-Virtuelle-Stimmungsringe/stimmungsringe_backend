@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.rest.dto;
 
+import de.wirvsvirus.hack.model.AchievementType;
 import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
@@ -8,6 +9,11 @@ import lombok.Data;
 @Data
 @Builder
 public class AchievementSplashPageResponse {
+
+    // not null
+    private AchievementType achievementType;
+
+    private int level;
 
     // not null
     private AchievementSplashPageType pageType;

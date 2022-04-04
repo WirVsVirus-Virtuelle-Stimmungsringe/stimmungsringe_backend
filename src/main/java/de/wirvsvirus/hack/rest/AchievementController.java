@@ -37,22 +37,30 @@ public class AchievementController {
   @Autowired
   private AvatarUrlResolver avatarUrlResolver;
 
-  @GetMapping("/splash/{achievementType}")
-  public ResponseEntity<AchievementSplashPageResponse> getCurrentSplash(
-      @NotNull @PathVariable("achievementType") final AchievementType achievementType) {
+  // TODO push support
+//  @GetMapping("/splash/{achievementType}")
+//  public ResponseEntity<AchievementSplashPageResponse> getAchievementBySplash(
+//      @NotNull @PathVariable("achievementType") final AchievementType achievementType) {
+//
+//  }
+
+  @GetMapping("/splash/unseen")
+  public ResponseEntity<AchievementSplashPageResponse> getUnseenSplash() {
     final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
     final Optional<AchievementSplashTextAndAvatarDto> splashDtoOpt =
         achievementService.calculateCurrentSplash(currentUser);
 
     if (!splashDtoOpt.isPresent()) {
-      return ResponseEntity.noContent().build();
+      return ResponseEntity.notFound().build();
     }
     final AchievementSplashTextAndAvatarDto splashDto = splashDtoOpt.get();
 
     return
         ResponseEntity.ok(
           AchievementSplashPageResponse.builder()
+            .achievementType(splashDto.getAchievementType())
+            .level(splashDto.getLevel())
             .pageType(AchievementSplashPageType.avatarWithText)
             .headline(splashDto.getHeadline())
             .bodyText(splashDto.getBodyText())
