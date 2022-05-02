@@ -110,6 +110,7 @@ public class AchievementService {
         .headline("You are a sunsine!")
         .bodyText(String.format("Eure Gruppe hat schon %d Sonnenstunden!", achv.getSunshineHours()))
         .stockAvatar(stockAvatar)
+        .level(level)
         .build();
   }
 

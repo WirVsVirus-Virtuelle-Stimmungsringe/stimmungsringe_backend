@@ -74,7 +74,7 @@ public class AchievementController {
                         .alpha(0.9f)
                         .build(),
                     RGBAColor.builder()
-                        .red(120)
+                        .red(218)
                         .green(140)
                         .blue(200)
                         .alpha(0.6f)

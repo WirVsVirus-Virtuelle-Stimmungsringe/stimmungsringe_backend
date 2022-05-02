@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Application-local-microstream" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="stimmungsringe_backend" />
+    <module name="familiarise-backend" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="de.wirvsvirus.hack.Application" />
     <option name="ACTIVE_PROFILES" value="microstream, firebase-push-secrets" />
     <option name="ALTERNATIVE_JRE_PATH" />
