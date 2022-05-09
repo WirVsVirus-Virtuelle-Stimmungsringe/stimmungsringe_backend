@@ -1,11 +1,13 @@
 package de.wirvsvirus.hack.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
 import de.wirvsvirus.hack.repository.OnboardingRepository;
+import de.wirvsvirus.hack.rest.dto.RGBAColor;
 import de.wirvsvirus.hack.service.achievement.SunshineHoursAchievement;
 import de.wirvsvirus.hack.service.dto.AchievementSplashTextAndAvatarDto;
 import java.time.Duration;
@@ -107,10 +109,31 @@ public class AchievementService {
 
     return AchievementSplashTextAndAvatarDto.builder()
         .achievementType(AchievementType.groupSunshineHours)
-        .headline("You are a sunsine!")
+        .headline("You are a sunshine!")
         .bodyText(String.format("Eure Gruppe hat schon %d Sonnenstunden!", achv.getSunshineHours()))
         .stockAvatar(stockAvatar)
         .level(level)
+        .gradientColors(Lists.newArrayList(
+            RGBAColor.builder()
+                .red(50)
+                .green(99)
+                .blue(200)
+                .alpha(0.9f)
+                .build(),
+            RGBAColor.builder()
+                .red(218)
+                .green(140)
+                .blue(200)
+                .alpha(0.6f)
+                .build()))
+        .ackButtonColor(
+            RGBAColor.builder()
+                .red(20)
+                .green(240)
+                .blue(100)
+                .alpha(0.6f)
+                .build())
+        .ackButtonText("Cool!")
         .build();
   }
 

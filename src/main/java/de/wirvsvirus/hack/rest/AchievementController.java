@@ -11,6 +11,9 @@ import de.wirvsvirus.hack.rest.dto.RGBAColor;
 import de.wirvsvirus.hack.service.AchievementService;
 import de.wirvsvirus.hack.service.dto.AchievementSplashTextAndAvatarDto;
 import de.wirvsvirus.hack.spring.UserInterceptor;
+import java.lang.Character.UnicodeBlock;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -65,21 +68,10 @@ public class AchievementController {
             .headline(splashDto.getHeadline())
             .bodyText(splashDto.getBodyText())
             .avatarUrl(avatarUrlResolver.getStockAvatarUrl(splashDto.getStockAvatar()))
-            .gradientColors(
-                Lists.newArrayList(
-                    RGBAColor.builder()
-                        .red(50)
-                        .green(99)
-                        .blue(200)
-                        .alpha(0.9f)
-                        .build(),
-                    RGBAColor.builder()
-                        .red(218)
-                        .green(140)
-                        .blue(200)
-                        .alpha(0.6f)
-                        .build()
-                ))
+            .gradientColors(splashDto.getGradientColors())
+            .pageIcon("🏆") // https://emojipedia.org/trophy/
+            .ackButtonColor(splashDto.getAckButtonColor())
+            .ackButtonText(splashDto.getAckButtonText())
             .build());
   }
 

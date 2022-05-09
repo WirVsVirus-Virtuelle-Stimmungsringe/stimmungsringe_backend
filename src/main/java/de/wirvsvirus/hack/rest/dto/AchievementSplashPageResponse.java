@@ -13,9 +13,10 @@ public class AchievementSplashPageResponse {
     // not null
     private AchievementType achievementType;
 
+    // level achieved for a certain achievement
     private int level;
 
-    // not null
+    // not null - visual representation
     private AchievementSplashPageType pageType;
 
     // not empty
@@ -27,8 +28,15 @@ public class AchievementSplashPageResponse {
     // not empty
     private String avatarUrl;
 
+    // not empty - unicode text (e.g. heart or trophy)
+    private String pageIcon;
+
     // 2+
     private List<RGBAColor> gradientColors;
+
+    private RGBAColor ackButtonColor;
+
+    private String ackButtonText;
 
 }
 
