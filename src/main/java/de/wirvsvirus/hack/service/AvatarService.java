@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class AvatarService {
 
     public ClassPathResource getFallbackAvatarResource() {
-        return new ClassPathResource("/images/stockavatars/avatar-fallback.jpg");
+        return new ClassPathResource("/images/stockavatars/avatar-fallback.png");
     }
 
     public ClassPathResource getStockAvatarResource(StockAvatar stockAvatar) {
