@@ -27,80 +27,86 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class DashboardController {
 
-    @Autowired
-    private OnboardingRepository onboardingRepository;
+  @Autowired
+  private OnboardingRepository onboardingRepository;
 
-    @Autowired
-    private OnboardingService onboardingService;
+  @Autowired
+  private OnboardingService onboardingService;
 
-    @Autowired
-    private AvatarUrlResolver avatarUrlResolver;
+  @GetMapping
+  public DashboardResponse dashboardView() {
+    final User currentUser = onboardingRepository.lookupUserById(
+        UserInterceptor.getCurrentUserId());
 
-    @GetMapping
-    public DashboardResponse dashboardView() {
-        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
 
-        final Optional<Group> group = onboardingRepository.findGroupByUser(currentUser.getUserId());
+    return DashboardResponse.builder()
+        .myTile(buildMyTileResponse(currentUser))
+        .otherTiles(buildOtherTileResponseList(currentUser, group))
+        .groupData(buildGroupData(group))
+        .build();
+  }
 
-        return DashboardResponse.builder()
-                .myTile(buildMyTileResponse(currentUser))
-                .otherTiles(buildOtherTileResponseList(currentUser, group))
-                .groupData(buildGroupData(group))
-                .build();
+  private MyTileResponse buildMyTileResponse(final User currentUser) {
+    final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser,
+        AvatarUrlResolver::getUserAvatarUrls);
+
+    final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+    final String sentimentText = onboardingRepository.findSentimentTextByUserId(
+        currentUser.getUserId());
+    final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(
+        currentUser.getUserId());
+
+    return MyTileResponse.builder()
+        .user(me)
+        .sentiment(sentiment)
+        .sentimentText(sentimentText)
+        .lastStatusUpdate(lastStatusUpdate)
+        .build();
+  }
+
+  private List<OtherTileResponse> buildOtherTileResponseList(final User currentUser,
+      final Optional<Group> group) {
+    final List<User> otherUsersInGroup;
+    if (group.isPresent()) {
+      otherUsersInGroup = onboardingService.listOtherUsersForDashboard(currentUser,
+          group.get().getGroupId());
+    } else {
+      otherUsersInGroup = Collections.emptyList();
     }
 
-    private MyTileResponse buildMyTileResponse(final User currentUser) {
-        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
+    final List<OtherTileResponse> otherTiles = new ArrayList<>();
+    for (final User otherUser : otherUsersInGroup) {
+      final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser,
+          AvatarUrlResolver::getUserAvatarUrls);
 
-        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
-        final String sentimentText = onboardingRepository.findSentimentTextByUserId(currentUser.getUserId());
-        final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(currentUser.getUserId());
+      final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
+      final String sentimentText = onboardingRepository.findSentimentTextByUserId(
+          otherUser.getUserId());
+      final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(
+          otherUser.getUserId());
 
-        return MyTileResponse.builder()
-                .user(me)
-                .sentiment(sentiment)
-                .sentimentText(sentimentText)
-                .lastStatusUpdate(lastStatusUpdate)
-                .build();
+      otherTiles.add(
+          OtherTileResponse.builder()
+              .user(other)
+              .sentiment(sentiment)
+              .sentimentText(sentimentText)
+              .lastStatusUpdate(lastStatusUpdate)
+              .build()
+      );
     }
+    return otherTiles;
+  }
 
-    private List<OtherTileResponse> buildOtherTileResponseList(final User currentUser, final Optional<Group> group) {
-        final List<User> otherUsersInGroup;
-        if (group.isPresent()) {
-            otherUsersInGroup = onboardingService.listOtherUsersForDashboard(currentUser, group.get().getGroupId());
-        } else {
-            otherUsersInGroup = Collections.emptyList();
-        }
-
-        final List<OtherTileResponse> otherTiles = new ArrayList<>();
-        for (final User otherUser : otherUsersInGroup) {
-            final UserMinimalResponse other = Mappers.mapResponseFromDomain(otherUser, avatarUrlResolver::getUserAvatarUrl);
-
-            final Sentiment sentiment = onboardingRepository.findSentimentByUserId(otherUser.getUserId());
-            final String sentimentText = onboardingRepository.findSentimentTextByUserId(otherUser.getUserId());
-            final Instant lastStatusUpdate = onboardingRepository.findLastStatusUpdateByUserId(otherUser.getUserId());
-
-            otherTiles.add(
-                    OtherTileResponse.builder()
-                            .user(other)
-                            .sentiment(sentiment)
-                            .sentimentText(sentimentText)
-                            .lastStatusUpdate(lastStatusUpdate)
-                            .build()
-            );
-        }
-        return otherTiles;
-    }
-
-    private GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
-        return groupOptional.map(group ->
-                GroupDataResponse.builder()
-                        .groupId(group.getGroupId())
-                        .groupName(group.getGroupName())
-                        .groupCode(group.getGroupCode())
-                        .build()
-        ).orElse(null);
-    }
+  private GroupDataResponse buildGroupData(final Optional<Group> groupOptional) {
+    return groupOptional.map(group ->
+        GroupDataResponse.builder()
+            .groupId(group.getGroupId())
+            .groupName(group.getGroupName())
+            .groupCode(group.getGroupCode())
+            .build()
+    ).orElse(null);
+  }
 
 
 }

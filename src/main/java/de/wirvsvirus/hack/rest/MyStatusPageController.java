@@ -21,42 +21,42 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class MyStatusPageController {
 
-    @Autowired
-    private RoleBasedTextSuggestionsService suggestionsService;
+  @Autowired
+  private RoleBasedTextSuggestionsService suggestionsService;
 
-    @Autowired
-    private OnboardingRepository onboardingRepository;
+  @Autowired
+  private OnboardingRepository onboardingRepository;
 
-    @Autowired
-    private AvatarUrlResolver avatarUrlResolver;
+  @GetMapping
+  public MyStatusPageResponse viewMyStatusPage() {
 
-    @GetMapping
-    public MyStatusPageResponse viewMyStatusPage() {
+    final User currentUser = onboardingRepository.lookupUserById(
+        UserInterceptor.getCurrentUserId());
 
-        final User currentUser = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    MyStatusPageResponse response = new MyStatusPageResponse();
 
-        MyStatusPageResponse response = new MyStatusPageResponse();
+    final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser,
+        AvatarUrlResolver::getUserAvatarUrls);
 
-        final UserMinimalResponse me = Mappers.mapResponseFromDomain(currentUser, avatarUrlResolver::getUserAvatarUrl);
+    final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
+    final String sentimentText = onboardingRepository.findSentimentTextByUserId(
+        currentUser.getUserId());
+    final List<SuggestionResponse> suggestions = new ArrayList<>();
 
-        final Sentiment sentiment = onboardingRepository.findSentimentByUserId(currentUser.getUserId());
-        final String sentimentText = onboardingRepository.findSentimentTextByUserId(currentUser.getUserId());
-        final List<SuggestionResponse> suggestions = new ArrayList<>();
+    currentUser.getRoles().stream()
+        .flatMap(role -> suggestionsService.forMe(role).stream())
+        .map(text -> {
+          final SuggestionResponse sugg = new SuggestionResponse();
+          sugg.setText(text);
+          return sugg;
+        }).forEach(suggestions::add);
 
-        currentUser.getRoles().stream()
-            .flatMap(role -> suggestionsService.forMe(role).stream())
-            .map(text -> {
-                final SuggestionResponse sugg = new SuggestionResponse();
-                sugg.setText(text);
-                return sugg;
-            }).forEach(suggestions::add);
+    response.setUser(me);
+    response.setSentiment(sentiment);
+    response.setSuggestions(suggestions);
+    response.setSentimentText(sentimentText);
 
-        response.setUser(me);
-        response.setSentiment(sentiment);
-        response.setSuggestions(suggestions);
-        response.setSentimentText(sentimentText);
-
-        return response;
-    }
+    return response;
+  }
 
 }

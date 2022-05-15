@@ -2,12 +2,14 @@ package de.wirvsvirus.hack.rest;
 
 import com.google.common.hash.Hashing;
 import de.wirvsvirus.hack.model.StockAvatar;
+import de.wirvsvirus.hack.rest.AvatarUrlResolver.AvatarUrls;
 import de.wirvsvirus.hack.rest.dto.AvailableAvatarsResponse;
 import de.wirvsvirus.hack.service.AvatarService;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
@@ -28,72 +30,95 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(AvatarController.CONTROLLER_PATH)
 @Slf4j
 public class AvatarController {
-    static final String CONTROLLER_PATH = "/avatar";
-    static final String FALLBACK_AVATAR_ENDPOINT = "/fallback";
-    static final String STOCK_AVATAR_ENDPOINT = "/stock";
 
-    @Autowired
-    private AvatarService avatarService;
+  static final String CONTROLLER_PATH = "/avatar";
+  static final String FALLBACK_AVATAR_ENDPOINT = "/fallback";
+  static final String STOCK_AVATAR_ENDPOINT = "/stock";
+  static final String STOCK_AVATAR_SVG_ENDPOINT = "/stock/svg";
 
-    @Autowired
-    private AvatarUrlResolver avatarUrlResolver;
+  @Autowired
+  private AvatarService avatarService;
 
-    @GetMapping(value = "/available")
-    public AvailableAvatarsResponse getAvailableAvatars() {
-        final List<AvailableAvatarsResponse.StockAvatarResponse> stockAvatarResponses =
-                Arrays.stream(StockAvatar.values())
-                        .map(stockAvatar ->
-                                AvailableAvatarsResponse.StockAvatarResponse.builder()
-                                        .avatarName(stockAvatar.name())
-                                        .avatarUrl(avatarUrlResolver.getStockAvatarUrl(stockAvatar))
-                                        .build()
-                        )
-                        .collect(Collectors.toList());
+  @GetMapping(value = "/available")
+  public AvailableAvatarsResponse getAvailableAvatars() {
+    final List<AvailableAvatarsResponse.StockAvatarResponse> stockAvatarResponses =
+        Arrays.stream(StockAvatar.values())
+            .map(stockAvatar -> {
+                  final AvatarUrls stockAvatarUrls = AvatarUrlResolver.getStockAvatarUrls(stockAvatar);
+                  return AvailableAvatarsResponse.StockAvatarResponse.builder()
+                      .avatarName(stockAvatar.name())
+                      .avatarUrl(stockAvatarUrls.getAvatarUrl())
+                      .avatarSvgUrl(stockAvatarUrls.getAvatarSvgUrl().orElse(null))
+                      .build();
+                }
+            )
+            .collect(Collectors.toList());
 
-        return AvailableAvatarsResponse.builder()
-                .stockAvatars(stockAvatarResponses)
-                .build();
+    return AvailableAvatarsResponse.builder()
+        .stockAvatars(stockAvatarResponses)
+        .build();
+  }
+
+  @GetMapping(value = FALLBACK_AVATAR_ENDPOINT)
+  public ResponseEntity<Resource> getFallbackAvatar() throws Throwable {
+    CacheControl cacheConfiguration = CacheControl
+        .maxAge(30, TimeUnit.DAYS)
+        .cachePublic();
+    return copyResourceToResponse(avatarService.getFallbackAvatarResource(), cacheConfiguration);
+  }
+
+  @GetMapping(value = STOCK_AVATAR_ENDPOINT + "/{stockAvatar}")
+  public ResponseEntity<Resource> getStockAvatar(
+      @NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) throws Throwable {
+    CacheControl cacheConfiguration = CacheControl
+        .maxAge(1, TimeUnit.DAYS)
+        .cachePublic();
+    return copyResourceToResponse(avatarService.getStockAvatarResource(stockAvatar),
+        cacheConfiguration);
+  }
+
+  @GetMapping(value = STOCK_AVATAR_SVG_ENDPOINT + "/{stockAvatar}")
+  public ResponseEntity<Resource> getStockAvatarSvg(
+      @NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) throws Throwable {
+    CacheControl cacheConfiguration = CacheControl
+        .maxAge(1, TimeUnit.DAYS)
+        .cachePublic();
+    return copyResourceToResponse(avatarService.getStockAvatarSvgResource(stockAvatar),
+        cacheConfiguration);
+  }
+
+  private ResponseEntity<Resource> copyResourceToResponse(final ClassPathResource avatarResource,
+      final CacheControl cacheConfiguration) throws Throwable {
+    final MediaType responseContentType = Optional.ofNullable(avatarResource.getFilename())
+        .map(filename -> {
+          if (filename.endsWith(".png")) {
+            return MediaType.IMAGE_PNG;
+          } else if (filename.endsWith(".jpg")) {
+            return MediaType.IMAGE_JPEG;
+          } else if (filename.endsWith(".svg")) {
+            return new MediaType("image", "svg+xml");
+          } else {
+            throw new IllegalStateException(
+                String.format("Unknown image file extension: %s", filename));
+          }
+        }).orElseThrow(() -> {
+          throw new IllegalStateException(
+              String.format("Resource has no file name: %s", avatarResource));
+        });
+
+    return ResponseEntity.ok()
+        .contentType(responseContentType)
+        .eTag(getResourceHash(avatarResource))
+        .cacheControl(cacheConfiguration)
+        .body(avatarResource);
+  }
+
+  private String getResourceHash(ClassPathResource resource) {
+    try {
+      final byte[] resourceBytes = IOUtils.toByteArray(resource.getInputStream());
+      return Hashing.murmur3_128().hashBytes(resourceBytes).toString();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
-
-    @GetMapping(value = FALLBACK_AVATAR_ENDPOINT)
-    public ResponseEntity<Resource> getFallbackAvatar() {
-        CacheControl cacheConfiguration = CacheControl
-                .maxAge(30, TimeUnit.DAYS)
-                .cachePublic();
-        return copyResourceToResponse(avatarService.getFallbackAvatarResource(), cacheConfiguration);
-    }
-
-    @GetMapping(value = STOCK_AVATAR_ENDPOINT + "/{stockAvatar}")
-    public ResponseEntity<Resource> getStockAvatar(@NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) {
-        CacheControl cacheConfiguration = CacheControl
-                .maxAge(1, TimeUnit.DAYS)
-                .cachePublic();
-        return copyResourceToResponse(avatarService.getStockAvatarResource(stockAvatar), cacheConfiguration);
-    }
-
-    private ResponseEntity<Resource> copyResourceToResponse(final ClassPathResource avatarResource, final CacheControl cacheConfiguration) {
-        final MediaType responseContentType;
-        if (avatarResource.getFilename().endsWith(".png")) {
-            responseContentType = MediaType.IMAGE_PNG;
-        } else if (avatarResource.getFilename().endsWith(".jpg")) {
-            responseContentType = MediaType.IMAGE_JPEG;
-        } else {
-            throw new IllegalStateException(String.format("Unknown image file extension: %s", avatarResource.getFilename()));
-        }
-
-        return ResponseEntity.ok()
-                .contentType(responseContentType)
-                .eTag(getResourceHash(avatarResource))
-                .cacheControl(cacheConfiguration)
-                .body(avatarResource);
-    }
-
-    private String getResourceHash(ClassPathResource resource) {
-        try {
-            final byte[] resourceBytes = IOUtils.toByteArray(resource.getInputStream());
-            return Hashing.murmur3_128().hashBytes(resourceBytes).toString();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
+  }
 }
