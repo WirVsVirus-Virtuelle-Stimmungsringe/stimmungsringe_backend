@@ -2,17 +2,21 @@ package de.wirvsvirus.hack.rest.dto;
 
 import java.util.List;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class AvailableAvatarsResponse {
-    private List<StockAvatarResponse> stockAvatars;
 
-    @Data
-    @Builder
-    public static class StockAvatarResponse {
-        private final String avatarName;
-        private final String avatarUrl;
-    }
+  List<StockAvatarResponse> stockAvatars;
+
+  @Value
+  @Builder
+  public static class StockAvatarResponse {
+
+    String avatarName;
+    String avatarUrl;
+    // nullable
+    String avatarSvgUrl;
+  }
 }

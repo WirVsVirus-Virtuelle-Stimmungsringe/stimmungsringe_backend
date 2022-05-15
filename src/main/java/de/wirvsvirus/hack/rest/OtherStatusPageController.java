@@ -25,47 +25,45 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class OtherStatusPageController {
 
-    @Autowired
-    private OnboardingRepository userRepository;
+  @Autowired
+  private OnboardingRepository userRepository;
 
-    @Autowired
-    private RoleBasedTextSuggestionsService suggestionsService;
+  @Autowired
+  private RoleBasedTextSuggestionsService suggestionsService;
 
-    @Autowired
-    private AvatarUrlResolver avatarUrlResolver;
+  @GetMapping(value = "/{otherUserId}")
+  public OtherStatusPageResponse viewOtherStatusPage(
+      @PathVariable("otherUserId") @NotNull UUID otherUserId) {
 
-    @GetMapping(value = "/{otherUserId}")
-    public OtherStatusPageResponse viewOtherStatusPage(
-            @PathVariable("otherUserId") @NotNull UUID otherUserId) {
+    Preconditions.checkState(
+        !otherUserId.equals(UserInterceptor.getCurrentUserId()),
+        "Cannot have others' perspective on your own page");
 
-        Preconditions.checkState(
-                !otherUserId.equals(UserInterceptor.getCurrentUserId()),
-                "Cannot have others' perspective on your own page");
+    final User otherUser = userRepository.lookupUserById(otherUserId);
 
-        final User otherUser = userRepository.lookupUserById(otherUserId);
+    OtherStatusPageResponse response = new OtherStatusPageResponse();
 
-        OtherStatusPageResponse response = new OtherStatusPageResponse();
+    final UserMinimalResponse me = Mappers.mapResponseFromDomain(otherUser,
+        AvatarUrlResolver::getUserAvatarUrls);
+    final Sentiment sentiment = userRepository.findSentimentByUserId(otherUserId);
+    final String sentimentText = userRepository.findSentimentTextByUserId(otherUserId);
 
-        final UserMinimalResponse me = Mappers.mapResponseFromDomain(otherUser, avatarUrlResolver::getUserAvatarUrl);
-        final Sentiment sentiment = userRepository.findSentimentByUserId(otherUserId);
-        final String sentimentText = userRepository.findSentimentTextByUserId(otherUserId);
+    final List<SuggestionResponse> suggestions = new ArrayList<>();
 
-        final List<SuggestionResponse> suggestions = new ArrayList<>();
+    otherUser.getRoles().stream()
+        .flatMap(role -> suggestionsService.forOthers(role).stream())
+        .map(text -> {
+          final SuggestionResponse sugg = new SuggestionResponse();
+          sugg.setText(text);
+          return sugg;
+        }).forEach(suggestions::add);
 
-        otherUser.getRoles().stream()
-                .flatMap(role -> suggestionsService.forOthers(role).stream())
-                .map(text -> {
-                    final SuggestionResponse sugg = new SuggestionResponse();
-                    sugg.setText(text);
-                    return sugg;
-                }).forEach(suggestions::add);
+    response.setUser(me);
+    response.setSentiment(sentiment);
+    response.setSentimentText(sentimentText);
+    response.setSuggestions(suggestions);
 
-        response.setUser(me);
-        response.setSentiment(sentiment);
-        response.setSentimentText(sentimentText);
-        response.setSuggestions(suggestions);
-
-        return response;
-    }
+    return response;
+  }
 
 }
