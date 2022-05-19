@@ -9,11 +9,11 @@ import de.wirvsvirus.hack.rest.dto.SuggestionResponse;
 import de.wirvsvirus.hack.rest.dto.UserMinimalResponse;
 import de.wirvsvirus.hack.service.RoleBasedTextSuggestionsService;
 import de.wirvsvirus.hack.spring.UserInterceptor;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,29 +41,23 @@ public class OtherStatusPageController {
 
     final User otherUser = userRepository.lookupUserById(otherUserId);
 
-    OtherStatusPageResponse response = new OtherStatusPageResponse();
-
     final UserMinimalResponse me = Mappers.mapResponseFromDomain(otherUser,
         AvatarUrlResolver::getUserAvatarUrls);
     final Sentiment sentiment = userRepository.findSentimentByUserId(otherUserId);
     final String sentimentText = userRepository.findSentimentTextByUserId(otherUserId);
 
-    final List<SuggestionResponse> suggestions = new ArrayList<>();
+    final List<SuggestionResponse> suggestions =
+        StreamEx.of(otherUser.getRoles())
+            .flatMap(role -> suggestionsService.forOthers(role).stream())
+            .map(text -> SuggestionResponse.builder().text(text).build())
+            .toList();
 
-    otherUser.getRoles().stream()
-        .flatMap(role -> suggestionsService.forOthers(role).stream())
-        .map(text -> {
-          final SuggestionResponse sugg = new SuggestionResponse();
-          sugg.setText(text);
-          return sugg;
-        }).forEach(suggestions::add);
-
-    response.setUser(me);
-    response.setSentiment(sentiment);
-    response.setSentimentText(sentimentText);
-    response.setSuggestions(suggestions);
-
-    return response;
+    return OtherStatusPageResponse.builder()
+        .user(me)
+        .sentiment(sentiment)
+        .sentimentText(sentimentText)
+        .suggestions(suggestions)
+        .build();
   }
 
 }

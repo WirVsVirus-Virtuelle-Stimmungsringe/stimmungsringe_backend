@@ -2,20 +2,21 @@ package de.wirvsvirus.hack.rest.dto;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import javax.validation.Valid;
 import lombok.Builder;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class DashboardResponse {
 
-    private MyTileResponse myTile;
+  @NonNull
+  MyTileResponse myTile;
 
-    private List<OtherTileResponse> otherTiles;
+  @NonNull
+  List<OtherTileResponse> otherTiles;
 
-    // nullable
-    private GroupDataResponse groupData;
+  @Nullable
+  GroupDataResponse groupData;
 
 }

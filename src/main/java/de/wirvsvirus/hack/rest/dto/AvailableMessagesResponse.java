@@ -2,13 +2,14 @@ package de.wirvsvirus.hack.rest.dto;
 
 import java.util.List;
 import lombok.Builder;
-import lombok.Data;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class AvailableMessagesResponse {
 
-    private List<MessageTemplate> messageTemplates;
-
+  @NonNull
+  List<MessageTemplate> messageTemplates;
 
 }

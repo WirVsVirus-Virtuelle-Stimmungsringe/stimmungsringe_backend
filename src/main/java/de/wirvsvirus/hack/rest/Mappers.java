@@ -8,7 +8,8 @@ import java.util.function.Function;
 public final class Mappers {
 
   public static UserMinimalResponse mapResponseFromDomain(
-      final User user, final Function<User, AvatarUrls> avatarUrlsFromUser) {
+      final User user,
+      final Function<User, AvatarUrls> avatarUrlsFromUser) {
     final AvatarUrls avatarUrls = avatarUrlsFromUser.apply(user);
     return UserMinimalResponse.builder()
         .userId(user.getUserId())

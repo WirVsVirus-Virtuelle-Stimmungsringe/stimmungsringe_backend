@@ -1,25 +1,27 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
 @Builder
 public class UserMinimalResponse {
 
-  // not null
+  @NonNull
   UUID userId;
 
-  // not empty
+  @Nullable
   String displayName;
 
   boolean hasName;
 
-  // not empty
+  @NonNull
   String avatarUrl;
 
-  // nullable
+  @Nullable
   String avatarSvgUrl;
 
 }

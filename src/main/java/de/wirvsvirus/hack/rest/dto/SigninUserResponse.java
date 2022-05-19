@@ -1,17 +1,23 @@
 package de.wirvsvirus.hack.rest.dto;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class SigninUserResponse {
 
-    private String userId;
+  @NotNull
+  String userId;
 
-    private boolean hasGroup;
+  boolean hasGroup;
 
-    // null iff hasGroup==false
-    private String groupId;
-    private String groupName;
+  // null iff hasGroup==false
+  @Nullable
+  String groupId;
+
+  @Nullable
+  String groupName;
 }

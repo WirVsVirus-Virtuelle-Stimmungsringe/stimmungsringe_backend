@@ -3,7 +3,8 @@ package de.wirvsvirus.hack.rest;
 import de.wirvsvirus.hack.model.StockAvatar;
 import de.wirvsvirus.hack.model.User;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
 public class AvatarUrlResolver {
@@ -18,29 +19,30 @@ public class AvatarUrlResolver {
   public static AvatarUrls getUserAvatarUrls(final User user) {
     final StockAvatar stockAvatar = user.getStockAvatar();
     if (stockAvatar == null) {
-      return new AvatarUrls(FALLBACK_AVATAR_PATH);
+      return AvatarUrls.builder().avatarUrl(FALLBACK_AVATAR_PATH).build();
     }
 
     return getStockAvatarUrls(stockAvatar);
   }
 
   public static AvatarUrls getStockAvatarUrls(final StockAvatar stockAvatar) {
-    return new AvatarUrls(
-        String.format("%s/%s", STOCK_AVATAR_PATH, stockAvatar.name()),
-        stockAvatar.isSvgImage ? Optional.of(String.format("%s/%s",
-            STOCK_AVATAR_SVG_PATH, stockAvatar.name())) : Optional.empty()
-    );
+    return AvatarUrls.builder()
+        .avatarUrl(String.format("%s/%s", STOCK_AVATAR_PATH, stockAvatar.name()))
+        .avatarSvgUrl(
+            stockAvatar.isSvgImage
+                ? Optional.of(String.format("%s/%s", STOCK_AVATAR_SVG_PATH, stockAvatar.name()))
+                : Optional.empty())
+        .build();
   }
 
   @Value
-  @AllArgsConstructor
+  @Builder
   public static class AvatarUrls {
 
+    @NonNull
     String avatarUrl;
-    Optional<String> avatarSvgUrl;
 
-    AvatarUrls(final String avatarUrl) {
-      this(avatarUrl, Optional.empty());
-    }
+    @Builder.Default
+    Optional<String> avatarSvgUrl = Optional.empty();
   }
 }

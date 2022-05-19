@@ -2,13 +2,19 @@ package de.wirvsvirus.hack.rest.dto;
 
 import java.util.UUID;
 import lombok.Builder;
-import lombok.Data;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class GroupSettingsResponse {
 
-    private UUID groupId;
-    private String groupName;
-    private String groupCode;
+  @NonNull
+  UUID groupId;
+
+  @NonNull
+  String groupName;
+
+  @NonNull
+  String groupCode;
 }

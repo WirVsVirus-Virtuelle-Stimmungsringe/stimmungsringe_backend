@@ -2,20 +2,24 @@ package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.Sentiment;
 import java.time.Instant;
-import javax.validation.Valid;
 import lombok.Builder;
-import lombok.Data;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class MyTileResponse {
 
-    private UserMinimalResponse user;
+  @NonNull
+  UserMinimalResponse user;
 
-    private Sentiment sentiment;
+  @NonNull
+  Sentiment sentiment;
 
-    private String sentimentText;
+  @NonNull
+  String sentimentText;
 
-    private Instant lastStatusUpdate;
+  @NonNull
+  Instant lastStatusUpdate;
 
 }

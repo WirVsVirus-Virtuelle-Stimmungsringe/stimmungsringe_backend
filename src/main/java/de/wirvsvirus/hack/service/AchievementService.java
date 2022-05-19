@@ -13,7 +13,7 @@ import de.wirvsvirus.hack.service.dto.AchievementSplashTextAndAvatarDto;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,7 +51,7 @@ public class AchievementService {
     return Optional.empty();
   }
 
-  @Nonnull
+  @NonNull
   private Optional<AchievementSplashTextAndAvatarDto> calculateSunshineHours(
       User currentUser, Group group) {
     // sunshine hours
@@ -77,7 +77,7 @@ public class AchievementService {
     return Optional.empty();
   }
 
-  @Nonnull
+  @NonNull
   private Optional<AchievementSplashTextAndAvatarDto> calculateSample() {
     return Optional.empty();
   }

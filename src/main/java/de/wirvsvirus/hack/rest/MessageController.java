@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,16 +81,17 @@ public class MessageController {
         messageService.calcAvailableMessages(currentUser, recipient);
 
     return AvailableMessagesResponse.builder()
-        .messageTemplates(availableMessages.stream()
-            .map(template -> MessageTemplate.builder()
-                .used(template.isUsed())
-                .text(template.getText())
-                .build())
-            .collect(Collectors.toList()))
+        .messageTemplates(
+            StreamEx.of(availableMessages)
+                .map(template -> MessageTemplate.builder()
+                    .used(template.isUsed())
+                    .text(template.getText())
+                    .build())
+                .toList())
         .build();
   }
 
-  private MessageInboxResponse buildMessageInbox(User currentUser) {
+  private MessageInboxResponse buildMessageInbox(final User currentUser) {
 
     final List<Message> messages = onboardingRepository.findMessagesByRecipientId(
         currentUser.getUserId());
@@ -106,7 +108,7 @@ public class MessageController {
     return MessageInboxResponse.builder().messages(responseList).build();
   }
 
-  private UserMinimalResponse resolveSenderUser(UUID senderUserId) {
+  private UserMinimalResponse resolveSenderUser(final UUID senderUserId) {
     final User senderUser = onboardingRepository.lookupUserById(senderUserId);
     return Mappers.mapResponseFromDomain(senderUser,
         AvatarUrlResolver::getUserAvatarUrls);

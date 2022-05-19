@@ -1,7 +1,7 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.service.dto.DeviceType;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
@@ -10,7 +10,7 @@ public class SigninUserRequest {
     /**
      * 1:1 mapping from device to user identity
      */
-    @NotNull
+    @NotEmpty
     private String deviceIdentifier;
 
     // compat w/ old app
@@ -19,6 +19,7 @@ public class SigninUserRequest {
     /**
      * firebase push token
      */
+    @NotEmpty
     private String fcmToken;
 
 }

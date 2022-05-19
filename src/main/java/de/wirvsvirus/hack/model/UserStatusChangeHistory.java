@@ -1,10 +1,8 @@
 package de.wirvsvirus.hack.model;
 
-import com.google.common.base.Preconditions;
 import java.time.Instant;
 import java.util.UUID;
-import java.util.function.Predicate;
-import javax.annotation.Nonnull;
+import lombok.NonNull;
 import lombok.ToString;
 
 /**
@@ -20,7 +18,7 @@ public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject
   private String sentimentText;
   private Sentiment prevSentiment;
 
-  @Nonnull
+  @NonNull
   @Override
   public Instant getTimestamp() {
     return timestamp;
@@ -30,7 +28,7 @@ public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject
     this.timestamp = timestamp;
   }
 
-  @Nonnull
+  @NonNull
   public UUID getGroupId() {
     return groupId;
   }
@@ -39,7 +37,7 @@ public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject
     this.groupId = groupId;
   }
 
-  @Nonnull
+  @NonNull
   public UUID getUserId() {
     return userId;
   }
@@ -48,7 +46,7 @@ public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject
     this.userId = userId;
   }
 
-  @Nonnull
+  @NonNull
   public Sentiment getSentiment() {
     return sentiment;
   }
@@ -57,7 +55,7 @@ public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject
     this.sentiment = sentiment;
   }
 
-  @Nonnull
+  @NonNull
   public String getSentimentText() {
     return sentimentText;
   }
@@ -66,7 +64,7 @@ public class UserStatusChangeHistory implements HistoryObject, MicrostreamObject
     this.sentimentText = sentimentText;
   }
 
-  @Nonnull
+  @NonNull
   public Sentiment getPrevSentiment() {
     return prevSentiment;
   }

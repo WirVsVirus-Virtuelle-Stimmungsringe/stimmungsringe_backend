@@ -1,13 +1,16 @@
 package de.wirvsvirus.hack.rest.dto;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class MessageTemplate {
 
-    private boolean used;
-    private String text;
+  boolean used;
+
+  @NonNull
+  String text;
 
 }
