@@ -2,17 +2,24 @@ package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.Sentiment;
 import java.util.List;
-import lombok.Data;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
+@Builder
 public class OtherStatusPageResponse {
 
-    private UserMinimalResponse user;
+  @NonNull
+  UserMinimalResponse user;
 
-    private Sentiment sentiment;
+  @NonNull
+  Sentiment sentiment;
 
-    private String sentimentText;
+  @NonNull
+  String sentimentText;
 
-    private List<SuggestionResponse> suggestions;
+  @NonNull
+  List<SuggestionResponse> suggestions;
 
 }

@@ -4,33 +4,33 @@ import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Sentiment;
 import de.wirvsvirus.hack.model.User;
 import java.time.Instant;
-import javax.annotation.Nonnull;
+import lombok.NonNull;
 
 public interface HistoryLogSinkRepository {
 
   void logUserUpdatedStatus(
-      @Nonnull Instant timestamp,
-      @Nonnull Group group,
-      @Nonnull User user,
-      @Nonnull Sentiment sentiment,
-      @Nonnull String sentimentText,
-      @Nonnull Sentiment prevSentiment);
+      @NonNull Instant timestamp,
+      @NonNull Group group,
+      @NonNull User user,
+      @NonNull Sentiment sentiment,
+      @NonNull String sentimentText,
+      @NonNull Sentiment prevSentiment);
 
   void logUserStartedGroup(
-      @Nonnull Instant timestamp,
-      @Nonnull Group group,
-      @Nonnull User user
+      @NonNull Instant timestamp,
+      @NonNull Group group,
+      @NonNull User user
   );
 
   void logUserJoinedGroup(
-      @Nonnull Instant timestamp,
-      @Nonnull Group group,
-      @Nonnull User user
+      @NonNull Instant timestamp,
+      @NonNull Group group,
+      @NonNull User user
   );
 
   void logUserLeftGroup(
-      @Nonnull Instant timestamp,
-      @Nonnull Group group,
-      @Nonnull User user
+      @NonNull Instant timestamp,
+      @NonNull Group group,
+      @NonNull User user
   );
 }

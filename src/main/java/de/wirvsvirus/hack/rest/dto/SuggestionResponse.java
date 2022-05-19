@@ -1,10 +1,14 @@
 package de.wirvsvirus.hack.rest.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
+@Builder
 public class SuggestionResponse {
 
-    private String text;
+  @NonNull
+  String text;
 
 }

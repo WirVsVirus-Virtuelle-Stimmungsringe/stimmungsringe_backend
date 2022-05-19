@@ -11,7 +11,7 @@ import de.wirvsvirus.hack.repository.HistoryQueryRepository;
 import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.List;
-import javax.annotation.Nonnull;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -25,15 +25,15 @@ public class HistoryRepositoryMicrostream implements HistoryLogSinkRepository,
 
   @Autowired
   private Database database;
-  
+
   @Override
   public void logUserUpdatedStatus(
-      @Nonnull final Instant timestamp,
-      @Nonnull final Group group,
-      @Nonnull final User user,
-      @Nonnull final Sentiment sentiment,
-      @Nonnull final String sentimentText,
-      @Nonnull final Sentiment prevSentiment) {
+      @NonNull final Instant timestamp,
+      @NonNull final Group group,
+      @NonNull final User user,
+      @NonNull final Sentiment sentiment,
+      @NonNull final String sentimentText,
+      @NonNull final Sentiment prevSentiment) {
 
     final UserStatusChangeHistory change = new UserStatusChangeHistory();
     change.setTimestamp(timestamp);
@@ -54,9 +54,9 @@ public class HistoryRepositoryMicrostream implements HistoryLogSinkRepository,
 
   @Override
   public void logUserStartedGroup(
-      @Nonnull final Instant timestamp,
-      @Nonnull final Group group,
-      @Nonnull final User user
+      @NonNull final Instant timestamp,
+      @NonNull final Group group,
+      @NonNull final User user
   ) {
     final UserGroupMembershipHistory change = new UserGroupMembershipHistory();
     change.setTimestamp(timestamp);
@@ -74,9 +74,9 @@ public class HistoryRepositoryMicrostream implements HistoryLogSinkRepository,
 
   @Override
   public void logUserJoinedGroup(
-      @Nonnull final Instant timestamp,
-      @Nonnull final Group group,
-      @Nonnull final User user
+      @NonNull final Instant timestamp,
+      @NonNull final Group group,
+      @NonNull final User user
   ) {
     final UserGroupMembershipHistory change = new UserGroupMembershipHistory();
     change.setTimestamp(timestamp);
@@ -97,9 +97,9 @@ public class HistoryRepositoryMicrostream implements HistoryLogSinkRepository,
    */
   @Override
   public void logUserLeftGroup(
-      @Nonnull final Instant timestamp,
-      @Nonnull final Group group,
-      @Nonnull final User user
+      @NonNull final Instant timestamp,
+      @NonNull final Group group,
+      @NonNull final User user
   ) {
     final UserGroupMembershipHistory change = new UserGroupMembershipHistory();
     change.setTimestamp(timestamp);

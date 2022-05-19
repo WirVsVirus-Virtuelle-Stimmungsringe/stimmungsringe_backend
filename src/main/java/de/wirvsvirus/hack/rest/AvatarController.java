@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
@@ -60,7 +59,7 @@ public class AvatarController {
   }
 
   @GetMapping(value = FALLBACK_AVATAR_ENDPOINT)
-  public ResponseEntity<Resource> getFallbackAvatar() throws Throwable {
+  public ResponseEntity<Resource> getFallbackAvatar() {
     CacheControl cacheConfiguration = CacheControl
         .maxAge(30, TimeUnit.DAYS)
         .cachePublic();
@@ -69,7 +68,7 @@ public class AvatarController {
 
   @GetMapping(value = STOCK_AVATAR_ENDPOINT + "/{stockAvatar}")
   public ResponseEntity<Resource> getStockAvatar(
-      @NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) throws Throwable {
+      @NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) {
     CacheControl cacheConfiguration = CacheControl
         .maxAge(1, TimeUnit.DAYS)
         .cachePublic();
@@ -79,7 +78,7 @@ public class AvatarController {
 
   @GetMapping(value = STOCK_AVATAR_SVG_ENDPOINT + "/{stockAvatar}")
   public ResponseEntity<Resource> getStockAvatarSvg(
-      @NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) throws Throwable {
+      @NotNull @PathVariable("stockAvatar") final StockAvatar stockAvatar) {
     CacheControl cacheConfiguration = CacheControl
         .maxAge(1, TimeUnit.DAYS)
         .cachePublic();
@@ -88,23 +87,25 @@ public class AvatarController {
   }
 
   private ResponseEntity<Resource> copyResourceToResponse(final ClassPathResource avatarResource,
-      final CacheControl cacheConfiguration) throws Throwable {
-    final MediaType responseContentType = Optional.ofNullable(avatarResource.getFilename())
-        .map(filename -> {
-          if (filename.endsWith(".png")) {
-            return MediaType.IMAGE_PNG;
-          } else if (filename.endsWith(".jpg")) {
-            return MediaType.IMAGE_JPEG;
-          } else if (filename.endsWith(".svg")) {
-            return new MediaType("image", "svg+xml");
-          } else {
-            throw new IllegalStateException(
-                String.format("Unknown image file extension: %s", filename));
-          }
-        }).orElseThrow(() -> {
-          throw new IllegalStateException(
-              String.format("Resource has no file name: %s", avatarResource));
-        });
+      final CacheControl cacheConfiguration) {
+    final String filename = avatarResource.getFilename();
+
+    if (filename == null) {
+      throw new IllegalStateException(
+          String.format("Resource has no file name: %s", avatarResource));
+    }
+
+    final MediaType responseContentType;
+    if (filename.endsWith(".png")) {
+      responseContentType = MediaType.IMAGE_PNG;
+    } else if (filename.endsWith(".jpg")) {
+      responseContentType = MediaType.IMAGE_JPEG;
+    } else if (filename.endsWith(".svg")) {
+      responseContentType = new MediaType("image", "svg+xml");
+    } else {
+      throw new IllegalStateException(
+          String.format("Unknown image file extension: %s", filename));
+    }
 
     return ResponseEntity.ok()
         .contentType(responseContentType)

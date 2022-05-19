@@ -40,142 +40,145 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class OnboardingController {
 
-    @Autowired
-    private OnboardingService onboardingService;
+  @Autowired
+  private OnboardingService onboardingService;
 
-    @Autowired
-    private OnboardingRepository onboardingRepository;
+  @Autowired
+  private OnboardingRepository onboardingRepository;
 
-    @Autowired
-    private PushNotificationService pushNotificationService;
+  @Autowired
+  private PushNotificationService pushNotificationService;
 
-    /**
-     * unauthenticated - see @link {@link UserInterceptor}
-     */
-    @PutMapping("/signin")
-    public SigninUserResponse signin(@RequestBody @Valid final SigninUserRequest request) {
+  /**
+   * unauthenticated - see @link {@link UserInterceptor}
+   */
+  @PutMapping("/signin")
+  public SigninUserResponse signin(@RequestBody @Valid final SigninUserRequest request) {
 
-        final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
-        final String userId = signinResult.getUserId().toString();
-        if (request.getFcmToken() != null) {
-            pushNotificationService.registerFcmTokenForUser(signinResult.getUserId(),
-                request.getDeviceIdentifier(),
-                DeviceType.valueOf(request.getDeviceType()),
-                request.getFcmToken());
-        }
-
-        if (signinResult.getGroup().isPresent()) {
-            final Group group = signinResult.getGroup().get();
-            return
-                    SigninUserResponse.builder()
-                            .userId(userId)
-                            .hasGroup(true)
-                            .groupId(group.getGroupId().toString())
-                            .groupName(group.getGroupName())
-                            .build();
-
-        } else {
-            return
-                    SigninUserResponse.builder()
-                            .userId(userId)
-                            .hasGroup(false)
-                            .build();
-
-        }
+    final UserSignedInDto signinResult = onboardingService.signin(request.getDeviceIdentifier());
+    final String userId = signinResult.getUserId().toString();
+    if (request.getFcmToken() != null) {
+      pushNotificationService.registerFcmTokenForUser(signinResult.getUserId(),
+          request.getDeviceIdentifier(),
+          DeviceType.valueOf(request.getDeviceType()),
+          request.getFcmToken());
     }
 
-    @PutMapping("/user/settings")
-    public void updateUserSettings(@RequestBody @Valid final UpdateUserSettingsRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    if (signinResult.getGroup().isPresent()) {
+      final Group group = signinResult.getGroup().get();
+      return
+          SigninUserResponse.builder()
+              .userId(userId)
+              .hasGroup(true)
+              .groupId(group.getGroupId().toString())
+              .groupName(group.getGroupName())
+              .build();
 
-        onboardingService.updateUser(user,
-                UserSettingsDto.builder()
-                        .name(request.getName())
-                        .stockAvatar(request.getStockAvatar())
-                        .build());
+    } else {
+      return
+          SigninUserResponse.builder()
+              .userId(userId)
+              .hasGroup(false)
+              .build();
 
     }
+  }
 
-    @PutMapping("/group/{groupId}/settings")
-    public void updateGroupSettings(@RequestBody @Valid final UpdateGroupSettingsRequest request,
-                                    @NotNull @PathVariable("groupId") final UUID groupId) {
+  @PutMapping("/user/settings")
+  public void updateUserSettings(@RequestBody @Valid final UpdateUserSettingsRequest request) {
+    final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-        final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
-
-        onboardingService.updateGroup(group,
-                GroupSettingsDto.builder()
-                        .groupName(request.getGroupName())
-                        .build());
-    }
-
-
-    /**
-     * used for group settings
-     */
-    @GetMapping("/user/settings")
-    public UserSettingsResponse getUserSettings() {
-
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
-        return UserSettingsResponse.builder()
-                .hasName(user.hasName())
-                .userName(user.getName())
-                .stockAvatar(user.getStockAvatar())
-                .build();
-    }
-
-    /**
-     * used for group settings
-     */
-    @GetMapping("/group/{groupId}/settings")
-    public GroupSettingsResponse getGroupSettings(@NotNull @PathVariable("groupId") final UUID groupId) {
-
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
-        final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
-
-        return GroupSettingsResponse.builder()
-                .groupId(group.getGroupId())
-                .groupName(group.getGroupName())
-                .groupCode(group.getGroupCode())
-                .build();
-    }
-
-    @PutMapping("/group/join")
-    public ResponseEntity<GroupDataResponse> joinGroup(@RequestBody @Valid final JoinGroupRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
-
-        final Optional<Group> joinedGroup = onboardingService.joinGroup(request.getGroupCode(), user);
-
-        if (!joinedGroup.isPresent()) {
-            return ResponseEntity.noContent().build();
-        }
-        final Group group = joinedGroup.get();
-
-        return ResponseEntity.ok(GroupDataResponse.builder()
-            .groupId(group.getGroupId())
-            .groupCode(group.getGroupCode())
-            .groupName(group.getGroupName())
+    onboardingService.updateUser(user,
+        UserSettingsDto.builder()
+            .name(request.getName())
+            .stockAvatar(request.getStockAvatar())
             .build());
+
+  }
+
+  @PutMapping("/group/{groupId}/settings")
+  public void updateGroupSettings(@RequestBody @Valid final UpdateGroupSettingsRequest request,
+      @NotNull @PathVariable("groupId") final UUID groupId) {
+
+    final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
+
+    onboardingService.updateGroup(group,
+        GroupSettingsDto.builder()
+            .groupName(request.getGroupName())
+            .build());
+  }
+
+
+  /**
+   * used for group settings
+   */
+  @GetMapping("/user/settings")
+  public UserSettingsResponse getUserSettings() {
+
+    final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    return UserSettingsResponse.builder()
+        .hasName(user.hasName())
+        .userName(user.getName())
+        .stockAvatar(user.getStockAvatar())
+        .build();
+  }
+
+  /**
+   * used for group settings
+   */
+  @GetMapping("/group/{groupId}/settings")
+  public GroupSettingsResponse getGroupSettings(
+      @NotNull @PathVariable("groupId") final UUID groupId) {
+
+    final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    final Group group = onboardingService.lookupGroupCheckPermissions(groupId);
+
+    return GroupSettingsResponse.builder()
+        .groupId(group.getGroupId())
+        .groupName(group.getGroupName())
+        .groupCode(group.getGroupCode())
+        .build();
+  }
+
+  @PutMapping("/group/join")
+  public ResponseEntity<GroupDataResponse> joinGroup(
+      @RequestBody @Valid final JoinGroupRequest request) {
+    final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+
+    final Optional<Group> joinedGroup = onboardingService.joinGroup(request.getGroupCode(), user);
+
+    if (!joinedGroup.isPresent()) {
+      return ResponseEntity.noContent().build();
     }
+    final Group group = joinedGroup.get();
 
-    @PutMapping("/group/leave")
-    public void leaveGroup(@RequestBody @Valid final LeaveGroupRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    return ResponseEntity.ok(GroupDataResponse.builder()
+        .groupId(group.getGroupId())
+        .groupCode(group.getGroupCode())
+        .groupName(group.getGroupName())
+        .build());
+  }
 
-        onboardingService.leaveGroup(request.getGroupId(), user);
-    }
+  @PutMapping("/group/leave")
+  public void leaveGroup(@RequestBody @Valid final LeaveGroupRequest request) {
+    final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-    @PostMapping("/group/start")
-    public ResponseEntity<GroupDataResponse> startNewGroup(@RequestBody @Valid final StartNewGroupRequest request) {
-        final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
+    onboardingService.leaveGroup(request.getGroupId(), user);
+  }
 
-        final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
-        return ResponseEntity.ok(
-            GroupDataResponse.builder()
-                        .groupId(newGroup.getGroupId())
-                        .groupName(newGroup.getGroupName())
-                        .groupCode(newGroup.getGroupCode())
-                        .build());
+  @PostMapping("/group/start")
+  public ResponseEntity<GroupDataResponse> startNewGroup(
+      @RequestBody @Valid final StartNewGroupRequest request) {
+    final User user = onboardingRepository.lookupUserById(UserInterceptor.getCurrentUserId());
 
-    }
+    final Group newGroup = onboardingService.startNewGroup(user, request.getGroupName());
+    return ResponseEntity.ok(
+        GroupDataResponse.builder()
+            .groupId(newGroup.getGroupId())
+            .groupName(newGroup.getGroupName())
+            .groupCode(newGroup.getGroupCode())
+            .build());
+
+  }
 
 }

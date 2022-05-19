@@ -1,11 +1,10 @@
 package de.wirvsvirus.hack.model;
 
-import com.google.common.base.Preconditions;
 import java.time.Instant;
 import java.util.UUID;
-import java.util.function.Predicate;
-import javax.annotation.Nonnull;
+import lombok.NonNull;
 import lombok.ToString;
+
 
 @ToString
 public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObject {
@@ -25,7 +24,7 @@ public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObj
   private Change change;
 
   @Override
-  @Nonnull
+  @NonNull
   public Instant getTimestamp() {
     return timestamp;
   }
@@ -34,7 +33,7 @@ public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObj
     this.timestamp = timestamp;
   }
 
-  @Nonnull
+  @NonNull
   public UUID getGroupId() {
     return groupId;
   }
@@ -43,7 +42,7 @@ public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObj
     this.groupId = groupId;
   }
 
-  @Nonnull
+  @NonNull
   public UUID getUserId() {
     return userId;
   }
@@ -52,7 +51,7 @@ public class UserGroupMembershipHistory implements HistoryObject, MicrostreamObj
     this.userId = userId;
   }
 
-  @Nonnull
+  @NonNull
   public Change getChange() {
     return change;
   }

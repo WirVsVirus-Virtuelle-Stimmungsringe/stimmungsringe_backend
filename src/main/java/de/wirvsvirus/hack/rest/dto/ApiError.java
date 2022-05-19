@@ -2,12 +2,14 @@ package de.wirvsvirus.hack.rest.dto;
 
 import java.util.List;
 import lombok.Builder;
-import lombok.Data;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class ApiError {
 
-    private List<String> errors;
+  @NonNull
+  List<String> errors;
 
 }

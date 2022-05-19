@@ -2,14 +2,19 @@ package de.wirvsvirus.hack.rest.dto;
 
 import java.time.Instant;
 import lombok.Builder;
-import lombok.Data;
+import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class MessageResponse {
 
-    private Instant createdAt;
-    private UserMinimalResponse senderUser;
-    private String text;
+  @NonNull
+  Instant createdAt;
 
+  @NonNull
+  UserMinimalResponse senderUser;
+
+  @NonNull
+  String text;
 }
