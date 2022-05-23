@@ -14,6 +14,10 @@ public class AvatarService {
     return new ClassPathResource("/images/stockavatars/avatar-fallback.png");
   }
 
+  public ClassPathResource getFallbackAvatarSvgResource() {
+    return new ClassPathResource("/images/stockavatars/avatar-fallback.svg");
+  }
+
   public ClassPathResource getStockAvatarResource(StockAvatar stockAvatar) {
     // for the time being, we will serve all SVG avatars as PNGs as fallback for older clients
     Preconditions.checkArgument(stockAvatar != null, "stockAvatar must be set!");
@@ -25,7 +29,6 @@ public class AvatarService {
 
   public ClassPathResource getStockAvatarSvgResource(StockAvatar stockAvatar) {
     Preconditions.checkArgument(stockAvatar != null, "stockAvatar must be set!");
-    Preconditions.checkArgument(stockAvatar.isSvgImage, "stockAvatar must be an SVG image");
 
     return new ClassPathResource(
         String.format("/images/stockavatars/%s.svg", stockAvatar.name().toLowerCase())

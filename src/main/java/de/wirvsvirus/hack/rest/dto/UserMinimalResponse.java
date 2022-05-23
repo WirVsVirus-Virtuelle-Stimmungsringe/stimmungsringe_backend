@@ -21,7 +21,7 @@ public class UserMinimalResponse {
   @NonNull
   String avatarUrl;
 
-  @Nullable
+  @NonNull
   String avatarSvgUrl;
 
 }

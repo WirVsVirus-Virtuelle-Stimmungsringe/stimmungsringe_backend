@@ -8,12 +8,12 @@
       <param>
         <option name="enabled" value="true" />
         <option name="name" value="backend.microstream.storage-path" />
-        <option name="value" value="file:$PROJECT_DIR$/../database-micro" />
+        <option name="value" value="file:$PROJECT_DIR$/database-micro" />
       </param>
       <param>
         <option name="enabled" value="true" />
         <option name="name" value="backend.microstream.backup-path" />
-        <option name="value" value="file:$PROJECT_DIR$/../database-micro-backup" />
+        <option name="value" value="file:$PROJECT_DIR$/database-micro-backup" />
       </param>
     </additionalParameters>
     <method v="2">

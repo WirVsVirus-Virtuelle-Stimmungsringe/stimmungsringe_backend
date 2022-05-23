@@ -22,24 +22,28 @@ public enum StockAvatar {
   NEAT_WOMAN,
   RAPPER_KID,
   YOUNG_TRUMP,
-  HIPSTER_SUMO_HAIR(true),
-  SKELETON_DEATH(true),
-  PIG_SHAMROCK(true),
-  LEPRECHAUN(true),
-  ICEBEAR(true),
-  GIRL_HAPPY_WITH_HAIR(true),
-  MAN_SWEATING(true),
-  GIRL_YELLOW(true),
-  CUTE_REDHAIR(true),
-  KANGAROO_KNOCKED_OUT(true);
+  CUTE_REDHAIR,
+  SUNNY_HIPSTER(false),
+  SUNNY_GIRL_WITH_FLOWER(false),
+  SUNNY_GIRL_WITH_HAT(false),
+  SUNNY_SPORTSMAN_SWEATING(false),
+  SUNNY_KANGAROO_KNOCKED_OUT(false),
+  SKELETON_DEATH(false),
+  LEPRECHAUN(false),
+  PIG_SHAMROCK(false),
+  ICEBEAR(false);
 
-  public final boolean isSvgImage;
+  private final boolean isSelectableInProfile;
 
   StockAvatar() {
-    this(false);
+    this(true);
   }
 
-  StockAvatar(boolean isSvgImage) {
-    this.isSvgImage = isSvgImage;
+  StockAvatar(boolean isSelectableInProfile) {
+    this.isSelectableInProfile = isSelectableInProfile;
+  }
+
+  public boolean isSelectableInProfile() {
+    return isSelectableInProfile;
   }
 }

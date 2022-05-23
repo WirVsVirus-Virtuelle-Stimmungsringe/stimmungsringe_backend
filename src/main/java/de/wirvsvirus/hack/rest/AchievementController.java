@@ -66,7 +66,7 @@ public class AchievementController {
                 .headline(splashDto.getHeadline())
                 .bodyText(splashDto.getBodyText())
                 .avatarUrl(stockAvatarUrls.getAvatarUrl())
-                .avatarSvgUrl(stockAvatarUrls.getAvatarSvgUrl().orElse(null))
+                .avatarSvgUrl(stockAvatarUrls.getAvatarSvgUrl())
                 .gradientColors(splashDto.getGradientColors())
                 .pageIcon("🏆") // https://emojipedia.org/trophy/
                 .ackButtonColor(splashDto.getAckButtonColor())

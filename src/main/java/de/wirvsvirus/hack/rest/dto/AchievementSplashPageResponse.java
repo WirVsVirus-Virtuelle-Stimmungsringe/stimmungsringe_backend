@@ -2,7 +2,6 @@ package de.wirvsvirus.hack.rest.dto;
 
 import de.wirvsvirus.hack.model.AchievementType;
 import java.util.List;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -33,7 +32,7 @@ public class AchievementSplashPageResponse {
   @NonNull
   String avatarUrl;
 
-  @Nullable
+  @NonNull
   String avatarSvgUrl;
 
   // not empty - unicode text (e.g. heart or trophy)
