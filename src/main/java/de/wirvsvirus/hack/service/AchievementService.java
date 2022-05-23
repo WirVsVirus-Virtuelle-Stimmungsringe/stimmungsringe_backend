@@ -95,10 +95,10 @@ public class AchievementService {
         stockAvatar = StockAvatar.LEPRECHAUN;
         break;
       case 3:
-        stockAvatar = StockAvatar.HIPSTER_SUMO_HAIR;
+        stockAvatar = StockAvatar.SUNNY_HIPSTER;
         break;
       case 4:
-        stockAvatar = StockAvatar.GIRL_YELLOW;
+        stockAvatar = StockAvatar.SUNNY_GIRL_WITH_FLOWER;
         break;
       case 5:
         stockAvatar = StockAvatar.PIG_SHAMROCK;

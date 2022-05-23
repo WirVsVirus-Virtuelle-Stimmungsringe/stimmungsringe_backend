@@ -32,6 +32,7 @@ public class AvatarController {
 
   static final String CONTROLLER_PATH = "/avatar";
   static final String FALLBACK_AVATAR_ENDPOINT = "/fallback";
+  static final String FALLBACK_AVATAR_SVG_ENDPOINT = "/fallback/svg";
   static final String STOCK_AVATAR_ENDPOINT = "/stock";
   static final String STOCK_AVATAR_SVG_ENDPOINT = "/stock/svg";
 
@@ -42,12 +43,13 @@ public class AvatarController {
   public AvailableAvatarsResponse getAvailableAvatars() {
     final List<AvailableAvatarsResponse.StockAvatarResponse> stockAvatarResponses =
         Arrays.stream(StockAvatar.values())
+            .filter(StockAvatar::isSelectableInProfile)
             .map(stockAvatar -> {
                   final AvatarUrls stockAvatarUrls = AvatarUrlResolver.getStockAvatarUrls(stockAvatar);
                   return AvailableAvatarsResponse.StockAvatarResponse.builder()
                       .avatarName(stockAvatar.name())
                       .avatarUrl(stockAvatarUrls.getAvatarUrl())
-                      .avatarSvgUrl(stockAvatarUrls.getAvatarSvgUrl().orElse(null))
+                      .avatarSvgUrl(stockAvatarUrls.getAvatarSvgUrl())
                       .build();
                 }
             )
@@ -64,6 +66,14 @@ public class AvatarController {
         .maxAge(30, TimeUnit.DAYS)
         .cachePublic();
     return copyResourceToResponse(avatarService.getFallbackAvatarResource(), cacheConfiguration);
+  }
+
+  @GetMapping(value = FALLBACK_AVATAR_SVG_ENDPOINT)
+  public ResponseEntity<Resource> getFallbackAvatarSvg() {
+    CacheControl cacheConfiguration = CacheControl
+        .maxAge(30, TimeUnit.DAYS)
+        .cachePublic();
+    return copyResourceToResponse(avatarService.getFallbackAvatarSvgResource(), cacheConfiguration);
   }
 
   @GetMapping(value = STOCK_AVATAR_ENDPOINT + "/{stockAvatar}")

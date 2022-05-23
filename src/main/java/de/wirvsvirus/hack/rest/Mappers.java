@@ -16,7 +16,7 @@ public final class Mappers {
         .hasName(user.hasName())
         .displayName(user.getName())
         .avatarUrl(avatarUrls.getAvatarUrl())
-        .avatarSvgUrl(avatarUrls.getAvatarSvgUrl().orElse(null))
+        .avatarSvgUrl(avatarUrls.getAvatarSvgUrl())
         .build();
   }
 
