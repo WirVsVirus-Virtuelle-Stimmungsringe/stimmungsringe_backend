@@ -37,4 +37,6 @@ public class MigrationMetadata implements MicrostreamObject {
 
   boolean historyOfGroupMembershipInitialized;
 
+  boolean achievementShownStatusByUserInitialized;
+
 }

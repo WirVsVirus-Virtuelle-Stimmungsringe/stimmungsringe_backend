@@ -1,6 +1,9 @@
 package de.wirvsvirus.hack.repository.microstream;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import de.wirvsvirus.hack.model.AchievementShownStatus;
+import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -14,12 +17,16 @@ import de.wirvsvirus.hack.spring.Database;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnegative;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
@@ -380,4 +387,32 @@ public class OnboardingRepositoryMicrostream implements OnboardingRepository {
         });
   }
 
+  @Override
+  @Nonnegative
+  public int findLastLevelUpShown(UUID userId, AchievementType achievementType) {
+    final Map<AchievementType, AchievementShownStatus> byType = database.dataRoot()
+        .getAchievementShownStatusByUserAndType().get(userId);
+    if (byType == null) {
+      return 0;
+    }
+    final AchievementShownStatus status = byType.get(achievementType);
+    if (status == null) {
+      return 0;
+    }
+    return status.getLevel();
+  }
+
+  @Override
+  public void ackAchievementShowAtLevel(UUID userId, AchievementType achievementType, int level) {
+    final AchievementShownStatus shownStatus = new AchievementShownStatus();
+    shownStatus.setShownAt(Instant.now());
+    shownStatus.setLevel(level);
+
+    database.dataRoot().getAchievementShownStatusByUserAndType()
+            .computeIfAbsent(userId, _userId -> new HashMap<>());
+
+    database.dataRoot().getAchievementShownStatusByUserAndType()
+        .get(userId).put(achievementType, shownStatus);
+    database.persist(database.dataRoot().getAchievementShownStatusByUserAndType().get(userId));
+  }
 }

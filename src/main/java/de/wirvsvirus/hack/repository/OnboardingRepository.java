@@ -1,5 +1,6 @@
 package de.wirvsvirus.hack.repository;
 
+import de.wirvsvirus.hack.model.AchievementType;
 import de.wirvsvirus.hack.model.Device;
 import de.wirvsvirus.hack.model.Group;
 import de.wirvsvirus.hack.model.Message;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
+import javax.annotation.Nonnegative;
 
 public interface OnboardingRepository {
 //    static Optional<String> findGroupNameForUser(UUID userId) {
@@ -77,4 +79,14 @@ public interface OnboardingRepository {
 
     void deleteUser(UUID userId);
 
+    /**
+     * @return last level presented (and acked); "0" if never shown
+     */
+    @Nonnegative
+    int findLastLevelUpShown(UUID userId, AchievementType achievementType);
+
+    /**
+     * @param level level the user has been shown
+     */
+    void ackAchievementShowAtLevel(UUID userId, AchievementType achievementType, int level);
 }

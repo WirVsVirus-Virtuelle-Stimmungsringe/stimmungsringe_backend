@@ -217,6 +217,19 @@ public class DatabaseMigration {
       database.persist(groupMembership);
     }
 
+    if (!migrationMetadata.isAchievementShownStatusByUserInitialized()) {
+      migrationMetadata.setAchievementShownStatusByUserInitialized(true);
+      database.persist(migrationMetadata);
+
+      if (database.dataRoot().getAchievementShownStatusByUserAndType() == null) {
+        database.dataRoot().setAchievementShownStatusByUserAndType(new HashMap<>());
+        storageManager.storeRoot();
+      }
+    }
+
+
+    // ^^^ insert migrations above this fold
+
     if (migrationMetadata.hashCode() == prevMigrationHash) {
       log.info("Keep migration metadata unchanged: {}", migrationMetadata);
     } else {
