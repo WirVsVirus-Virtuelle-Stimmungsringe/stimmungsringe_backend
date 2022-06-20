@@ -59,6 +59,11 @@ public class AchievementService {
     Duration sunshine =
         statsService.calcSunshineTimeForGroup(group.getGroupId(), Instant.now());
 
+    if ("Let the sun shine!".equals(group.getGroupName())) {
+      System.out.println("dummy hours - famteam");
+      sunshine = Duration.ofHours(2500);
+    }
+
     if (sunshine.isZero()) {
       System.out.println("dummy hours");
       sunshine = Duration.ofHours(2500);
